@@ -678,7 +678,7 @@ int main(int argc, char *argv[]) {
     double temp_dist2;
     double ionPosition[3], position[3];
     double water1[9], water2[9];
-    double boxLength[3];
+    double boxLength[3], hmat[9];
     double tempPosX[8], tempPosY[8], tempPosZ[8];
     double diffVal;
     double ringProbabilities[9];
@@ -756,7 +756,7 @@ int main(int argc, char *argv[]) {
     ofstream outputer(fileName);
     ofstream outputer_xyz(trajFileName);
     ofstream outputer_pov(povFileName);
-    ofstream outputer_dist_pov(povDistName);
+    //ofstream outputer_dist_pov(povDistName);
 
     // initialize our calculator
     Calcs *calculator = new Calcs(); 
@@ -873,6 +873,39 @@ int main(int argc, char *argv[]) {
         token = strtok(NULL,delimit);
         strcpy(inValue,token);
         boxLength[2] = atof(inValue) * 10.0;	
+        
+        hmat[0] = boxLength[0];
+        hmat[4] = boxLength[1];
+        hmat[8] = boxLength[2];
+
+        // and load the rest of the box cell matrix (hmat) using gromacs form.
+        token = strtok(NULL,delimit);
+        if (token != NULL){
+            strcpy(inValue,token);
+            hmat[1] = atof(inValue) * 10.0;   
+            token = strtok(NULL,delimit);
+            strcpy(inValue,token);
+            hmat[2] = atof(inValue) * 10.0;   
+            token = strtok(NULL,delimit);
+            strcpy(inValue,token);
+            hmat[3] = atof(inValue) * 10.0;   
+            token = strtok(NULL,delimit);
+            strcpy(inValue,token);
+            hmat[5] = atof(inValue) * 10.0;   
+            token = strtok(NULL,delimit);
+            strcpy(inValue,token);
+            hmat[6] = atof(inValue) * 10.0;   
+            token = strtok(NULL,delimit);
+            strcpy(inValue,token);
+            hmat[7] = atof(inValue) * 10.0;   
+        } else {
+            hmat[1] = 0;
+            hmat[2] = 0;
+            hmat[3] = 0;
+            hmat[5] = 0;
+            hmat[6] = 0;
+            hmat[7] = 0;
+        }
 
         // okay, let's do some calculations on this frame
 
@@ -2056,6 +2089,7 @@ int main(int argc, char *argv[]) {
         ring5members.clear();
         ring6members.clear();
         ring7members.clear();
+        ring8members.clear();
         hbondCount = 0;
         lastRing3 = 0;
         lastRing4 = 0;
