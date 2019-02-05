@@ -40,7 +40,8 @@ class Calcs {
     public:
         Calcs();
         ~Calcs();
-        int IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]);
+        //int IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]);
+        int IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3]);
     private:
         bool printFlag;
 };
@@ -52,49 +53,67 @@ Calcs::Calcs() {
 Calcs::~Calcs() {
 }
 
-int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]){
+//int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]){
+int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3]){
     // a function to identify if there is an HBond between 3 point water models
     int isHBond = 0;
-    double r, r2, ri, xVal, yVal, zVal, tempAngle;
-    double vec1[3], vec2[3];
+    //double r, r2, ri, xVal, yVal, zVal, tempAngle;
+    int k;
+    double r, r2, ri, tempAngle;
+    double posVec[3], vec1[3], vec2[3];
+    double scaledVec[3];
 
     // the 9 positions are sorted by O(x,y,z), H1(x,y,z), H2(x,y,z)
     // first, we do the O-O vector
-    xVal = pos2[0]-pos1[0];
-    yVal = pos2[1]-pos1[1];
-    zVal = pos2[2]-pos1[2];
+    posVec[0] = pos2[0]-pos1[0];
+    posVec[1] = pos2[1]-pos1[1];
+    posVec[2] = pos2[2]-pos1[2];
 
-    // do minimum image filter...
-    xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
-    yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
-    zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+    // // do minimum image filter...
+    // xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
+    // yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
+    // zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+    // do vector wrapping of periodic boundary conditions
+    for (k=0; k<3; k++){
+        scaledVec[k] = posVec[k] * ihmatrix[k][k];
+        scaledVec[k] -= round(scaledVec[k]); 
+        posVec[k] = scaledVec[k] * hmatrix[k][k];
+    }
 
     // here, we take care of normalization 
-    r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+    // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
     r = sqrt(r2);
     ri = 1.0 / r;
 
-    vec1[0] = xVal * ri;
-    vec1[1] = yVal * ri;
-    vec1[2] = zVal * ri;
+    vec1[0] = posVec[0] * ri;
+    vec1[1] = posVec[1] * ri;
+    vec1[2] = posVec[2] * ri;
 
     // the O-H1
-    xVal = pos1[3]-pos1[0];
-    yVal = pos1[4]-pos1[1];
-    zVal = pos1[5]-pos1[2];
-    // do minimum image filter...
-    xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
-    yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
-    zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+    posVec[0] = pos1[3]-pos1[0];
+    posVec[1] = pos1[4]-pos1[1];
+    posVec[2] = pos1[5]-pos1[2];
+    // // do minimum image filter...
+    // xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
+    // yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
+    // zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+    // do vector wrapping of periodic boundary conditions
+    for (k=0; k<3; k++){
+        scaledVec[k] = posVec[k] * ihmatrix[k][k];
+        scaledVec[k] -= round(scaledVec[k]); 
+        posVec[k] = scaledVec[k] * hmatrix[k][k];
+    }
 
     // here, we take care of normalization 
-    r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+    // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
     r = sqrt(r2);
     ri = 1.0 / r;
 
-    vec2[0] = xVal * ri;
-    vec2[1] = yVal * ri;
-    vec2[2] = zVal * ri;
+    vec2[0] = posVec[0] * ri;
+    vec2[1] = posVec[1] * ri;
+    vec2[2] = posVec[2] * ri;
     // vec2[0] = xVal * OH_length_i;
     // vec2[1] = yVal * OH_length_i;
     // vec2[2] = zVal * OH_length_i;
@@ -107,22 +126,29 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]){
         // continue down the rabbit hole
 
         // the O-H2
-        xVal = pos1[6]-pos1[0];
-        yVal = pos1[7]-pos1[1];
-        zVal = pos1[8]-pos1[2];
-        // do minimum image filter...
-        xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
-        yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
-        zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+        posVec[0] = pos1[6]-pos1[0];
+        posVec[1] = pos1[7]-pos1[1];
+        posVec[2] = pos1[8]-pos1[2];
+        // // do minimum image filter...
+        // xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
+        // yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
+        // zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+        // do vector wrapping of periodic boundary conditions
+        for (k=0; k<3; k++){
+            scaledVec[k] = posVec[k] * ihmatrix[k][k];
+            scaledVec[k] -= round(scaledVec[k]); 
+            posVec[k] = scaledVec[k] * hmatrix[k][k];
+        }
 
         // here, we take care of normalization 
-        r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+        // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
         r = sqrt(r2);
         ri = 1.0 / r;
 
-        vec2[0] = xVal * ri;
-        vec2[1] = yVal * ri;
-        vec2[2] = zVal * ri;
+        vec2[0] = posVec[0] * ri;
+        vec2[1] = posVec[1] * ri;
+        vec2[2] = posVec[2] * ri;
         //    vec2[0] = xVal * OH_length_i;
         //    vec2[1] = yVal * OH_length_i;
         //    vec2[2] = zVal * OH_length_i;
@@ -140,22 +166,29 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]){
             vec1[2] *= -1;
 
             // the O-H1
-            xVal = pos2[3]-pos2[0];
-            yVal = pos2[4]-pos2[1];
-            zVal = pos2[5]-pos2[2];
-            // do minimum image filter...
-            xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
-            yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
-            zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+            posVec[0] = pos2[3]-pos2[0];
+            posVec[1] = pos2[4]-pos2[1];
+            posVec[2] = pos2[5]-pos2[2];
+            // // do minimum image filter...
+            // xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
+            // yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
+            // zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+            // do vector wrapping of periodic boundary conditions
+            for (k=0; k<3; k++){
+                scaledVec[k] = posVec[k] * ihmatrix[k][k];
+                scaledVec[k] -= round(scaledVec[k]); 
+                posVec[k] = scaledVec[k] * hmatrix[k][k];
+            }
 
             // here, we take care of normalization 
-            r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+            // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
             r = sqrt(r2);
             ri = 1.0 / r;
 
-            vec2[0] = xVal * ri;
-            vec2[1] = yVal * ri;
-            vec2[2] = zVal * ri;
+            vec2[0] = posVec[0] * ri;
+            vec2[1] = posVec[1] * ri;
+            vec2[2] = posVec[2] * ri;
             //        vec2[0] = xVal * OH_length_i;
             //        vec2[1] = yVal * OH_length_i;
             //        vec2[2] = zVal * OH_length_i;
@@ -168,22 +201,29 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]){
                 // last level... I promise...
 
                 // the O-H2
-                xVal = pos2[6]-pos2[0];
-                yVal = pos2[7]-pos2[1];
-                zVal = pos2[8]-pos2[2];
-                // do minimum image filter...
-                xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
-                yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
-                zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+                posVec[0] = pos2[6]-pos2[0];
+                posVec[1] = pos2[7]-pos2[1];
+                posVec[2] = pos2[8]-pos2[2];
+                // // do minimum image filter...
+                // xVal -= box[0]*copysign(1.0,xVal)*floor(fabs(xVal/box[0])+0.5);
+                // yVal -= box[1]*copysign(1.0,yVal)*floor(fabs(yVal/box[1])+0.5);
+                // zVal -= box[2]*copysign(1.0,zVal)*floor(fabs(zVal/box[2])+0.5);
+                // do vector wrapping of periodic boundary conditions
+                for (k=0; k<3; k++){
+                    scaledVec[k] = posVec[k] * ihmatrix[k][k];
+                    scaledVec[k] -= round(scaledVec[k]); 
+                    posVec[k] = scaledVec[k] * hmatrix[k][k];
+                }
 
                 // here, we take care of normalization 
-                r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+                // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
+                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
                 r = sqrt(r2);
                 ri = 1.0 / r;
 
-                vec2[0] = xVal * ri;
-                vec2[1] = yVal * ri;
-                vec2[2] = zVal * ri;
+                vec2[0] = posVec[0] * ri;
+                vec2[1] = posVec[1] * ri;
+                vec2[2] = posVec[2] * ri;
                 //            vec2[0] = xVal * OH_length_i;
                 //            vec2[1] = yVal * OH_length_i;
                 //            vec2[2] = zVal * OH_length_i;
@@ -678,7 +718,10 @@ int main(int argc, char *argv[]) {
     double temp_dist2;
     double ionPosition[3], position[3];
     double water1[9], water2[9];
-    double boxLength[3], hmat[9];
+    double pos[3], scaled[3];
+    double boxLength[3];
+    double hmat[3][3], invhmat[3][3];
+    double determinant, invdeterminant;
     double tempPosX[8], tempPosY[8], tempPosZ[8];
     double diffVal;
     double ringProbabilities[9];
@@ -874,37 +917,51 @@ int main(int argc, char *argv[]) {
         strcpy(inValue,token);
         boxLength[2] = atof(inValue) * 10.0;	
         
-        hmat[0] = boxLength[0];
-        hmat[4] = boxLength[1];
-        hmat[8] = boxLength[2];
+        hmat[0][0] = boxLength[0];
+        hmat[1][1] = boxLength[1];
+        hmat[2][2] = boxLength[2];
 
         // and load the rest of the box cell matrix (hmat) using gromacs form.
         token = strtok(NULL,delimit);
         if (token != NULL){
             strcpy(inValue,token);
-            hmat[1] = atof(inValue) * 10.0;   
+            hmat[0][1] = atof(inValue) * 10.0;   
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[2] = atof(inValue) * 10.0;   
+            hmat[0][2] = atof(inValue) * 10.0;   
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[3] = atof(inValue) * 10.0;   
+            hmat[1][0] = atof(inValue) * 10.0;   
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[5] = atof(inValue) * 10.0;   
+            hmat[1][2] = atof(inValue) * 10.0;   
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[6] = atof(inValue) * 10.0;   
+            hmat[2][0] = atof(inValue) * 10.0;   
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[7] = atof(inValue) * 10.0;   
+            hmat[2][1] = atof(inValue) * 10.0;   
         } else {
-            hmat[1] = 0;
-            hmat[2] = 0;
-            hmat[3] = 0;
-            hmat[5] = 0;
-            hmat[6] = 0;
-            hmat[7] = 0;
+            hmat[0][1] = 0;
+            hmat[0][2] = 0;
+            hmat[1][0] = 0;
+            hmat[1][2] = 0;
+            hmat[2][0] = 0;
+            hmat[2][1] = 0;
+        }
+
+        // let's determine the inverse of the hmat
+        // first the determinant...
+        determinant = 0; 
+        for(i=0; i<3; i++){
+            determinant = determinant + (hmat[0][i] * (hmat[1][(i+1)%3] * hmat[2][(i+2)%3] - hmat[1][(i+2)%3] * hmat[2][(i+1)%3])); 
+        }
+        invdeterminant = 1.0 / determinant;
+        // now the double loop inverse...
+        for(i=0; i<3; i++){
+            for(j=0; j<3; j++){
+                invhmat[i][j] = ((hmat[(j+1)%3][(i+1)%3] * hmat[(j+2)%3][(i+2)%3]) - (hmat[(j+1)%3][(i+2)%3] * hmat[(j+2)%3][(i+1)%3])) * invdeterminant;
+            }
         }
 
         // okay, let's do some calculations on this frame
@@ -947,15 +1004,21 @@ int main(int argc, char *argv[]) {
                 water2[8] = hPosZ[2*j+1];
 
                 // calculate if they are neighbors
-                xVal = water2[0]-water1[0];
-                yVal = water2[1]-water1[1];
-                zVal = water2[2]-water1[2];
-                // do minimum image filter...
-                xVal -= boxLength[0]*copysign(1.0,xVal)*floor(fabs(xVal/boxLength[0])+0.5);
-                yVal -= boxLength[1]*copysign(1.0,yVal)*floor(fabs(yVal/boxLength[1])+0.5);
-                zVal -= boxLength[2]*copysign(1.0,zVal)*floor(fabs(zVal/boxLength[2])+0.5);
+                pos[0] = water2[0]-water1[0];
+                pos[1] = water2[1]-water1[1];
+                pos[2] = water2[2]-water1[2];
+//                // do minimum image filter...
+//                xVal -= boxLength[0]*copysign(1.0,xVal)*floor(fabs(xVal/boxLength[0])+0.5);
+//                yVal -= boxLength[1]*copysign(1.0,yVal)*floor(fabs(yVal/boxLength[1])+0.5);
+//                zVal -= boxLength[2]*copysign(1.0,zVal)*floor(fabs(zVal/boxLength[2])+0.5);
+                // do vector wrapping of periodic boundary conditions
+                for (k=0; k<3; k++){
+                    scaled[k] = pos[k] * invhmat[k][k];
+                    scaled[k] -= round(scaled[k]); 
+                    pos[k] = scaled[k] * hmat[k][k];
+                }
 
-                temp_dist2 = xVal*xVal + yVal*yVal + zVal*zVal;
+                temp_dist2 = pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2];
                 if(temp_dist2 <= distance_tol2){
                     neighborList[i][neighborListIndex[i]] = j;
                     neighborListIndex[i]++;
@@ -992,7 +1055,8 @@ int main(int argc, char *argv[]) {
                     water2[7] = hPosY[2*neighborList[i][j]+1];
                     water2[8] = hPosZ[2*neighborList[i][j]+1];
 
-                    if(calculator->IsWat3HBond(water1, water2, boxLength)){
+                    // if(calculator->IsWat3HBond(water1, water2, boxLength)){
+                    if(calculator->IsWat3HBond(water1, water2, hmat, invhmat)){
                         hbondList[i][hbondListIndex[i]] = neighborList[i][j];
                         hbondListIndex[i]++;
                         hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
