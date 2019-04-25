@@ -65,9 +65,6 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
     double scaledVec[3];
     double dotProduct;
 
-    if (i == 2 && j == 51 ){
-        cerr << "\nyo!\n";
-    }
     // the 9 positions are sorted by O(x,y,z), H1(x,y,z), H2(x,y,z)
     // first, we do the O-O vector
     posVec[0] = pos2[0]-pos1[0];
@@ -810,7 +807,7 @@ int main(int argc, char *argv[]) {
     vector<vector<double> > hbondVecX;
     vector<vector<double> > hbondVecY;
     vector<vector<double> > hbondVecZ;
-    string strungName;
+    string strungName, strungName2, strungName3;
     string povName;
     string povName2;
     string povDistName;
@@ -869,6 +866,8 @@ int main(int argc, char *argv[]) {
     strcat(trajFileName,"_ringtrj.xyz");
     strcat(povFileName,"_pov.txt");
     strungName = fileName;
+    strungName2 = trajFileName;
+    strungName3 = povFileName;
 
     // Build readers and writers
     ifstream inputer(argv[2]);
@@ -1116,14 +1115,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        i=2;
-        if (i==2){
-            // show neighbors
-            for (k=0; k<neighborListIndex[i]; k++){
-                cerr << neighborList[i][k] << ":";
-            }
-            cerr << "\n";
-        }
         // now build our hbond lists
         for (i=0; i<neighborList.size(); i++){
             // load the reference water
@@ -1151,17 +1142,7 @@ int main(int argc, char *argv[]) {
                     water2[8] = hPosZ[2*neighborList[i][j]+1];
 
                     // if(calculator->IsWat3HBond(water1, water2, boxLength)){
-                    if (i==2 && neighborList[i][j]==51){
-                        cerr << "going in...";
-                        cerr << water1[0] << " " << water1[1] << " " << water1[2] << "\n";
-                        cerr << water2[0] << " " << water2[1] << " " << water2[2] << "\n";
-                    }
                     if(calculator->IsWat3HBond(water1, water2, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
-                        if (i==2 && neighborList[i][j]==51){
-                            cerr << "coming out...";
-                        }
-                        //cout << i*3+1 << ":" << neighborList[i][j]*3+1 << "\n";
-                        //cerr << hbondCount << " : is the hbondCount\n";
                         hbondList[i][hbondListIndex[i]] = neighborList[i][j];
                         hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
                         hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
@@ -2642,6 +2623,9 @@ int main(int argc, char *argv[]) {
         //    delete calculator;
         //    delete povrayObjects;
 
-        cout << "\nResults written to " << strungName << "\n\n";
+        cout << "\nRing distribution results written to " << strungName << "\n";
+        cout << "POVRay rendering command written to " << strungName3 << "\n";
+        cout << "\t...potentially useful for rendering files in the NEWLY made pov_files directory\n";
+        cout << "Finally, a ring trajectory file was written to " << strungName2 << "\n\n";
         return 0;
     }
