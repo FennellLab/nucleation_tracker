@@ -1381,8 +1381,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        cerr << "\n" << oPosX.size() << " : number of water molecules identified\n";
-        cerr << "\n" << hPosX.size() << " : number of water H atoms identified\n";
+        //cerr << "\n" << oPosX.size() << " : number of water molecules identified\n";
+        //cerr << "\n" << hPosX.size() << " : number of water H atoms identified\n";
         if (4*oPosX.size() == hPosX.size()){
             fiveAtomWater = true;
         } else {
@@ -3044,9 +3044,9 @@ int main(int argc, char *argv[]) {
     //    delete calculator;
     //    delete povrayObjects;
 
-    cout << "\nRing distribution results written to " << strungName << "\n";
+    cout << "\nRing distribution results written to " << strungName << "\n\n";
     cout << "POVRay rendering command written to " << strungName3 << "\n";
-    cout << "\t...potentially useful for rendering files in the NEWLY made pov_files directory\n";
+    cout << "\t...potentially useful for rendering files in the NEWLY made pov_files directory\n\n";
     cout << "Finally, a ring trajectory file was written to " << strungName2 << "\n\n";
     return 0;
 }
