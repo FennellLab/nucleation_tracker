@@ -1,5 +1,5 @@
 /*
-   Program to calculate the hbond rings in aqueous environments 
+   Program to calculate the hbond rings in aqueous environments
    */
 
 #include <iostream>
@@ -19,6 +19,7 @@ using namespace std;
 // some global parameters
 double distance_tol = 3.5;   // hbond distance tolerance (in Ångström)
 double distance_tol2 = distance_tol*distance_tol; // hbond square distance tolerance
+double distance_tol2_long = 2.0 * distance_tol*distance_tol; // long square distance tolerance
 double angle_tol = 30;       // hbond angle tolerance (in degrees)
 double angle_tol_rad = angle_tol * 3.1415926536 / 180.0; // hbond angle tolerance in radians
 double OH_length = 0.926;    // OH bond length (in Ångström)
@@ -74,13 +75,13 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
     // do vector wrapping of periodic boundary conditions
     for (k=0; k<3; k++){
         scaledVec[k] = posVec[k] * ihmatrix[k][k];
-        scaledVec[k] -= round(scaledVec[k]); 
+        scaledVec[k] -= round(scaledVec[k]);
         posVec[k] = scaledVec[k] * hmatrix[k][k];
     }
 
-    // here, we take care of normalization 
+    // here, we take care of normalization
     // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
-    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
     r = sqrt(r2);
     ri = 1.0 / r;
 
@@ -96,13 +97,13 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
     // do vector wrapping of periodic boundary conditions
     for (k=0; k<3; k++){
         scaledVec[k] = posVec[k] * ihmatrix[k][k];
-        scaledVec[k] -= round(scaledVec[k]); 
+        scaledVec[k] -= round(scaledVec[k]);
         posVec[k] = scaledVec[k] * hmatrix[k][k];
     }
 
-    // here, we take care of normalization 
+    // here, we take care of normalization
     // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
-    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
     r = sqrt(r2);
     ri = 1.0 / r;
 
@@ -110,11 +111,11 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
     vec2[1] = posVec[1] * ri;
     vec2[2] = posVec[2] * ri;
 
-    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
     if (dotProduct > 1.0){
         tempAngle = 0.0;
     } else {
-        tempAngle = acos(dotProduct);  
+        tempAngle = acos(dotProduct);
     }
 
     if (tempAngle <= angle_tol_rad){
@@ -130,13 +131,13 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
         // do vector wrapping of periodic boundary conditions
         for (k=0; k<3; k++){
             scaledVec[k] = posVec[k] * ihmatrix[k][k];
-            scaledVec[k] -= round(scaledVec[k]); 
+            scaledVec[k] -= round(scaledVec[k]);
             posVec[k] = scaledVec[k] * hmatrix[k][k];
         }
 
-        // here, we take care of normalization 
+        // here, we take care of normalization
         // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
-        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
         r = sqrt(r2);
         ri = 1.0 / r;
 
@@ -144,11 +145,11 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
         vec2[1] = posVec[1] * ri;
         vec2[2] = posVec[2] * ri;
 
-        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
         if (dotProduct > 1.0){
             tempAngle = 0.0;
         } else {
-            tempAngle = acos(dotProduct);  
+            tempAngle = acos(dotProduct);
         }
 
         if (tempAngle <= angle_tol_rad){
@@ -169,13 +170,13 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
             // do vector wrapping of periodic boundary conditions
             for (k=0; k<3; k++){
                 scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                scaledVec[k] -= round(scaledVec[k]); 
+                scaledVec[k] -= round(scaledVec[k]);
                 posVec[k] = scaledVec[k] * hmatrix[k][k];
             }
 
-            // here, we take care of normalization 
+            // here, we take care of normalization
             // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
-            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
             r = sqrt(r2);
             ri = 1.0 / r;
 
@@ -183,11 +184,11 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
             vec2[1] = posVec[1] * ri;
             vec2[2] = posVec[2] * ri;
 
-            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
             if (dotProduct > 1.0){
                 tempAngle = 0.0;
             } else {
-                tempAngle = acos(dotProduct);  
+                tempAngle = acos(dotProduct);
             }
 
             if (tempAngle <= angle_tol_rad){
@@ -203,13 +204,13 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
                 // do vector wrapping of periodic boundary conditions
                 for (k=0; k<3; k++){
                     scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                    scaledVec[k] -= round(scaledVec[k]); 
+                    scaledVec[k] -= round(scaledVec[k]);
                     posVec[k] = scaledVec[k] * hmatrix[k][k];
                 }
 
-                // here, we take care of normalization 
+                // here, we take care of normalization
                 // r2 = xVal*xVal + yVal*yVal + zVal*zVal;
-                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
                 r = sqrt(r2);
                 ri = 1.0 / r;
 
@@ -217,11 +218,11 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
                 vec2[1] = posVec[1] * ri;
                 vec2[2] = posVec[2] * ri;
 
-                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
                 if (dotProduct > 1.0){
                     tempAngle = 0.0;
                 } else {
-                    tempAngle = acos(dotProduct);  
+                    tempAngle = acos(dotProduct);
                 }
 
                 if (tempAngle <= angle_tol_rad){
@@ -261,12 +262,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
     // do vector wrapping of periodic boundary conditions
     for (k=0; k<3; k++){
         scaledVec[k] = posVec[k] * ihmatrix[k][k];
-        scaledVec[k] -= round(scaledVec[k]); 
+        scaledVec[k] -= round(scaledVec[k]);
         posVec[k] = scaledVec[k] * hmatrix[k][k];
     }
 
-    // here, we take care of normalization 
-    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+    // here, we take care of normalization
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
     r = sqrt(r2);
     ri = 1.0 / r;
 
@@ -282,12 +283,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
     // do vector wrapping of periodic boundary conditions
     for (k=0; k<3; k++){
         scaledVec[k] = posVec[k] * ihmatrix[k][k];
-        scaledVec[k] -= round(scaledVec[k]); 
+        scaledVec[k] -= round(scaledVec[k]);
         posVec[k] = scaledVec[k] * hmatrix[k][k];
     }
 
-    // here, we take care of normalization 
-    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+    // here, we take care of normalization
+    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
     r = sqrt(r2);
     ri = 1.0 / r;
 
@@ -295,11 +296,11 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
     vec2[1] = posVec[1] * ri;
     vec2[2] = posVec[2] * ri;
 
-    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
     if (dotProduct > 1.0){
         tempAngle = 0.0;
     } else {
-        tempAngle = acos(dotProduct);  
+        tempAngle = acos(dotProduct);
     }
 
     if (tempAngle <= angle_tol_rad){
@@ -315,12 +316,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
         // do vector wrapping of periodic boundary conditions
         for (k=0; k<3; k++){
             scaledVec[k] = posVec[k] * ihmatrix[k][k];
-            scaledVec[k] -= round(scaledVec[k]); 
+            scaledVec[k] -= round(scaledVec[k]);
             posVec[k] = scaledVec[k] * hmatrix[k][k];
         }
 
-        // here, we take care of normalization 
-        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+        // here, we take care of normalization
+        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
         r = sqrt(r2);
         ri = 1.0 / r;
 
@@ -328,11 +329,11 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
         vec2[1] = posVec[1] * ri;
         vec2[2] = posVec[2] * ri;
 
-        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
         if (dotProduct > 1.0){
             tempAngle = 0.0;
         } else {
-            tempAngle = acos(dotProduct);  
+            tempAngle = acos(dotProduct);
         }
 
         if (tempAngle <= angle_tol_rad){
@@ -348,12 +349,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
             // do vector wrapping of periodic boundary conditions
             for (k=0; k<3; k++){
                 scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                scaledVec[k] -= round(scaledVec[k]); 
+                scaledVec[k] -= round(scaledVec[k]);
                 posVec[k] = scaledVec[k] * hmatrix[k][k];
             }
 
-            // here, we take care of normalization 
-            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+            // here, we take care of normalization
+            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
             r = sqrt(r2);
             ri = 1.0 / r;
 
@@ -361,11 +362,11 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
             vec2[1] = posVec[1] * ri;
             vec2[2] = posVec[2] * ri;
 
-            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
             if (dotProduct > 1.0){
                 tempAngle = 0.0;
             } else {
-                tempAngle = acos(dotProduct);  
+                tempAngle = acos(dotProduct);
             }
 
             if (tempAngle <= angle_tol_rad){
@@ -381,12 +382,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                 // do vector wrapping of periodic boundary conditions
                 for (k=0; k<3; k++){
                     scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                    scaledVec[k] -= round(scaledVec[k]); 
+                    scaledVec[k] -= round(scaledVec[k]);
                     posVec[k] = scaledVec[k] * hmatrix[k][k];
                 }
 
-                // here, we take care of normalization 
-                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+                // here, we take care of normalization
+                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
                 r = sqrt(r2);
                 ri = 1.0 / r;
 
@@ -394,16 +395,16 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                 vec2[1] = posVec[1] * ri;
                 vec2[2] = posVec[2] * ri;
 
-                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
                 if (dotProduct > 1.0){
                     tempAngle = 0.0;
                 } else {
-                    tempAngle = acos(dotProduct);  
+                    tempAngle = acos(dotProduct);
                 }
 
                 if (tempAngle <= angle_tol_rad){
                     isHBondStep1 = 1;
-                } 
+                }
             }
         }
     }
@@ -423,12 +424,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
         // do vector wrapping of periodic boundary conditions
         for (k=0; k<3; k++){
             scaledVec[k] = posVec[k] * ihmatrix[k][k];
-            scaledVec[k] -= round(scaledVec[k]); 
+            scaledVec[k] -= round(scaledVec[k]);
             posVec[k] = scaledVec[k] * hmatrix[k][k];
         }
 
-        // here, we take care of normalization 
-        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+        // here, we take care of normalization
+        r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
         r = sqrt(r2);
         ri = 1.0 / r;
 
@@ -436,11 +437,11 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
         vec2[1] = posVec[1] * ri;
         vec2[2] = posVec[2] * ri;
 
-        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+        dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
         if (dotProduct > 1.0){
             tempAngle = 0.0;
         } else {
-            tempAngle = acos(dotProduct);  
+            tempAngle = acos(dotProduct);
         }
 
         if (tempAngle <= angle_tol_rad){
@@ -456,12 +457,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
             // do vector wrapping of periodic boundary conditions
             for (k=0; k<3; k++){
                 scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                scaledVec[k] -= round(scaledVec[k]); 
+                scaledVec[k] -= round(scaledVec[k]);
                 posVec[k] = scaledVec[k] * hmatrix[k][k];
             }
 
-            // here, we take care of normalization 
-            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+            // here, we take care of normalization
+            r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
             r = sqrt(r2);
             ri = 1.0 / r;
 
@@ -469,17 +470,17 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
             vec2[1] = posVec[1] * ri;
             vec2[2] = posVec[2] * ri;
 
-            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+            dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
             if (dotProduct > 1.0){
                 tempAngle = 0.0;
             } else {
-                tempAngle = acos(dotProduct);  
+                tempAngle = acos(dotProduct);
             }
 
             if (tempAngle <= angle_tol_rad){
                 isHBondStep2 = 1;
             } else {
-                // another level... 
+                // another level...
 
                 // the O-H3
                 posVec[0] = pos2[9]-pos2[0];
@@ -489,12 +490,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                 // do vector wrapping of periodic boundary conditions
                 for (k=0; k<3; k++){
                     scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                    scaledVec[k] -= round(scaledVec[k]); 
+                    scaledVec[k] -= round(scaledVec[k]);
                     posVec[k] = scaledVec[k] * hmatrix[k][k];
                 }
 
-                // here, we take care of normalization 
-                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+                // here, we take care of normalization
+                r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
                 r = sqrt(r2);
                 ri = 1.0 / r;
 
@@ -502,17 +503,17 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                 vec2[1] = posVec[1] * ri;
                 vec2[2] = posVec[2] * ri;
 
-                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+                dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
                 if (dotProduct > 1.0){
                     tempAngle = 0.0;
                 } else {
-                    tempAngle = acos(dotProduct);  
+                    tempAngle = acos(dotProduct);
                 }
 
                 if (tempAngle <= angle_tol_rad){
                     isHBondStep2 = 1;
                 } else {
-                    // the last level... 
+                    // the last level...
 
                     // the O-H4
                     posVec[0] = pos2[12]-pos2[0];
@@ -522,12 +523,12 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                     // do vector wrapping of periodic boundary conditions
                     for (k=0; k<3; k++){
                         scaledVec[k] = posVec[k] * ihmatrix[k][k];
-                        scaledVec[k] -= round(scaledVec[k]); 
+                        scaledVec[k] -= round(scaledVec[k]);
                         posVec[k] = scaledVec[k] * hmatrix[k][k];
                     }
 
-                    // here, we take care of normalization 
-                    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2]; 
+                    // here, we take care of normalization
+                    r2 = posVec[0]*posVec[0] + posVec[1]*posVec[1] + posVec[2]*posVec[2];
                     r = sqrt(r2);
                     ri = 1.0 / r;
 
@@ -535,11 +536,11 @@ int Calcs::IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)
                     vec2[1] = posVec[1] * ri;
                     vec2[2] = posVec[2] * ri;
 
-                    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));  
+                    dotProduct = ((vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]));
                     if (dotProduct > 1.0){
                         tempAngle = 0.0;
                     } else {
-                        tempAngle = acos(dotProduct);  
+                        tempAngle = acos(dotProduct);
                     }
 
                     if (tempAngle <= angle_tol_rad){
@@ -697,7 +698,7 @@ void PovObjects::printHeader2(ofstream& outputFile){
 }
 
 void PovObjects::printRing3(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring3 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring3 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring3_dot_size << "\n"
@@ -730,7 +731,7 @@ void PovObjects::printRing3(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printRing4(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring4 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring4 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring4_dot_size << "\n"
@@ -763,7 +764,7 @@ void PovObjects::printRing4(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printRing5(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring5 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring5 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring5_dot_size << "\n"
@@ -796,7 +797,7 @@ void PovObjects::printRing5(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printRing6(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring6 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring6 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring6_dot_size << "\n"
@@ -829,7 +830,7 @@ void PovObjects::printRing6(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printRing7(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring7 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring7 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring7_dot_size << "\n"
@@ -862,7 +863,7 @@ void PovObjects::printRing7(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printRing8(ofstream& outputFile, double (&boxLength)[3]){
-    outputFile << "#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "  intersection{\n"
         "    sphere{\n"
         "      < center_x, center_y, center_z >,\n    " << ring8_dot_size << "\n"
@@ -895,7 +896,7 @@ void PovObjects::printRing8(ofstream& outputFile, double (&boxLength)[3]){
 }
 
 void PovObjects::printBar(ofstream& outputFile){
-    outputFile << "#macro bar (bottom_x, high, wide, outerRed, outerGreen, outerBlue, dot_transparency)\n " 
+    outputFile << "#macro bar (bottom_x, high, wide, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "    box{\n"
         "      < bottom_x+(1-wide)/2, -2, 0 >,< bottom_x+(1-wide)/2+wide, -2+high, 0.1>\n"
         "       texture{\n"
@@ -925,7 +926,7 @@ void PovObjects::printBar(ofstream& outputFile){
 }
 
 void PovObjects::printAxes(ofstream& outputFile){
-    outputFile << "#macro axes (wide)\n " 
+    outputFile << "#macro axes (wide)\n "
         "    box{\n"
         "      < -2-wide, -2-wide, 0.2 >,< -2, 2, 0.2>\n"
         "       texture{\n"
@@ -1073,14 +1074,21 @@ int main(int argc, char *argv[]) {
     const char *HAtom = "    H";
     int count = 0;
     int i, j, k, l, m, n, o, p, q, nAtoms, waterModel, waterNumber;
-    int oCount, hCount, mCount, totalWaterCount, hbondCount, neighborCount, frameCount;
+    int oCount, hCount, mCount, totalWaterCount, hbondCount, neighborCount, nearestNeighborCount, frameCount, largeNeighborCount;
     int index2, index3, index4, index5, index6, index7, index8, index9;
     int lastRing3, lastRing4, lastRing5, lastRing6, lastRing7, lastRing8;
     int x_frame, y_frame;
     int ringOutOpt;
     int totalRings;
+    int test_slot;
+    int temp_index;
+    int distance2;
+    double cosine_theta, dotProduct, inv_nearestNeighborMag1, inv_nearestNeighborMag2, unitVec1x, unitVec1y, unitVec1z, unitVec2x, unitVec2y, unitVec2z;
+    double tetrahedralParam, average_tetrahedralParam;
     double xVal, yVal, zVal;
     double temp_dist2;
+    double temp_value;
+    double temp_val_x, temp_val_y, temp_val_z;
     double ionPosition[3], position[3];
     double water1[9], water2[9];
     double water15[15], water25[15];
@@ -1094,11 +1102,16 @@ int main(int argc, char *argv[]) {
     double ringProbabilities[9];
     vector<int> atomCount;
     vector<int> neighborListIndex;
+    vector<int> largeNeighborListIndex;
+    vector<int> nearestNeighborListIndex;
     vector<int> hbondListIndex;
     vector<int> tempVec;
     vector<double> oPosX, oPosY, oPosZ;
     vector<double> hPosX, hPosY, hPosZ;
+    vector<double> tempList, tempVecX, tempVecY, tempVecZ;
     vector<vector<int> > neighborList;
+    vector<vector<int> > largeNeighborList;
+    vector<vector<int> > nearestNeighborList;
     vector<vector<int> > hbondList;
     vector<vector<int> > ring3members;
     vector<vector<int> > ring4members;
@@ -1109,6 +1122,10 @@ int main(int argc, char *argv[]) {
     vector<vector<double> > hbondVecX;
     vector<vector<double> > hbondVecY;
     vector<vector<double> > hbondVecZ;
+    vector<vector<double> > nearestNeighborVecX;
+    vector<vector<double> > nearestNeighborVecY;
+    vector<vector<double> > nearestNeighborVecZ;
+    vector<vector<double> > nearestNeighborMag;
     string strungName, strungName2, strungName3;
     string povName;
     string povName2;
@@ -1136,7 +1153,7 @@ int main(int argc, char *argv[]) {
     ifstream prayer(argv[2]);
 
     // Make sure the file exists
-    if (!prayer) { 
+    if (!prayer) {
         cout << "Unable to open " << argv[2] << " for reading.\n";
         return 0;
     }
@@ -1179,19 +1196,22 @@ int main(int argc, char *argv[]) {
     //ofstream outputer_dist_pov(povDistName);
 
     // initialize our calculator
-    Calcs *calculator = new Calcs(); 
+    Calcs *calculator = new Calcs();
 
-    // output ring info. in pov files 
+    // output ring info. in pov files
     PovObjects *povrayObjects = new PovObjects();
 
     // Read the .gro file and load the positions
     cout << "\nLoading and processing trajectory...\n";
-    outputer << setw(8) << "# frame" <<  setw(8) << "1" << setw(8) << "3" << setw(8) << "4" << setw(8) << "5" << setw(8) << "6" << setw(8) << "7" << setw(8) << "8" << "\n"; 
+    outputer << setw(8) << "# frame" <<  setw(8) << "1"  << setw(8) << "<q>" << setw(8) << "3" << setw(8) << "4" << setw(8) << "5" << setw(8) << "6" << setw(8) << "7" << setw(8) << "8" << "\n";
 
     frameCount = 1;
     totalWaterCount = 0;
     hbondCount = 0;
+    cosine_theta = 0;
     neighborCount = 0;
+    largeNeighborCount = 0;
+    nearestNeighborCount = 0;
     lastRing3 = 0;
     lastRing4 = 0;
     lastRing5 = 0;
@@ -1322,17 +1342,17 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // the box information - used in minimum image wrapping 
+        // the box information - used in minimum image wrapping
         inputer.getline(inLine,999,'\n');
         token = strtok(inLine,delimit);
         strcpy(inValue,token);
-        boxLength[0] = atof(inValue) * 10.0;	
+        boxLength[0] = atof(inValue) * 10.0;
         token = strtok(NULL,delimit);
         strcpy(inValue,token);
-        boxLength[1] = atof(inValue) * 10.0;	
+        boxLength[1] = atof(inValue) * 10.0;
         token = strtok(NULL,delimit);
         strcpy(inValue,token);
-        boxLength[2] = atof(inValue) * 10.0;	
+        boxLength[2] = atof(inValue) * 10.0;
 
         hmat[0][0] = boxLength[0];
         hmat[1][1] = boxLength[1];
@@ -1342,22 +1362,22 @@ int main(int argc, char *argv[]) {
         token = strtok(NULL,delimit);
         if (token != NULL){
             strcpy(inValue,token);
-            hmat[0][1] = atof(inValue) * 10.0;   
+            hmat[0][1] = atof(inValue) * 10.0;
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[0][2] = atof(inValue) * 10.0;   
+            hmat[0][2] = atof(inValue) * 10.0;
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[1][0] = atof(inValue) * 10.0;   
+            hmat[1][0] = atof(inValue) * 10.0;
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[1][2] = atof(inValue) * 10.0;   
+            hmat[1][2] = atof(inValue) * 10.0;
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[2][0] = atof(inValue) * 10.0;   
+            hmat[2][0] = atof(inValue) * 10.0;
             token = strtok(NULL,delimit);
             strcpy(inValue,token);
-            hmat[2][1] = atof(inValue) * 10.0;   
+            hmat[2][1] = atof(inValue) * 10.0;
         } else {
             hmat[0][1] = 0;
             hmat[0][2] = 0;
@@ -1369,9 +1389,9 @@ int main(int argc, char *argv[]) {
 
         // let's determine the inverse of the hmat
         // first the determinant...
-        determinant = 0; 
+        determinant = 0;
         for(i=0; i<3; i++){
-            determinant = determinant + (hmat[0][i] * (hmat[1][(i+1)%3] * hmat[2][(i+2)%3] - hmat[1][(i+2)%3] * hmat[2][(i+1)%3])); 
+            determinant = determinant + (hmat[0][i] * (hmat[1][(i+1)%3] * hmat[2][(i+2)%3] - hmat[1][(i+2)%3] * hmat[2][(i+1)%3]));
         }
         invdeterminant = 1.0 / determinant;
         // now the double loop inverse...
@@ -1403,6 +1423,15 @@ int main(int argc, char *argv[]) {
             // vec2D.push_back(std::vector<int>(4, 11));
             neighborListIndex.push_back(0);
             neighborList.push_back(vector<int>(50,-1));
+            largeNeighborListIndex.push_back(0);
+            largeNeighborList.push_back(vector<int>(100,-1));
+            nearestNeighborListIndex.push_back(0);
+            nearestNeighborList.push_back(vector<int>(4,-1));
+            nearestNeighborVecX.push_back(vector<double>(4,0));
+            nearestNeighborVecY.push_back(vector<double>(4,0));
+            nearestNeighborVecZ.push_back(vector<double>(4,0));
+            nearestNeighborMag.push_back(vector<double>(4,0));
+            
             // can have up to 30 HBonds
             hbondListIndex.push_back(0);
             hbondList.push_back(vector<int>(50,-1));
@@ -1412,7 +1441,7 @@ int main(int argc, char *argv[]) {
         }
 
         for (i=0; i<oPosX.size()-1; i++){
-            // just use o positions 
+            // just use o positions
             // load the reference water
             water1[0] = oPosX[i];
             water1[1] = oPosY[i];
@@ -1432,1613 +1461,1721 @@ int main(int argc, char *argv[]) {
                 // do vector wrapping of periodic boundary conditions
                 for (k=0; k<3; k++){
                     scaled[k] = pos[k] * invhmat[k][k];
-                    scaled[k] -= round(scaled[k]); 
+                    scaled[k] -= round(scaled[k]);
                     pos[k] = scaled[k] * hmat[k][k];
                 }
 
                 temp_dist2 = pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2];
-                if(temp_dist2 <= distance_tol2){
-                    neighborList[i][neighborListIndex[i]] = j;
-                    neighborListIndex[i]++;
-                    neighborList[j][neighborListIndex[j]] = i;
-                    neighborListIndex[j]++;
-                    neighborCount++;
-                }
-            }
-        }
+		if(temp_dist2 <= distance_tol2_long){
+			largeNeighborList[i][largeNeighborListIndex[i]] = j;
+			largeNeighborListIndex[i]++;
+			largeNeighborList[j][largeNeighborListIndex[j]] = i;
+			largeNeighborListIndex[j]++;
+			largeNeighborCount++;
+			if(temp_dist2 <= distance_tol2){
+				neighborList[i][neighborListIndex[i]] = j;
+				neighborListIndex[i]++;
+				neighborList[j][neighborListIndex[j]] = i;
+				neighborListIndex[j]++;
+				neighborCount++;
+			}
+		}
+	    }
+	}
 
-        // now build our hbond lists
-        for (i=0; i<neighborList.size(); i++){
-            // load the reference water
-            if (fiveAtomWater){
-                water15[0] = oPosX[i];
-                water15[1] = oPosY[i];
-                water15[2] = oPosZ[i];
-                water15[3] = hPosX[4*i];
-                water15[4] = hPosY[4*i];
-                water15[5] = hPosZ[4*i];
-                water15[6] = hPosX[4*i+1];
-                water15[7] = hPosY[4*i+1];
-                water15[8] = hPosZ[4*i+1];
-                water15[9] = hPosX[4*i+2];
-                water15[10] = hPosY[4*i+2];
-                water15[11] = hPosZ[4*i+2];
-                water15[12] = hPosX[4*i+3];
-                water15[13] = hPosY[4*i+3];
-                water15[14] = hPosZ[4*i+3];
-            } else {
-                water1[0] = oPosX[i];
-                water1[1] = oPosY[i];
-                water1[2] = oPosZ[i];
-                water1[3] = hPosX[2*i];
-                water1[4] = hPosY[2*i];
-                water1[5] = hPosZ[2*i];
-                water1[6] = hPosX[2*i+1];
-                water1[7] = hPosY[2*i+1];
-                water1[8] = hPosZ[2*i+1];
-            }
+	/*	
+	   for (i=0; i<neighborListIndex.size(); i++){
+	   cerr << largeNeighborListIndex[i] << " large_neighbors for " << i << "\n";
+	   cerr << neighborListIndex[i] << " neighbors for " << i << "\n";
+	   }
+	*/
 
-            for (j=0; j<neighborListIndex[i]; j++){
-                if (neighborList[i][j] > i){
-                    // load the water
-                    if (fiveAtomWater){
-                        water25[0] = oPosX[neighborList[i][j]];
-                        water25[1] = oPosY[neighborList[i][j]];
-                        water25[2] = oPosZ[neighborList[i][j]];
-                        water25[3] = hPosX[4*neighborList[i][j]];
-                        water25[4] = hPosY[4*neighborList[i][j]];
-                        water25[5] = hPosZ[4*neighborList[i][j]];
-                        water25[6] = hPosX[4*neighborList[i][j]+1];
-                        water25[7] = hPosY[4*neighborList[i][j]+1];
-                        water25[8] = hPosZ[4*neighborList[i][j]+1];
-                        water25[9] = hPosX[4*neighborList[i][j]+2];
-                        water25[10] = hPosY[4*neighborList[i][j]+2];
-                        water25[11] = hPosZ[4*neighborList[i][j]+2];
-                        water25[12] = hPosX[4*neighborList[i][j]+3];
-                        water25[13] = hPosY[4*neighborList[i][j]+3];
-                        water25[14] = hPosZ[4*neighborList[i][j]+3];
-                    } else {
-                        water2[0] = oPosX[neighborList[i][j]];
-                        water2[1] = oPosY[neighborList[i][j]];
-                        water2[2] = oPosZ[neighborList[i][j]];
-                        water2[3] = hPosX[2*neighborList[i][j]];
-                        water2[4] = hPosY[2*neighborList[i][j]];
-                        water2[5] = hPosZ[2*neighborList[i][j]];
-                        water2[6] = hPosX[2*neighborList[i][j]+1];
-                        water2[7] = hPosY[2*neighborList[i][j]+1];
-                        water2[8] = hPosZ[2*neighborList[i][j]+1];
-                    }
+	// now build our hbond lists
+	for (i=0; i<neighborList.size(); i++){
+		// load the reference water
+		if (fiveAtomWater){
+			water15[0] = oPosX[i];
+			water15[1] = oPosY[i];
+			water15[2] = oPosZ[i];
+			water15[3] = hPosX[4*i];
+			water15[4] = hPosY[4*i];
+			water15[5] = hPosZ[4*i];
+			water15[6] = hPosX[4*i+1];
+			water15[7] = hPosY[4*i+1];
+			water15[8] = hPosZ[4*i+1];
+			water15[9] = hPosX[4*i+2];
+			water15[10] = hPosY[4*i+2];
+			water15[11] = hPosZ[4*i+2];
+			water15[12] = hPosX[4*i+3];
+			water15[13] = hPosY[4*i+3];
+			water15[14] = hPosZ[4*i+3];
+		} else {
+			water1[0] = oPosX[i];
+			water1[1] = oPosY[i];
+			water1[2] = oPosZ[i];
+			water1[3] = hPosX[2*i];
+			water1[4] = hPosY[2*i];
+			water1[5] = hPosZ[2*i];
+			water1[6] = hPosX[2*i+1];
+			water1[7] = hPosY[2*i+1];
+			water1[8] = hPosZ[2*i+1];
+		}
 
-                    if(fiveAtomWater){
-                        if(calculator->IsWat5HBond(water15, water25, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
-                            hbondList[i][hbondListIndex[i]] = neighborList[i][j];
-                            hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
-                            hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
-                            hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
-                            hbondListIndex[i]++;
-                            hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
-                            hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
-                            hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
-                            hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
-                            hbondListIndex[neighborList[i][j]]++;
-                            hbondCount++;
-                        }
-                    } else {
-                        if(calculator->IsWat3HBond(water1, water2, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
-                            hbondList[i][hbondListIndex[i]] = neighborList[i][j];
-                            hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
-                            hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
-                            hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
-                            hbondListIndex[i]++;
-                            hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
-                            hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
-                            hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
-                            hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
-                            hbondListIndex[neighborList[i][j]]++;
-                            hbondCount++;
-                        }
-                    }
-                }
-            }
-        } 
+		for (j=0; j<neighborListIndex[i]; j++){
+			if (neighborList[i][j] > i){
+				// load the water
+				if (fiveAtomWater){
+					water25[0] = oPosX[neighborList[i][j]];
+					water25[1] = oPosY[neighborList[i][j]];
+					water25[2] = oPosZ[neighborList[i][j]];
+					water25[3] = hPosX[4*neighborList[i][j]];
+					water25[4] = hPosY[4*neighborList[i][j]];
+					water25[5] = hPosZ[4*neighborList[i][j]];
+					water25[6] = hPosX[4*neighborList[i][j]+1];
+					water25[7] = hPosY[4*neighborList[i][j]+1];
+					water25[8] = hPosZ[4*neighborList[i][j]+1];
+					water25[9] = hPosX[4*neighborList[i][j]+2];
+					water25[10] = hPosY[4*neighborList[i][j]+2];
+					water25[11] = hPosZ[4*neighborList[i][j]+2];
+					water25[12] = hPosX[4*neighborList[i][j]+3];
+					water25[13] = hPosY[4*neighborList[i][j]+3];
+					water25[14] = hPosZ[4*neighborList[i][j]+3];
+				} else {
+					water2[0] = oPosX[neighborList[i][j]];
+					water2[1] = oPosY[neighborList[i][j]];
+					water2[2] = oPosZ[neighborList[i][j]];
+					water2[3] = hPosX[2*neighborList[i][j]];
+					water2[4] = hPosY[2*neighborList[i][j]];
+					water2[5] = hPosZ[2*neighborList[i][j]];
+					water2[6] = hPosX[2*neighborList[i][j]+1];
+					water2[7] = hPosY[2*neighborList[i][j]+1];
+					water2[8] = hPosZ[2*neighborList[i][j]+1];
+				}
 
-        //   cerr << hbondListIndex.size() << " is the hbondListIndex size\n";
-        //   for(i=0; i<hbondListIndex.size(); i++){
-        //       cerr << "hbondListIndex["<< i << "] value: ";
-        //       for (j=0; j < 4; j++){
-        //           cerr << hbondList[i][j] << " ";
-        //       }
-        //       cerr << "\n";
-        //   }
-        // now we start identifying rings to build those lists
-        for(i=0; i<hbondListIndex.size(); i++){
-            for(j=0; j<hbondListIndex[i]; j++){
-                index2 = hbondList[i][j]; 
-                if (index2 != i){
-                    for(k=0; k<hbondListIndex[index2]; k++){
-                        index3 = hbondList[index2][k];
-                        if (index3 != index2 && index3 != i){
-                            for(l=0; l<hbondListIndex[index3]; l++){
-                                index4 = hbondList[index3][l];
-                                // test if a 3 member ring
-                                if (index4 == i){
-                                    tempVec.push_back(i); 
-                                    tempVec.push_back(index2); 
-                                    tempVec.push_back(index3);
-                                    sort(tempVec.begin(),tempVec.end());
-                                    ring3members.push_back(tempVec);
-                                    tempVec.clear();
-                                    break;
-                                }
-                                if (index4 != index3 && index4 != index2){
-                                    for(m=0; m<hbondListIndex[index4]; m++){
-                                        index5 = hbondList[index4][m];
-                                        // test if a 4 member ring
-                                        if (index5 == i){
-                                            tempVec.push_back(i); 
-                                            tempVec.push_back(index2); 
-                                            tempVec.push_back(index3);
-                                            tempVec.push_back(index4);
-                                            sort(tempVec.begin(),tempVec.end());
-                                            ring4members.push_back(tempVec);
-                                            tempVec.clear();
-                                            break;
-                                        }
-                                        if (index5 != index4 && index5 != index3 && index5 != index2){
-                                            for(n=0; n<hbondListIndex[index5]; n++){
-                                                index6 = hbondList[index5][n];
-                                                // test if a 5 member ring
-                                                if (index6 == i){
-                                                    tempVec.push_back(i); 
-                                                    tempVec.push_back(index2); 
-                                                    tempVec.push_back(index3);
-                                                    tempVec.push_back(index4);
-                                                    tempVec.push_back(index5);
-                                                    sort(tempVec.begin(),tempVec.end());
-                                                    ring5members.push_back(tempVec);
-                                                    tempVec.clear();
-                                                    break;
-                                                }
-                                                if (index6 != index5 && index6 != index4 && index6 != index3 && index6 != index2){
-                                                    for(o=0; o<hbondListIndex[index6]; o++){
-                                                        index7 = hbondList[index6][o];
-                                                        // test if a 6 member ring
-                                                        if (index7 == i){
-                                                            tempVec.push_back(i); 
-                                                            tempVec.push_back(index2); 
-                                                            tempVec.push_back(index3);
-                                                            tempVec.push_back(index4);
-                                                            tempVec.push_back(index5);
-                                                            tempVec.push_back(index6);
-                                                            sort(tempVec.begin(),tempVec.end());
-                                                            ring6members.push_back(tempVec);
-                                                            tempVec.clear();
-                                                            break;
-                                                        }
-                                                        if (index7 != index6 && index7 != index5 && index7 != index4 && index7 != index3 && index7 != index2){
-                                                            for(p=0; p<hbondListIndex[index7]; p++){
-                                                                index8 = hbondList[index7][p];
-                                                                // test if a 7 member ring
-                                                                if (index8 == i){
-                                                                    tempVec.push_back(i); 
-                                                                    tempVec.push_back(index2); 
-                                                                    tempVec.push_back(index3);
-                                                                    tempVec.push_back(index4);
-                                                                    tempVec.push_back(index5);
-                                                                    tempVec.push_back(index6);
-                                                                    tempVec.push_back(index7);
-                                                                    sort(tempVec.begin(),tempVec.end());
-                                                                    ring7members.push_back(tempVec);
-                                                                    tempVec.clear();
-                                                                    break;
-                                                                }
+				if(fiveAtomWater){
+					if(calculator->IsWat5HBond(water15, water25, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
+						hbondList[i][hbondListIndex[i]] = neighborList[i][j];
+						hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
+						hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
+						hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
+						hbondListIndex[i]++;
+						hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
+						hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
+						hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
+						hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
+						hbondListIndex[neighborList[i][j]]++;
+						hbondCount++;
+					}
+				} else {
+					if(calculator->IsWat3HBond(water1, water2, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
+						hbondList[i][hbondListIndex[i]] = neighborList[i][j];
+						hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
+						hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
+						hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
+						hbondListIndex[i]++;
+						hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
+						hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
+						hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
+						hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
+						hbondListIndex[neighborList[i][j]]++;
+						hbondCount++;
+					}
+				}
+			}
+		}
+	}
 
-                                                                if (index8 != index7 && index8 != index6 && index8 != index5 && index8 != index4 && index8 != index3 && index8 != index2){
-                                                                    for(q=0; q<hbondListIndex[index8]; q++){
-                                                                        index9 = hbondList[index8][q];
-                                                                        // test if a 8 member ring
-                                                                        if (index9 == i){
-                                                                            tempVec.push_back(i); 
-                                                                            tempVec.push_back(index2); 
-                                                                            tempVec.push_back(index3);
-                                                                            tempVec.push_back(index4);
-                                                                            tempVec.push_back(index5);
-                                                                            tempVec.push_back(index6);
-                                                                            tempVec.push_back(index7);
-                                                                            tempVec.push_back(index8);
-                                                                            sort(tempVec.begin(),tempVec.end());
-                                                                            ring8members.push_back(tempVec);
-                                                                            tempVec.clear();
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                }
+	// build the nearest neighbor list for tetrahedral arrangement and calculate a molecule's tetrahedrality
+	for (i = 0; i < largeNeighborList.size(); i++){
+		// load the reference water
+		water1[0] = oPosX[i];
+		water1[1] = oPosY[i];
+		water1[2] = oPosZ[i];
 
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // purge atom i from hbond lists 
-            for(j=0; j<hbondListIndex[i]; j++){
-                index2 = hbondList[i][j];
-                for(k=0; k<hbondListIndex[index2]; k++){
-                    hbondList[index2][k] = hbondList[index2][k+1];
-                }
-                hbondListIndex[index2]--;
-            }
-        }
-        //cerr << ring3members.size() << " is the 3 member ring count\n";
-        //cerr << ring4members.size() << " is the 4 member ring count\n";
-        //cerr << ring5members.size() << " is the 5 member ring count\n";
-        //cerr << ring6members.size() << " is the 6 member ring count\n";
-        //cerr << ring7members.size() << " is the 7 member ring count\n";
-        //cerr << ring8members.size() << " is the 8 member ring count\n";
-        // prune the subset information
-        // ...self ring lists first...
-        for(i=ring3members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring3members[j].begin(),ring3members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring3members.erase(ring3members.begin() + i);
-                    break;
-                }
-            }
-        }
-        for(i=ring4members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring4members[j].begin(),ring4members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                    ring4members.erase(ring4members.begin() + i);
-                    break;
-                }
-            }
-        }
-        for(i=ring5members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring5members[j].begin(),ring5members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                    ring5members.erase(ring5members.begin() + i);
-                    break;
-                }
-            }
-        }
-        for(i=ring6members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring6members[j].begin(),ring6members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                    ring6members.erase(ring6members.begin() + i);
-                    break;
-                }
-            }
-        }
-        for(i=ring7members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring7members[j].begin(),ring7members[j].end(), ring7members[i].begin(), ring7members[i].end())){
-                    ring7members.erase(ring7members.begin() + i);
-                    break;
-                }
-            }
-        }
+		for (j = 0; j < largeNeighborListIndex[i]; j++){
+			tempList.clear(); 
+			tempVecX.clear(); 
+			tempVecY.clear(); 
+			tempVecZ.clear(); 
+			if (largeNeighborList[i][j] > i){
+				// load the water
+				water2[0] = oPosX[largeNeighborList[i][j]];
+				water2[1] = oPosY[largeNeighborList[i][j]];
+				water2[2] = oPosZ[largeNeighborList[i][j]];
 
-        for(i=ring8members.size()-1; i>0; i--){
-            for (j=i-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring8members[i].begin(), ring8members[i].end())){
-                    ring8members.erase(ring8members.begin() + i);
-                    break;
-                }
-            }
-        }
-        // now we do the pruning tree...
-        // ...3s in 4s...
-        for(i=ring3members.size()-1; i>=0; i--){
-            for (j=ring4members.size()-1; j>=0; j--){
-                if(includes(ring4members[j].begin(),ring4members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring4members.erase(ring4members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...3s in 5s...
-        for(i=ring3members.size()-1; i>=0; i--){
-            for (j=ring5members.size()-1; j>=0; j--){
-                if(includes(ring5members[j].begin(),ring5members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring5members.erase(ring5members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...4s in 5s...
-        for(i=ring4members.size()-1; i>=0; i--){
-            for (j=ring5members.size()-1; j>=0; j--){
-                if(includes(ring5members[j].begin(),ring5members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                    ring5members.erase(ring5members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...3s in 6s...
-        for(i=ring3members.size()-1; i>=0; i--){
-            for (j=ring6members.size()-1; j>=0; j--){
-                if(includes(ring6members[j].begin(),ring6members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring6members.erase(ring6members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...4s in 6s...
-        for(i=ring4members.size()-1; i>=0; i--){
-            for (j=ring6members.size()-1; j>=0; j--){
-                if(includes(ring6members[j].begin(),ring6members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                    ring6members.erase(ring6members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...5s in 6s...
-        for(i=ring5members.size()-1; i>=0; i--){
-            for (j=ring6members.size()-1; j>=0; j--){
-                if(includes(ring6members[j].begin(),ring6members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                    ring6members.erase(ring6members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...3s in 7s...
-        for(i=ring3members.size()-1; i>=0; i--){
-            for (j=ring7members.size()-1; j>=0; j--){
-                if(includes(ring7members[j].begin(),ring7members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring7members.erase(ring7members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...4s in 7s...
-        for(i=ring4members.size()-1; i>=0; i--){
-            for (j=ring7members.size()-1; j>=0; j--){
-                if(includes(ring7members[j].begin(),ring7members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                    ring7members.erase(ring7members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...5s in 7s...
-        for(i=ring5members.size()-1; i>=0; i--){
-            for (j=ring7members.size()-1; j>=0; j--){
-                if(includes(ring7members[j].begin(),ring7members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                    ring7members.erase(ring7members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...6s in 7s...
-        for(i=ring6members.size()-1; i>=0; i--){
-            for (j=ring7members.size()-1; j>=0; j--){
-                if(includes(ring7members[j].begin(),ring7members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                    ring7members.erase(ring7members.begin() + j);
-                    break;
-                }
-            }
-        }
+				xVal = water2[0] - water1[0];
+				yVal = water2[1] - water1[1];
+				zVal = water2[2] - water1[2];
+				temp_dist2 = xVal*xVal + yVal*yVal + zVal*zVal;
 
-        // ...3s in 8s...
-        for(i=ring3members.size()-1; i>=0; i--){
-            for (j=ring8members.size()-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                    ring8members.erase(ring8members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...4s in 8s...
-        for(i=ring4members.size()-1; i>=0; i--){
-            for (j=ring8members.size()-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                    ring8members.erase(ring8members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...5s in 8s...
-        for(i=ring5members.size()-1; i>=0; i--){
-            for (j=ring8members.size()-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                    ring8members.erase(ring8members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...6s in 8s...
-        for(i=ring6members.size()-1; i>=0; i--){
-            for (j=ring8members.size()-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                    ring8members.erase(ring8members.begin() + j);
-                    break;
-                }
-            }
-        }
-        // ...7s in 8s...
-        for(i=ring7members.size()-1; i>=0; i--){
-            for (j=ring8members.size()-1; j>=0; j--){
-                if(includes(ring8members[j].begin(),ring8members[j].end(), ring7members[i].begin(), ring7members[i].end())){
-                    ring8members.erase(ring8members.begin() + j);
-                    break;
-                }
-            }
-        }
+				tempList.push_back(distance2);
+				tempVecX.push_back(xVal);
+				tempVecY.push_back(yVal);
+				tempVecZ.push_back(zVal);
 
-        //            cerr << "\n...after pruning:\n";
-        //cerr << ring3members.size() << " is the 3 member ring count\n";
-        //cerr << ring4members.size() << " is the 4 member ring count\n";
-        //cerr << ring5members.size() << " is the 5 member ring count\n";
-        //cerr << ring6members.size() << " is the 6 member ring count\n";
-        //cerr << ring7members.size() << " is the 7 member ring count\n";
-        //cerr << ring8members.size() << " is the 8 member ring count\n";
-        if (ringOutOpt == 0){
-            // sort through the rings to insure only minimal path rings are included for
-            // each water molecule
-            for(i=0; i<oPosX.size(); i++){
-                bool doEliminateRings = false;
-                for (j=ring3members.size()-1; j>=0; j--){
-                    for (k=0; k<3; k++){
-                        if (ring3members[j][k] == i){
-                            doEliminateRings = true;
-                            break;
-                        }
-                    }
-                }
+			}
 
-                if (doEliminateRings == false){
-                    // continue our search for a minimum ring size for this water molecule
-                    for (j=ring4members.size()-1; j>=0; j--){
-                        for (k=0; k<4; k++){
-                            if (ring4members[j][k] == i){
-                                doEliminateRings = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // eliminate all rings containing this water molecule
-                    for (j=ring4members.size()-1; j>=0; j--){
-                        for (k=0; k<4; k++){
-                            if (ring4members[j][k] == i){
-                                ring4members.erase(ring4members.begin() + j);
-                                break;
-                            }
-                        }
-                    }
-                }
+			// let's sort our nearest neighbor list!
+			for (j = 1; j <= largeNeighborListIndex[i]; j++){
+				temp_value = tempList[j];
+				temp_val_x = tempVecX[j];
+				temp_val_y = tempVecY[j];
+				temp_val_z = tempVecZ[j];
+				temp_index = largeNeighborList[i][j];
+				test_slot = j - 1;
+				while (test_slot > -1 && tempList[test_slot] > temp_value){
+					tempList[test_slot + 1] = tempList[test_slot];
+					tempVecX[test_slot + 1] = tempVecX[test_slot];
+					tempVecY[test_slot + 1] = tempVecY[test_slot];
+					tempVecZ[test_slot + 1] = tempVecZ[test_slot];
+					largeNeighborList[i][test_slot + 1] = largeNeighborList[i][test_slot];
+					test_slot--;
+					tempList[test_slot + 1] = temp_value;
+					tempVecX[test_slot + 1] = temp_val_x;
+					tempVecY[test_slot + 1] = temp_val_y;
+					tempVecZ[test_slot + 1] = temp_val_z;
+					largeNeighborList[i][test_slot + 1] = temp_index;
+				}
+			}
 
-                if (doEliminateRings == false){
-                    // continue our search for a minimum ring size for this water molecule
-                    for (j=ring5members.size()-1; j>=0; j--){
-                        for (k=0; k<5; k++){
-                            if (ring5members[j][k] == i){
-                                doEliminateRings = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // eliminate all rings containing this water molecule
-                    for (j=ring5members.size()-1; j>=0; j--){
-                        for (k=0; k<5; k++){
-                            if (ring5members[j][k] == i){
-                                ring5members.erase(ring5members.begin() + j);
-                                break;
-                            }
-                        }
-                    }
-                }
+			// load the first 4 neighbors in the nearest neighbor lists
+			for (j = 0; j < 4; j++){
+				nearestNeighborList[i][j] = largeNeighborList[i][j];
+				nearestNeighborMag[i][j] = sqrt(tempList[j]);
+				nearestNeighborVecX[i][j] = tempVecX[j];
+				nearestNeighborVecY[i][j] = tempVecY[j];
+				nearestNeighborVecZ[i][j] = tempVecZ[j];
+			}
 
-                if (doEliminateRings == false){
-                    // continue our search for a minimum ring size for this water molecule
-                    for (j=ring6members.size()-1; j>=0; j--){
-                        for (k=0; k<6; k++){
-                            if (ring6members[j][k] == i){
-                                doEliminateRings = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // eliminate all rings containing this water molecule
-                    for (j=ring6members.size()-1; j>=0; j--){
-                        for (k=0; k<6; k++){
-                            if (ring6members[j][k] == i){
-                                ring6members.erase(ring6members.begin() + j);
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (doEliminateRings == false){
-                    // continue our search for a minimum ring size for this water molecule
-                    for (j=ring7members.size()-1; j>=0; j--){
-                        for (k=0; k<7; k++){
-                            if (ring7members[j][k] == i){
-                                doEliminateRings = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // eliminate all rings containing this water molecule
-                    for (j=ring7members.size()-1; j>=0; j--){
-                        for (k=0; k<7; k++){
-                            if (ring7members[j][k] == i){
-                                ring7members.erase(ring7members.begin() + j);
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (doEliminateRings == false){
-                    // continue our search for a minimum ring size for this water molecule
-                    for (j=ring8members.size()-1; j>=0; j--){
-                        for (k=0; k<8; k++){
-                            if (ring8members[j][k] == i){
-                                doEliminateRings = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // eliminate all rings containing this water molecule
-                    for (j=ring8members.size()-1; j>=0; j--){
-                        for (k=0; k<8; k++){
-                            if (ring8members[j][k] == i){
-                                ring8members.erase(ring8members.begin() + j);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        //            cerr << "\n...after elimination:\n";
-        //cerr << ring3members.size() << " is the 3 member ring count\n";
-        //cerr << ring4members.size() << " is the 4 member ring count\n";
-        //cerr << ring5members.size() << " is the 5 member ring count\n";
-        //cerr << ring6members.size() << " is the 6 member ring count\n";
-        //cerr << ring7members.size() << " is the 7 member ring count\n";
-        //cerr << ring8members.size() << " is the 8 member ring count\n";
+			// calculate tetrahedrality for each molecule...  this is a double loop over the nearest neighbors of each molecule
+			for (j = 0; j < 3; j++){
+				for (k = j + 1; k < 4; k++){
+					inv_nearestNeighborMag1 = 1.0/nearestNeighborMag[i][j];
+					unitVec1x = nearestNeighborVecX[i][j] * inv_nearestNeighborMag1;
+					unitVec1y = nearestNeighborVecY[i][j] * inv_nearestNeighborMag1;
+					unitVec1z = nearestNeighborVecZ[i][j] * inv_nearestNeighborMag1;
 
+					inv_nearestNeighborMag2 = 1.0/nearestNeighborMag[i][k];
+					unitVec2x = nearestNeighborVecX[i][k] * inv_nearestNeighborMag2;
+					unitVec2y = nearestNeighborVecY[i][k] * inv_nearestNeighborMag2;
+					unitVec2z = nearestNeighborVecZ[i][k] * inv_nearestNeighborMag2;
 
-        // output ring data
-        lastRing3 = ring3members.size()-lastRing3;
-        lastRing4 = ring4members.size()-lastRing4;
-        lastRing5 = ring5members.size()-lastRing5;
-        lastRing6 = ring6members.size()-lastRing6;
-        lastRing7 = ring7members.size()-lastRing7;
-        lastRing8 = ring8members.size()-lastRing8;
-        outputer << setw(8) << frameCount ;
-        outputer << setw(8) << hbondCount ;
-        outputer << setw(8) << lastRing3 ;
-        outputer << setw(8) << lastRing4 ;
-        outputer << setw(8) << lastRing5 ;
-        outputer << setw(8) << lastRing6 ;
-        outputer << setw(8) << lastRing7 ;
-        outputer << setw(8) << lastRing8 << "\n";
-        totalRings = lastRing3+lastRing4+lastRing5+lastRing6+lastRing7+lastRing8;
-        //totalRings = lastRing4+lastRing5+lastRing6+lastRing7;
-        ringProbabilities[0] = 0;
-        ringProbabilities[1] = 0;
-        ringProbabilities[2] = 0;
-        //ringProbabilities[3] = (float)lastRing3/(totalRings+lastRing3);
-        ringProbabilities[3] = (float)lastRing3/totalRings;
-        ringProbabilities[4] = (float)lastRing4/totalRings;
-        ringProbabilities[5] = (float)lastRing5/totalRings;
-        ringProbabilities[6] = (float)lastRing6/totalRings;
-        ringProbabilities[7] = (float)lastRing7/totalRings;
-        ringProbabilities[8] = (float)lastRing8/totalRings;
-        outputer_xyz << totalRings << "\n";
-        outputer_xyz <<fixed<<setprecision(5)<<setw(8) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
+					dotProduct = (unitVec1x * unitVec2x) + (unitVec1y * unitVec2y) + (unitVec1z * unitVec2z);
+					cosine_theta = (cos(dotProduct) + 1/3) * (cos(dotProduct) + 1/3);
+					cosine_theta += cosine_theta;
+				}
+			}
+			tetrahedralParam = 1 - (3/8 * (cosine_theta));
+			average_tetrahedralParam = tetrahedralParam/(6 * oPosX.size());
+		}
+	}
 
-        // outputer << setw(8) << lastRing7 ;
-        // outputer << setw(8) << lastRing8 << "\n";
+	//   cerr << hbondListIndex.size() << " is the hbondListIndex size\n";
+	//   for(i=0; i<hbondListIndex.size(); i++){
+	//       cerr << "hbondListIndex["<< i << "] value: ";
+	//       for (j=0; j < 4; j++){
+	//           cerr << hbondList[i][j] << " ";
+	//       }
+	//       cerr << "\n";
+	//   }
+	// now we start identifying rings to build those lists
+	for(i=0; i<hbondListIndex.size(); i++){
+		for(j=0; j<hbondListIndex[i]; j++){
+			index2 = hbondList[i][j];
+			if (index2 != i){
+				for(k=0; k<hbondListIndex[index2]; k++){
+					index3 = hbondList[index2][k];
+					if (index3 != index2 && index3 != i){
+						for(l=0; l<hbondListIndex[index3]; l++){
+							index4 = hbondList[index3][l];
+							// test if a 3 member ring
+							if (index4 == i){
+								tempVec.push_back(i);
+								tempVec.push_back(index2);
+								tempVec.push_back(index3);
+								sort(tempVec.begin(),tempVec.end());
+								ring3members.push_back(tempVec);
+								tempVec.clear();
+								break;
+							}
+							if (index4 != index3 && index4 != index2){
+								for(m=0; m<hbondListIndex[index4]; m++){
+									index5 = hbondList[index4][m];
+									// test if a 4 member ring
+									if (index5 == i){
+										tempVec.push_back(i);
+										tempVec.push_back(index2);
+										tempVec.push_back(index3);
+										tempVec.push_back(index4);
+										sort(tempVec.begin(),tempVec.end());
+										ring4members.push_back(tempVec);
+										tempVec.clear();
+										break;
+									}
+									if (index5 != index4 && index5 != index3 && index5 != index2){
+										for(n=0; n<hbondListIndex[index5]; n++){
+											index6 = hbondList[index5][n];
+											// test if a 5 member ring
+											if (index6 == i){
+												tempVec.push_back(i);
+												tempVec.push_back(index2);
+												tempVec.push_back(index3);
+												tempVec.push_back(index4);
+												tempVec.push_back(index5);
+												sort(tempVec.begin(),tempVec.end());
+												ring5members.push_back(tempVec);
+												tempVec.clear();
+												break;
+											}
+											if (index6 != index5 && index6 != index4 && index6 != index3 && index6 != index2){
+												for(o=0; o<hbondListIndex[index6]; o++){
+													index7 = hbondList[index6][o];
+													// test if a 6 member ring
+													if (index7 == i){
+														tempVec.push_back(i);
+														tempVec.push_back(index2);
+														tempVec.push_back(index3);
+														tempVec.push_back(index4);
+														tempVec.push_back(index5);
+														tempVec.push_back(index6);
+														sort(tempVec.begin(),tempVec.end());
+														ring6members.push_back(tempVec);
+														tempVec.clear();
+														break;
+													}
+													if (index7 != index6 && index7 != index5 && index7 != index4 && index7 != index3 && index7 != index2){
+														for(p=0; p<hbondListIndex[index7]; p++){
+															index8 = hbondList[index7][p];
+															// test if a 7 member ring
+															if (index8 == i){
+																tempVec.push_back(i);
+																tempVec.push_back(index2);
+																tempVec.push_back(index3);
+																tempVec.push_back(index4);
+																tempVec.push_back(index5);
+																tempVec.push_back(index6);
+																tempVec.push_back(index7);
+																sort(tempVec.begin(),tempVec.end());
+																ring7members.push_back(tempVec);
+																tempVec.clear();
+																break;
+															}
 
-        // open a pov outputer
-        frameInt.str("");
-        frameInt << frameCount;
-        frameCountString = frameInt.str();
-        povName = "pov_files/" + povName2 + "_" + frameCountString + ".pov";
-        povDistName = "pov_files/" + povName2 + "_dist_" + frameCountString + ".pov";
-        pov_out.open(povName.c_str());
-        povDistOut.open(povDistName.c_str());
+															if (index8 != index7 && index8 != index6 && index8 != index5 && index8 != index4 && index8 != index3 && index8 != index2){
+																for(q=0; q<hbondListIndex[index8]; q++){
+																	index9 = hbondList[index8][q];
+																	// test if a 8 member ring
+																	if (index9 == i){
+																		tempVec.push_back(i);
+																		tempVec.push_back(index2);
+																		tempVec.push_back(index3);
+																		tempVec.push_back(index4);
+																		tempVec.push_back(index5);
+																		tempVec.push_back(index6);
+																		tempVec.push_back(index7);
+																		tempVec.push_back(index8);
+																		sort(tempVec.begin(),tempVec.end());
+																		ring8members.push_back(tempVec);
+																		tempVec.clear();
+																		break;
+																	}
+																}
+															}
 
-        // print out the header and object info. to the .pov file
-        povrayObjects->printHeader(pov_out, boxLength);
-        povrayObjects->printRing3(pov_out, boxLength);
-        povrayObjects->printRing4(pov_out, boxLength);
-        povrayObjects->printRing5(pov_out, boxLength);
-        povrayObjects->printRing6(pov_out, boxLength);
-        povrayObjects->printRing7(pov_out, boxLength);
-        povrayObjects->printRing8(pov_out, boxLength);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// purge atom i from hbond lists
+		for(j=0; j<hbondListIndex[i]; j++){
+			index2 = hbondList[i][j];
+			for(k=0; k<hbondListIndex[index2]; k++){
+				hbondList[index2][k] = hbondList[index2][k+1];
+			}
+			hbondListIndex[index2]--;
+		}
+	}
+	//cerr << ring3members.size() << " is the 3 member ring count\n";
+	//cerr << ring4members.size() << " is the 4 member ring count\n";
+	//cerr << ring5members.size() << " is the 5 member ring count\n";
+	//cerr << ring6members.size() << " is the 6 member ring count\n";
+	//cerr << ring7members.size() << " is the 7 member ring count\n";
+	//cerr << ring8members.size() << " is the 8 member ring count\n";
+	// prune the subset information
+	// ...self ring lists first...
+	for(i=ring3members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring3members[j].begin(),ring3members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring3members.erase(ring3members.begin() + i);
+				break;
+			}
+		}
+	}
+	for(i=ring4members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring4members[j].begin(),ring4members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+				ring4members.erase(ring4members.begin() + i);
+				break;
+			}
+		}
+	}
+	for(i=ring5members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring5members[j].begin(),ring5members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+				ring5members.erase(ring5members.begin() + i);
+				break;
+			}
+		}
+	}
+	for(i=ring6members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring6members[j].begin(),ring6members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+				ring6members.erase(ring6members.begin() + i);
+				break;
+			}
+		}
+	}
+	for(i=ring7members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring7members[j].begin(),ring7members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+				ring7members.erase(ring7members.begin() + i);
+				break;
+			}
+		}
+	}
 
-        // print out the header and object info. to the distribution .pov file
-        povrayObjects->printHeader2(povDistOut);
-        povrayObjects->printBar(povDistOut);
-        povrayObjects->printAxes(povDistOut);
-        povDistOut << "axes(" << axes_width << ")\n";
-        // now print the distribution bars, since we have them!
-        //povDistOut << "bar(-2.5, " <<setprecision(8)<<setw(10)<< 5.0*ringProbabilities[3] << ", 0.7, 0.2, 0.2, 1, 0.2)\n";
-        povDistOut << "bar(-2.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[4] << ", 0.7, 0.5, 0.0, 1, 0.0)\n";
-        povDistOut << "bar(-1.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[5] << ", 0.7, 0.5, 0.5, 1, 0.0)\n";
-        povDistOut << "bar(0.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[6] << ", 0.7, 1.0, 0.5, 0.5, 0.0)\n";
-        povDistOut << "bar(1.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[7] << ", 0.7, 1.0, 0.75, 0.5, 0.0)\n";
+	for(i=ring8members.size()-1; i>0; i--){
+		for (j=i-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+				ring8members.erase(ring8members.begin() + i);
+				break;
+			}
+		}
+	}
+	// now we do the pruning tree...
+	// ...3s in 4s...
+	for(i=ring3members.size()-1; i>=0; i--){
+		for (j=ring4members.size()-1; j>=0; j--){
+			if(includes(ring4members[j].begin(),ring4members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring4members.erase(ring4members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...3s in 5s...
+	for(i=ring3members.size()-1; i>=0; i--){
+		for (j=ring5members.size()-1; j>=0; j--){
+			if(includes(ring5members[j].begin(),ring5members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring5members.erase(ring5members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...4s in 5s...
+	for(i=ring4members.size()-1; i>=0; i--){
+		for (j=ring5members.size()-1; j>=0; j--){
+			if(includes(ring5members[j].begin(),ring5members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+				ring5members.erase(ring5members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...3s in 6s...
+	for(i=ring3members.size()-1; i>=0; i--){
+		for (j=ring6members.size()-1; j>=0; j--){
+			if(includes(ring6members[j].begin(),ring6members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring6members.erase(ring6members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...4s in 6s...
+	for(i=ring4members.size()-1; i>=0; i--){
+		for (j=ring6members.size()-1; j>=0; j--){
+			if(includes(ring6members[j].begin(),ring6members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+				ring6members.erase(ring6members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...5s in 6s...
+	for(i=ring5members.size()-1; i>=0; i--){
+		for (j=ring6members.size()-1; j>=0; j--){
+			if(includes(ring6members[j].begin(),ring6members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+				ring6members.erase(ring6members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...3s in 7s...
+	for(i=ring3members.size()-1; i>=0; i--){
+		for (j=ring7members.size()-1; j>=0; j--){
+			if(includes(ring7members[j].begin(),ring7members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring7members.erase(ring7members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...4s in 7s...
+	for(i=ring4members.size()-1; i>=0; i--){
+		for (j=ring7members.size()-1; j>=0; j--){
+			if(includes(ring7members[j].begin(),ring7members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+				ring7members.erase(ring7members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...5s in 7s...
+	for(i=ring5members.size()-1; i>=0; i--){
+		for (j=ring7members.size()-1; j>=0; j--){
+			if(includes(ring7members[j].begin(),ring7members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+				ring7members.erase(ring7members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...6s in 7s...
+	for(i=ring6members.size()-1; i>=0; i--){
+		for (j=ring7members.size()-1; j>=0; j--){
+			if(includes(ring7members[j].begin(),ring7members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+				ring7members.erase(ring7members.begin() + j);
+				break;
+			}
+		}
+	}
 
-        for (i=0; i<ring3members.size(); i++){
-            tempPosX[0]=oPosX[ring3members[i][0]];
-            diffVal = oPosX[ring3members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring3members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring3members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring3members[i][1]];
-            }
-            diffVal = oPosX[ring3members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring3members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring3members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring3members[i][2]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2];
-            xVal /= 3;
+	// ...3s in 8s...
+	for(i=ring3members.size()-1; i>=0; i--){
+		for (j=ring8members.size()-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+				ring8members.erase(ring8members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...4s in 8s...
+	for(i=ring4members.size()-1; i>=0; i--){
+		for (j=ring8members.size()-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+				ring8members.erase(ring8members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...5s in 8s...
+	for(i=ring5members.size()-1; i>=0; i--){
+		for (j=ring8members.size()-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+				ring8members.erase(ring8members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...6s in 8s...
+	for(i=ring6members.size()-1; i>=0; i--){
+		for (j=ring8members.size()-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+				ring8members.erase(ring8members.begin() + j);
+				break;
+			}
+		}
+	}
+	// ...7s in 8s...
+	for(i=ring7members.size()-1; i>=0; i--){
+		for (j=ring8members.size()-1; j>=0; j--){
+			if(includes(ring8members[j].begin(),ring8members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+				ring8members.erase(ring8members.begin() + j);
+				break;
+			}
+		}
+	}
 
-            tempPosY[0]=oPosY[ring3members[i][0]];
-            diffVal = oPosY[ring3members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring3members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring3members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring3members[i][1]];
-            }
-            diffVal = oPosY[ring3members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring3members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring3members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring3members[i][2]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2];
-            yVal /= 3;
+	//            cerr << "\n...after pruning:\n";
+	//cerr << ring3members.size() << " is the 3 member ring count\n";
+	//cerr << ring4members.size() << " is the 4 member ring count\n";
+	//cerr << ring5members.size() << " is the 5 member ring count\n";
+	//cerr << ring6members.size() << " is the 6 member ring count\n";
+	//cerr << ring7members.size() << " is the 7 member ring count\n";
+	//cerr << ring8members.size() << " is the 8 member ring count\n";
+	if (ringOutOpt == 0){
+		// sort through the rings to insure only minimal path rings are included for
+		// each water molecule
+		for(i=0; i<oPosX.size(); i++){
+			bool doEliminateRings = false;
+			for (j=ring3members.size()-1; j>=0; j--){
+				for (k=0; k<3; k++){
+					if (ring3members[j][k] == i){
+						doEliminateRings = true;
+						break;
+					}
+				}
+			}
 
-            tempPosZ[0]=oPosZ[ring3members[i][0]];
-            diffVal = oPosZ[ring3members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring3members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring3members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring3members[i][1]];
-            }
-            diffVal = oPosZ[ring3members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring3members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring3members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring3members[i][2]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2];
-            zVal /= 3;
-            //outputer_xyz << setw(5) << "Li " << setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "Li" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
-        }
+			if (doEliminateRings == false){
+				// continue our search for a minimum ring size for this water molecule
+				for (j=ring4members.size()-1; j>=0; j--){
+					for (k=0; k<4; k++){
+						if (ring4members[j][k] == i){
+							doEliminateRings = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// eliminate all rings containing this water molecule
+				for (j=ring4members.size()-1; j>=0; j--){
+					for (k=0; k<4; k++){
+						if (ring4members[j][k] == i){
+							ring4members.erase(ring4members.begin() + j);
+							break;
+						}
+					}
+				}
+			}
 
-        red_val = "0.5";
-        green_val = "0.0";
-        blue_val = "1.0";
-        for (i=0; i<ring4members.size(); i++){
-            tempPosX[0]=oPosX[ring4members[i][0]];
-            diffVal = oPosX[ring4members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring4members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring4members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring4members[i][1]];
-            }
-            diffVal = oPosX[ring4members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring4members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring4members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring4members[i][2]];
-            }
-            diffVal = oPosX[ring4members[i][3]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring4members[i][3]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring4members[i][3]]+boxLength[0];
-            } else {
-                tempPosX[3] = oPosX[ring4members[i][3]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3];
-            xVal /= 4;
+			if (doEliminateRings == false){
+				// continue our search for a minimum ring size for this water molecule
+				for (j=ring5members.size()-1; j>=0; j--){
+					for (k=0; k<5; k++){
+						if (ring5members[j][k] == i){
+							doEliminateRings = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// eliminate all rings containing this water molecule
+				for (j=ring5members.size()-1; j>=0; j--){
+					for (k=0; k<5; k++){
+						if (ring5members[j][k] == i){
+							ring5members.erase(ring5members.begin() + j);
+							break;
+						}
+					}
+				}
+			}
 
-            tempPosY[0]=oPosY[ring4members[i][0]];
-            diffVal = oPosY[ring4members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring4members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring4members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring4members[i][1]];
-            }
-            diffVal = oPosY[ring4members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring4members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring4members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring4members[i][2]];
-            }
-            diffVal = oPosY[ring4members[i][3]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring4members[i][3]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring4members[i][3]]+boxLength[1];
-            } else {
-                tempPosY[3] = oPosY[ring4members[i][3]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3];
-            yVal /= 4;
+			if (doEliminateRings == false){
+				// continue our search for a minimum ring size for this water molecule
+				for (j=ring6members.size()-1; j>=0; j--){
+					for (k=0; k<6; k++){
+						if (ring6members[j][k] == i){
+							doEliminateRings = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// eliminate all rings containing this water molecule
+				for (j=ring6members.size()-1; j>=0; j--){
+					for (k=0; k<6; k++){
+						if (ring6members[j][k] == i){
+							ring6members.erase(ring6members.begin() + j);
+							break;
+						}
+					}
+				}
+			}
+			if (doEliminateRings == false){
+				// continue our search for a minimum ring size for this water molecule
+				for (j=ring7members.size()-1; j>=0; j--){
+					for (k=0; k<7; k++){
+						if (ring7members[j][k] == i){
+							doEliminateRings = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// eliminate all rings containing this water molecule
+				for (j=ring7members.size()-1; j>=0; j--){
+					for (k=0; k<7; k++){
+						if (ring7members[j][k] == i){
+							ring7members.erase(ring7members.begin() + j);
+							break;
+						}
+					}
+				}
+			}
+			if (doEliminateRings == false){
+				// continue our search for a minimum ring size for this water molecule
+				for (j=ring8members.size()-1; j>=0; j--){
+					for (k=0; k<8; k++){
+						if (ring8members[j][k] == i){
+							doEliminateRings = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// eliminate all rings containing this water molecule
+				for (j=ring8members.size()-1; j>=0; j--){
+					for (k=0; k<8; k++){
+						if (ring8members[j][k] == i){
+							ring8members.erase(ring8members.begin() + j);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	//            cerr << "\n...after elimination:\n";
+	//cerr << ring3members.size() << " is the 3 member ring count\n";
+	//cerr << ring4members.size() << " is the 4 member ring count\n";
+	//cerr << ring5members.size() << " is the 5 member ring count\n";
+	//cerr << ring6members.size() << " is the 6 member ring count\n";
+	//cerr << ring7members.size() << " is the 7 member ring count\n";
+	//cerr << ring8members.size() << " is the 8 member ring count\n";
 
-            tempPosZ[0]=oPosZ[ring4members[i][0]];
-            diffVal = oPosZ[ring4members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring4members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring4members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring4members[i][1]];
-            }
-            diffVal = oPosZ[ring4members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring4members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring4members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring4members[i][2]];
-            }
-            diffVal = oPosZ[ring4members[i][3]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring4members[i][3]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring4members[i][3]]+boxLength[2];
-            } else {
-                tempPosZ[3] = oPosZ[ring4members[i][3]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3];
-            zVal /= 4;
-            //outputer_xyz << setw(5) << "Be" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "Be" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+	// output ring data
+	lastRing3 = ring3members.size()-lastRing3;
+	lastRing4 = ring4members.size()-lastRing4;
+	lastRing5 = ring5members.size()-lastRing5;
+	lastRing6 = ring6members.size()-lastRing6;
+	lastRing7 = ring7members.size()-lastRing7;
+	lastRing8 = ring8members.size()-lastRing8;
+	outputer << setw(8) << frameCount ;
+	outputer << setw(8) << hbondCount ;
+	outputer << setw(8) << average_tetrahedralParam;
+	outputer << setw(8) << lastRing3 ;
+	outputer << setw(8) << lastRing4 ;
+	outputer << setw(8) << lastRing5 ;
+	outputer << setw(8) << lastRing6 ;
+	outputer << setw(8) << lastRing7 ;
+	outputer << setw(8) << lastRing8 << "\n";
+	totalRings = lastRing3+lastRing4+lastRing5+lastRing6+lastRing7+lastRing8;
+	//totalRings = lastRing4+lastRing5+lastRing6+lastRing7;
+	ringProbabilities[0] = 0;
+	ringProbabilities[1] = 0;
+	ringProbabilities[2] = 0;
+	//ringProbabilities[3] = (float)lastRing3/(totalRings+lastRing3);
+	ringProbabilities[3] = (float)lastRing3/totalRings;
+	ringProbabilities[4] = (float)lastRing4/totalRings;
+	ringProbabilities[5] = (float)lastRing5/totalRings;
+	ringProbabilities[6] = (float)lastRing6/totalRings;
+	ringProbabilities[7] = (float)lastRing7/totalRings;
+	ringProbabilities[8] = (float)lastRing8/totalRings;
+	outputer_xyz << totalRings << "\n";
+	outputer_xyz <<fixed<<setprecision(5)<<setw(8) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
 
-            if (zVal <= slab_thickness && zVal >= -slab_thickness){
-                zVal = -0.1;
+	// outputer << setw(8) << lastRing7 ;
+	// outputer << setw(8) << lastRing8 << "\n";
 
-                pov_out << "ring4(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+	// open a pov outputer
+	frameInt.str("");
+	frameInt << frameCount;
+	frameCountString = frameInt.str();
+	povName = "pov_files/" + povName2 + "_" + frameCountString + ".pov";
+	povDistName = "pov_files/" + povName2 + "_dist_" + frameCountString + ".pov";
+	pov_out.open(povName.c_str());
+	povDistOut.open(povDistName.c_str());
 
-                if (xVal < (-0.5*boxLength[0]+buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (xVal > (0.5*boxLength[0]-buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                    pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                    pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                }
-            } 
-        }
+	// print out the header and object info. to the .pov file
+	povrayObjects->printHeader(pov_out, boxLength);
+	povrayObjects->printRing3(pov_out, boxLength);
+	povrayObjects->printRing4(pov_out, boxLength);
+	povrayObjects->printRing5(pov_out, boxLength);
+	povrayObjects->printRing6(pov_out, boxLength);
+	povrayObjects->printRing7(pov_out, boxLength);
+	povrayObjects->printRing8(pov_out, boxLength);
 
-        red_val = "0.0";
-        green_val = "0.5";
-        blue_val = "1.0";
-        for (i=0; i<ring5members.size(); i++){
-            tempPosX[0]=oPosX[ring5members[i][0]];
-            diffVal = oPosX[ring5members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring5members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring5members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring5members[i][1]];
-            }
-            diffVal = oPosX[ring5members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring5members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring5members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring5members[i][2]];
-            }
-            diffVal = oPosX[ring5members[i][3]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring5members[i][3]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring5members[i][3]]+boxLength[0];
-            } else {
-                tempPosX[3] = oPosX[ring5members[i][3]];
-            }
-            diffVal = oPosX[ring5members[i][4]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring5members[i][4]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring5members[i][4]]+boxLength[0];
-            } else {
-                tempPosX[4] = oPosX[ring5members[i][4]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4];
-            xVal /= 5;
+	// print out the header and object info. to the distribution .pov file
+	povrayObjects->printHeader2(povDistOut);
+	povrayObjects->printBar(povDistOut);
+	povrayObjects->printAxes(povDistOut);
+	povDistOut << "axes(" << axes_width << ")\n";
+	// now print the distribution bars, since we have them!
+	//povDistOut << "bar(-2.5, " <<setprecision(8)<<setw(10)<< 5.0*ringProbabilities[3] << ", 0.7, 0.2, 0.2, 1, 0.2)\n";
+	povDistOut << "bar(-2.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[4] << ", 0.7, 0.5, 0.0, 1, 0.0)\n";
+	povDistOut << "bar(-1.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[5] << ", 0.7, 0.5, 0.5, 1, 0.0)\n";
+	povDistOut << "bar(0.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[6] << ", 0.7, 1.0, 0.5, 0.5, 0.0)\n";
+	povDistOut << "bar(1.0, " <<setprecision(8)<<setw(10)<< 4.0*ringProbabilities[7] << ", 0.7, 1.0, 0.75, 0.5, 0.0)\n";
 
-            tempPosY[0]=oPosY[ring5members[i][0]];
-            diffVal = oPosY[ring5members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring5members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring5members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring5members[i][1]];
-            }
-            diffVal = oPosY[ring5members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring5members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring5members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring5members[i][2]];
-            }
-            diffVal = oPosY[ring5members[i][3]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring5members[i][3]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring5members[i][3]]+boxLength[1];
-            } else {
-                tempPosY[3] = oPosY[ring5members[i][3]];
-            }
-            diffVal = oPosY[ring5members[i][4]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring5members[i][4]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring5members[i][4]]+boxLength[1];
-            } else {
-                tempPosY[4] = oPosY[ring5members[i][4]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4];
-            yVal /= 5;
+	for (i=0; i<ring3members.size(); i++){
+		tempPosX[0]=oPosX[ring3members[i][0]];
+		diffVal = oPosX[ring3members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring3members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring3members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring3members[i][1]];
+		}
+		diffVal = oPosX[ring3members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring3members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring3members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring3members[i][2]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2];
+		xVal /= 3;
 
-            tempPosZ[0]=oPosZ[ring5members[i][0]];
-            diffVal = oPosZ[ring5members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring5members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring5members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring5members[i][1]];
-            }
-            diffVal = oPosZ[ring5members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring5members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring5members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring5members[i][2]];
-            }
-            diffVal = oPosZ[ring5members[i][3]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring5members[i][3]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring5members[i][3]]+boxLength[2];
-            } else {
-                tempPosZ[3] = oPosZ[ring5members[i][3]];
-            }
-            diffVal = oPosZ[ring5members[i][4]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring5members[i][4]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring5members[i][4]]+boxLength[2];
-            } else {
-                tempPosZ[4] = oPosZ[ring5members[i][4]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4];
-            zVal /= 5;
-            //outputer_xyz << setw(5) << "B" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "B" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+		tempPosY[0]=oPosY[ring3members[i][0]];
+		diffVal = oPosY[ring3members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring3members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring3members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring3members[i][1]];
+		}
+		diffVal = oPosY[ring3members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring3members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring3members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring3members[i][2]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2];
+		yVal /= 3;
 
-            if (zVal <= slab_thickness && zVal >= -slab_thickness){
-                zVal = -0.1;
+		tempPosZ[0]=oPosZ[ring3members[i][0]];
+		diffVal = oPosZ[ring3members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring3members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring3members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring3members[i][1]];
+		}
+		diffVal = oPosZ[ring3members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring3members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring3members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring3members[i][2]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2];
+		zVal /= 3;
+		//outputer_xyz << setw(5) << "Li " << setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "Li" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+	}
 
-                pov_out << "ring5(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+	red_val = "0.5";
+	green_val = "0.0";
+	blue_val = "1.0";
+	for (i=0; i<ring4members.size(); i++){
+		tempPosX[0]=oPosX[ring4members[i][0]];
+		diffVal = oPosX[ring4members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring4members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring4members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring4members[i][1]];
+		}
+		diffVal = oPosX[ring4members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring4members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring4members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring4members[i][2]];
+		}
+		diffVal = oPosX[ring4members[i][3]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring4members[i][3]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring4members[i][3]]+boxLength[0];
+		} else {
+			tempPosX[3] = oPosX[ring4members[i][3]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3];
+		xVal /= 4;
 
-                if (xVal < (-0.5*boxLength[0]+buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (xVal > (0.5*boxLength[0]-buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                    pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                    pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                }
-            } 
-        }
+		tempPosY[0]=oPosY[ring4members[i][0]];
+		diffVal = oPosY[ring4members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring4members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring4members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring4members[i][1]];
+		}
+		diffVal = oPosY[ring4members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring4members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring4members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring4members[i][2]];
+		}
+		diffVal = oPosY[ring4members[i][3]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring4members[i][3]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring4members[i][3]]+boxLength[1];
+		} else {
+			tempPosY[3] = oPosY[ring4members[i][3]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3];
+		yVal /= 4;
 
-        red_val = "1.0";
-        green_val = "0.0";
-        blue_val = "0.0";
-        for (i=0; i<ring6members.size(); i++){
-            tempPosX[0]=oPosX[ring6members[i][0]];
-            diffVal = oPosX[ring6members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring6members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring6members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring6members[i][1]];
-            }
-            diffVal = oPosX[ring6members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring6members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring6members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring6members[i][2]];
-            }
-            diffVal = oPosX[ring6members[i][3]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring6members[i][3]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring6members[i][3]]+boxLength[0];
-            } else {
-                tempPosX[3] = oPosX[ring6members[i][3]];
-            }
-            diffVal = oPosX[ring6members[i][4]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring6members[i][4]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring6members[i][4]]+boxLength[0];
-            } else {
-                tempPosX[4] = oPosX[ring6members[i][4]];
-            }
-            diffVal = oPosX[ring6members[i][5]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring6members[i][5]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring6members[i][5]]+boxLength[0];
-            } else {
-                tempPosX[5] = oPosX[ring6members[i][5]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5];
-            xVal /= 6;
+		tempPosZ[0]=oPosZ[ring4members[i][0]];
+		diffVal = oPosZ[ring4members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring4members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring4members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring4members[i][1]];
+		}
+		diffVal = oPosZ[ring4members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring4members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring4members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring4members[i][2]];
+		}
+		diffVal = oPosZ[ring4members[i][3]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring4members[i][3]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring4members[i][3]]+boxLength[2];
+		} else {
+			tempPosZ[3] = oPosZ[ring4members[i][3]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3];
+		zVal /= 4;
+		//outputer_xyz << setw(5) << "Be" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "Be" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
 
-            tempPosY[0]=oPosY[ring6members[i][0]];
-            diffVal = oPosY[ring6members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring6members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring6members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring6members[i][1]];
-            }
-            diffVal = oPosY[ring6members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring6members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring6members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring6members[i][2]];
-            }
-            diffVal = oPosY[ring6members[i][3]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring6members[i][3]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring6members[i][3]]+boxLength[1];
-            } else {
-                tempPosY[3] = oPosY[ring6members[i][3]];
-            }
-            diffVal = oPosY[ring6members[i][4]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring6members[i][4]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring6members[i][4]]+boxLength[1];
-            } else {
-                tempPosY[4] = oPosY[ring6members[i][4]];
-            }
-            diffVal = oPosY[ring6members[i][5]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring6members[i][5]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring6members[i][5]]+boxLength[1];
-            } else {
-                tempPosY[5] = oPosY[ring6members[i][5]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5];
-            yVal /= 6;
+		if (zVal <= slab_thickness && zVal >= -slab_thickness){
+			zVal = -0.1;
 
-            tempPosZ[0]=oPosZ[ring6members[i][0]];
-            diffVal = oPosZ[ring6members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring6members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring6members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring6members[i][1]];
-            }
-            diffVal = oPosZ[ring6members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring6members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring6members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring6members[i][2]];
-            }
-            diffVal = oPosZ[ring6members[i][3]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring6members[i][3]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring6members[i][3]]+boxLength[2];
-            } else {
-                tempPosZ[3] = oPosZ[ring6members[i][3]];
-            }
-            diffVal = oPosZ[ring6members[i][4]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring6members[i][4]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring6members[i][4]]+boxLength[2];
-            } else {
-                tempPosZ[4] = oPosZ[ring6members[i][4]];
-            }
-            diffVal = oPosZ[ring6members[i][5]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring6members[i][5]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring6members[i][5]]+boxLength[2];
-            } else {
-                tempPosZ[5] = oPosZ[ring6members[i][5]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5];
-            zVal /= 6;
-            //outputer_xyz << setw(5) << "C" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "C" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+			pov_out << "ring4(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
 
-            if (zVal <= slab_thickness && zVal >= -slab_thickness){
-                zVal = 0.0;
+			if (xVal < (-0.5*boxLength[0]+buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring4(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (xVal > (0.5*boxLength[0]-buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring4(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (yVal < (-0.5*boxLength[1]+buffer_size)){
+				pov_out << "ring4(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+				pov_out << "ring4(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			}
+		}
+	}
 
-                pov_out << "ring6(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+	red_val = "0.0";
+	green_val = "0.5";
+	blue_val = "1.0";
+	for (i=0; i<ring5members.size(); i++){
+		tempPosX[0]=oPosX[ring5members[i][0]];
+		diffVal = oPosX[ring5members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring5members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring5members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring5members[i][1]];
+		}
+		diffVal = oPosX[ring5members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring5members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring5members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring5members[i][2]];
+		}
+		diffVal = oPosX[ring5members[i][3]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring5members[i][3]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring5members[i][3]]+boxLength[0];
+		} else {
+			tempPosX[3] = oPosX[ring5members[i][3]];
+		}
+		diffVal = oPosX[ring5members[i][4]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring5members[i][4]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring5members[i][4]]+boxLength[0];
+		} else {
+			tempPosX[4] = oPosX[ring5members[i][4]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4];
+		xVal /= 5;
 
-                if (xVal < (-0.5*boxLength[0]+buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (xVal > (0.5*boxLength[0]-buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                    pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                    pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                }
-            } 
-        }
+		tempPosY[0]=oPosY[ring5members[i][0]];
+		diffVal = oPosY[ring5members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring5members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring5members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring5members[i][1]];
+		}
+		diffVal = oPosY[ring5members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring5members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring5members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring5members[i][2]];
+		}
+		diffVal = oPosY[ring5members[i][3]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring5members[i][3]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring5members[i][3]]+boxLength[1];
+		} else {
+			tempPosY[3] = oPosY[ring5members[i][3]];
+		}
+		diffVal = oPosY[ring5members[i][4]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring5members[i][4]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring5members[i][4]]+boxLength[1];
+		} else {
+			tempPosY[4] = oPosY[ring5members[i][4]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4];
+		yVal /= 5;
 
-        red_val = "1.0";
-        green_val = "0.5";
-        blue_val = "0.0";
-        for (i=0; i<ring7members.size(); i++){
-            tempPosX[0]=oPosX[ring7members[i][0]];
-            diffVal = oPosX[ring7members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring7members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring7members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring7members[i][1]];
-            }
-            diffVal = oPosX[ring7members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring7members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring7members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring7members[i][2]];
-            }
-            diffVal = oPosX[ring7members[i][3]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring7members[i][3]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring7members[i][3]]+boxLength[0];
-            } else {
-                tempPosX[3] = oPosX[ring7members[i][3]];
-            }
-            diffVal = oPosX[ring7members[i][4]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring7members[i][4]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring7members[i][4]]+boxLength[0];
-            } else {
-                tempPosX[4] = oPosX[ring7members[i][4]];
-            }
-            diffVal = oPosX[ring7members[i][5]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring7members[i][5]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring7members[i][5]]+boxLength[0];
-            } else {
-                tempPosX[5] = oPosX[ring7members[i][5]];
-            }
-            diffVal = oPosX[ring7members[i][6]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[6] = oPosX[ring7members[i][6]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[6] = oPosX[ring7members[i][6]]+boxLength[0];
-            } else {
-                tempPosX[6] = oPosX[ring7members[i][6]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5]+tempPosX[6];
-            xVal /= 7;
+		tempPosZ[0]=oPosZ[ring5members[i][0]];
+		diffVal = oPosZ[ring5members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring5members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring5members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring5members[i][1]];
+		}
+		diffVal = oPosZ[ring5members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring5members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring5members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring5members[i][2]];
+		}
+		diffVal = oPosZ[ring5members[i][3]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring5members[i][3]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring5members[i][3]]+boxLength[2];
+		} else {
+			tempPosZ[3] = oPosZ[ring5members[i][3]];
+		}
+		diffVal = oPosZ[ring5members[i][4]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring5members[i][4]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring5members[i][4]]+boxLength[2];
+		} else {
+			tempPosZ[4] = oPosZ[ring5members[i][4]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4];
+		zVal /= 5;
+		//outputer_xyz << setw(5) << "B" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "B" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
 
-            tempPosY[0]=oPosY[ring7members[i][0]];
-            diffVal = oPosY[ring7members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring7members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring7members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring7members[i][1]];
-            }
-            diffVal = oPosY[ring7members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring7members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring7members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring7members[i][2]];
-            }
-            diffVal = oPosY[ring7members[i][3]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring7members[i][3]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring7members[i][3]]+boxLength[1];
-            } else {
-                tempPosY[3] = oPosY[ring7members[i][3]];
-            }
-            diffVal = oPosY[ring7members[i][4]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring7members[i][4]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring7members[i][4]]+boxLength[1];
-            } else {
-                tempPosY[4] = oPosY[ring7members[i][4]];
-            }
-            diffVal = oPosY[ring7members[i][5]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring7members[i][5]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring7members[i][5]]+boxLength[1];
-            } else {
-                tempPosY[5] = oPosY[ring7members[i][5]];
-            }
-            diffVal = oPosY[ring7members[i][6]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[6] = oPosY[ring7members[i][6]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[6] = oPosY[ring7members[i][6]]+boxLength[1];
-            } else {
-                tempPosY[6] = oPosY[ring7members[i][6]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5]+tempPosY[6];
-            yVal /= 7;
+		if (zVal <= slab_thickness && zVal >= -slab_thickness){
+			zVal = -0.1;
 
-            tempPosZ[0]=oPosZ[ring7members[i][0]];
-            diffVal = oPosZ[ring7members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring7members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring7members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring7members[i][1]];
-            }
-            diffVal = oPosZ[ring7members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring7members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring7members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring7members[i][2]];
-            }
-            diffVal = oPosZ[ring7members[i][3]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring7members[i][3]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring7members[i][3]]+boxLength[2];
-            } else {
-                tempPosZ[3] = oPosZ[ring7members[i][3]];
-            }
-            diffVal = oPosZ[ring7members[i][4]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring7members[i][4]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring7members[i][4]]+boxLength[2];
-            } else {
-                tempPosZ[4] = oPosZ[ring7members[i][4]];
-            }
-            diffVal = oPosZ[ring7members[i][5]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring7members[i][5]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring7members[i][5]]+boxLength[2];
-            } else {
-                tempPosZ[5] = oPosZ[ring7members[i][5]];
-            }
-            diffVal = oPosZ[ring7members[i][6]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[6] = oPosZ[ring7members[i][6]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[6] = oPosZ[ring7members[i][6]]+boxLength[2];
-            } else {
-                tempPosZ[6] = oPosZ[ring7members[i][6]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5]+tempPosZ[6];
-            zVal /= 7;
-            //outputer_xyz << setw(5) << "N" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "N" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+			pov_out << "ring5(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
 
-            if (zVal <= slab_thickness && zVal >= -slab_thickness){
-                zVal = -0.2;
+			if (xVal < (-0.5*boxLength[0]+buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring5(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (xVal > (0.5*boxLength[0]-buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring5(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (yVal < (-0.5*boxLength[1]+buffer_size)){
+				pov_out << "ring5(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+				pov_out << "ring5(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			}
+		}
+	}
 
-                pov_out << "ring7(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+	red_val = "1.0";
+	green_val = "0.0";
+	blue_val = "0.0";
+	for (i=0; i<ring6members.size(); i++){
+		tempPosX[0]=oPosX[ring6members[i][0]];
+		diffVal = oPosX[ring6members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring6members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring6members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring6members[i][1]];
+		}
+		diffVal = oPosX[ring6members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring6members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring6members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring6members[i][2]];
+		}
+		diffVal = oPosX[ring6members[i][3]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring6members[i][3]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring6members[i][3]]+boxLength[0];
+		} else {
+			tempPosX[3] = oPosX[ring6members[i][3]];
+		}
+		diffVal = oPosX[ring6members[i][4]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring6members[i][4]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring6members[i][4]]+boxLength[0];
+		} else {
+			tempPosX[4] = oPosX[ring6members[i][4]];
+		}
+		diffVal = oPosX[ring6members[i][5]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring6members[i][5]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring6members[i][5]]+boxLength[0];
+		} else {
+			tempPosX[5] = oPosX[ring6members[i][5]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5];
+		xVal /= 6;
 
-                if (xVal < (-0.5*boxLength[0]+buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (xVal > (0.5*boxLength[0]-buffer_size)){
-                    if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                        pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                        pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                        pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    } else {
-                        pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                    }
-                } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
-                    pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-                    pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-                }
-            } 
-        }
+		tempPosY[0]=oPosY[ring6members[i][0]];
+		diffVal = oPosY[ring6members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring6members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring6members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring6members[i][1]];
+		}
+		diffVal = oPosY[ring6members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring6members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring6members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring6members[i][2]];
+		}
+		diffVal = oPosY[ring6members[i][3]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring6members[i][3]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring6members[i][3]]+boxLength[1];
+		} else {
+			tempPosY[3] = oPosY[ring6members[i][3]];
+		}
+		diffVal = oPosY[ring6members[i][4]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring6members[i][4]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring6members[i][4]]+boxLength[1];
+		} else {
+			tempPosY[4] = oPosY[ring6members[i][4]];
+		}
+		diffVal = oPosY[ring6members[i][5]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring6members[i][5]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring6members[i][5]]+boxLength[1];
+		} else {
+			tempPosY[5] = oPosY[ring6members[i][5]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5];
+		yVal /= 6;
 
-        red_val = "1.0";
-        green_val = "0.75";
-        blue_val = "0.0";
-        for (i=0; i<ring8members.size(); i++){
-            tempPosX[0]=oPosX[ring8members[i][0]];
-            diffVal = oPosX[ring8members[i][1]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring8members[i][1]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[1] = oPosX[ring8members[i][1]]+boxLength[0];
-            } else {
-                tempPosX[1] = oPosX[ring8members[i][1]];
-            }
-            diffVal = oPosX[ring8members[i][2]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring8members[i][2]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[2] = oPosX[ring8members[i][2]]+boxLength[0];
-            } else {
-                tempPosX[2] = oPosX[ring8members[i][2]];
-            }
-            diffVal = oPosX[ring8members[i][3]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring8members[i][3]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[3] = oPosX[ring8members[i][3]]+boxLength[0];
-            } else {
-                tempPosX[3] = oPosX[ring8members[i][3]];
-            }
-            diffVal = oPosX[ring8members[i][4]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring8members[i][4]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[4] = oPosX[ring8members[i][4]]+boxLength[0];
-            } else {
-                tempPosX[4] = oPosX[ring8members[i][4]];
-            }
-            diffVal = oPosX[ring8members[i][5]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring8members[i][5]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[5] = oPosX[ring8members[i][5]]+boxLength[0];
-            } else {
-                tempPosX[5] = oPosX[ring8members[i][5]];
-            }
-            diffVal = oPosX[ring8members[i][6]]-tempPosX[0];
-            if (diffVal > 0.5*boxLength[0]){
-                tempPosX[6] = oPosX[ring8members[i][6]]-boxLength[0];
-            } else if (diffVal < -0.5*boxLength[0]){
-                tempPosX[6] = oPosX[ring8members[i][6]]+boxLength[0];
-            } else {
-                tempPosX[6] = oPosX[ring8members[i][6]];
-            }
-            xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5]+tempPosX[6];
-            xVal /= 8;
+		tempPosZ[0]=oPosZ[ring6members[i][0]];
+		diffVal = oPosZ[ring6members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring6members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring6members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring6members[i][1]];
+		}
+		diffVal = oPosZ[ring6members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring6members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring6members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring6members[i][2]];
+		}
+		diffVal = oPosZ[ring6members[i][3]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring6members[i][3]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring6members[i][3]]+boxLength[2];
+		} else {
+			tempPosZ[3] = oPosZ[ring6members[i][3]];
+		}
+		diffVal = oPosZ[ring6members[i][4]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring6members[i][4]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring6members[i][4]]+boxLength[2];
+		} else {
+			tempPosZ[4] = oPosZ[ring6members[i][4]];
+		}
+		diffVal = oPosZ[ring6members[i][5]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring6members[i][5]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring6members[i][5]]+boxLength[2];
+		} else {
+			tempPosZ[5] = oPosZ[ring6members[i][5]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5];
+		zVal /= 6;
+		//outputer_xyz << setw(5) << "C" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "C" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
 
-            tempPosY[0]=oPosY[ring8members[i][0]];
-            diffVal = oPosY[ring8members[i][1]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring8members[i][1]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[1] = oPosY[ring8members[i][1]]+boxLength[1];
-            } else {
-                tempPosY[1] = oPosY[ring8members[i][1]];
-            }
-            diffVal = oPosY[ring8members[i][2]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring8members[i][2]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[2] = oPosY[ring8members[i][2]]+boxLength[1];
-            } else {
-                tempPosY[2] = oPosY[ring8members[i][2]];
-            }
-            diffVal = oPosY[ring8members[i][3]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring8members[i][3]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[3] = oPosY[ring8members[i][3]]+boxLength[1];
-            } else {
-                tempPosY[3] = oPosY[ring8members[i][3]];
-            }
-            diffVal = oPosY[ring8members[i][4]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring8members[i][4]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[4] = oPosY[ring8members[i][4]]+boxLength[1];
-            } else {
-                tempPosY[4] = oPosY[ring8members[i][4]];
-            }
-            diffVal = oPosY[ring8members[i][5]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring8members[i][5]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[5] = oPosY[ring8members[i][5]]+boxLength[1];
-            } else {
-                tempPosY[5] = oPosY[ring8members[i][5]];
-            }
-            diffVal = oPosY[ring8members[i][6]]-tempPosY[0];
-            if (diffVal > 0.5*boxLength[1]){
-                tempPosY[6] = oPosY[ring8members[i][6]]-boxLength[1];
-            } else if (diffVal < -0.5*boxLength[1]){
-                tempPosY[6] = oPosY[ring8members[i][6]]+boxLength[1];
-            } else {
-                tempPosY[6] = oPosY[ring8members[i][6]];
-            }
-            yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5]+tempPosY[6];
-            yVal /= 8;
+		if (zVal <= slab_thickness && zVal >= -slab_thickness){
+			zVal = 0.0;
 
-            tempPosZ[0]=oPosZ[ring8members[i][0]];
-            diffVal = oPosZ[ring8members[i][1]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring8members[i][1]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[1] = oPosZ[ring8members[i][1]]+boxLength[2];
-            } else {
-                tempPosZ[1] = oPosZ[ring8members[i][1]];
-            }
-            diffVal = oPosZ[ring8members[i][2]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring8members[i][2]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[2] = oPosZ[ring8members[i][2]]+boxLength[2];
-            } else {
-                tempPosZ[2] = oPosZ[ring8members[i][2]];
-            }
-            diffVal = oPosZ[ring8members[i][3]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring8members[i][3]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[3] = oPosZ[ring8members[i][3]]+boxLength[2];
-            } else {
-                tempPosZ[3] = oPosZ[ring8members[i][3]];
-            }
-            diffVal = oPosZ[ring8members[i][4]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring8members[i][4]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[4] = oPosZ[ring8members[i][4]]+boxLength[2];
-            } else {
-                tempPosZ[4] = oPosZ[ring8members[i][4]];
-            }
-            diffVal = oPosZ[ring8members[i][5]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring8members[i][5]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[5] = oPosZ[ring8members[i][5]]+boxLength[2];
-            } else {
-                tempPosZ[5] = oPosZ[ring8members[i][5]];
-            }
-            diffVal = oPosZ[ring8members[i][6]]-tempPosZ[0];
-            if (diffVal > 0.5*boxLength[2]){
-                tempPosZ[6] = oPosZ[ring8members[i][6]]-boxLength[2];
-            } else if (diffVal < -0.5*boxLength[2]){
-                tempPosZ[6] = oPosZ[ring8members[i][6]]+boxLength[2];
-            } else {
-                tempPosZ[6] = oPosZ[ring8members[i][6]];
-            }
-            zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5]+tempPosZ[6];
-            zVal /= 8;
-            //outputer_xyz << setw(5) << "O" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
-            outputer_xyz <<left<< setw(5) << "O" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+			pov_out << "ring6(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
 
-            //    if (zVal <= slab_thickness && zVal >= -slab_thickness){
-            //        zVal = -0.2;
-            //        pov_out << "ring8(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //        if (xVal < (-0.5*boxLength[0]+buffer_size)){
-            //            if (yVal < (-0.5*boxLength[1]+buffer_size)){
-            //                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-            //                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            } else {
-            //                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            }
-            //        } else if (xVal > (0.5*boxLength[0]-buffer_size)){
-            //            if (yVal < (-0.5*boxLength[1]+buffer_size)){
-            //                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-            //                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //                pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            } else {
-            //                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //            }
-            //        } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
-            //            pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //        } else if (yVal > (0.5*boxLength[1]-buffer_size)){
-            //            pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
-            //        }
-            //    } 
-        }
+			if (xVal < (-0.5*boxLength[0]+buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring6(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (xVal > (0.5*boxLength[0]-buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring6(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (yVal < (-0.5*boxLength[1]+buffer_size)){
+				pov_out << "ring6(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+				pov_out << "ring6(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			}
+		}
+	}
 
-        x_frame = int(scale_factor * boxLength[0]);
-        y_frame = int(scale_factor * boxLength[1]);
-        xFrameInt.str("");
-        yFrameInt.str("");
-        xFrameInt << x_frame;
-        yFrameInt << y_frame;
-        xFrameString = xFrameInt.str();
-        yFrameString = yFrameInt.str();
-        outputer_pov << "povray -w" + xFrameString + " -h" + yFrameString + " +a0.1 -D " + povName2 + "_" + frameCountString + ".pov\n";
-        frameCount++;
+	red_val = "1.0";
+	green_val = "0.5";
+	blue_val = "0.0";
+	for (i=0; i<ring7members.size(); i++){
+		tempPosX[0]=oPosX[ring7members[i][0]];
+		diffVal = oPosX[ring7members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring7members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring7members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring7members[i][1]];
+		}
+		diffVal = oPosX[ring7members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring7members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring7members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring7members[i][2]];
+		}
+		diffVal = oPosX[ring7members[i][3]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring7members[i][3]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring7members[i][3]]+boxLength[0];
+		} else {
+			tempPosX[3] = oPosX[ring7members[i][3]];
+		}
+		diffVal = oPosX[ring7members[i][4]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring7members[i][4]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring7members[i][4]]+boxLength[0];
+		} else {
+			tempPosX[4] = oPosX[ring7members[i][4]];
+		}
+		diffVal = oPosX[ring7members[i][5]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring7members[i][5]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring7members[i][5]]+boxLength[0];
+		} else {
+			tempPosX[5] = oPosX[ring7members[i][5]];
+		}
+		diffVal = oPosX[ring7members[i][6]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[6] = oPosX[ring7members[i][6]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[6] = oPosX[ring7members[i][6]]+boxLength[0];
+		} else {
+			tempPosX[6] = oPosX[ring7members[i][6]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5]+tempPosX[6];
+		xVal /= 7;
 
-        // close the pov file handle
-        pov_out.close();
-        povDistOut.close();
+		tempPosY[0]=oPosY[ring7members[i][0]];
+		diffVal = oPosY[ring7members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring7members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring7members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring7members[i][1]];
+		}
+		diffVal = oPosY[ring7members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring7members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring7members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring7members[i][2]];
+		}
+		diffVal = oPosY[ring7members[i][3]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring7members[i][3]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring7members[i][3]]+boxLength[1];
+		} else {
+			tempPosY[3] = oPosY[ring7members[i][3]];
+		}
+		diffVal = oPosY[ring7members[i][4]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring7members[i][4]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring7members[i][4]]+boxLength[1];
+		} else {
+			tempPosY[4] = oPosY[ring7members[i][4]];
+		}
+		diffVal = oPosY[ring7members[i][5]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring7members[i][5]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring7members[i][5]]+boxLength[1];
+		} else {
+			tempPosY[5] = oPosY[ring7members[i][5]];
+		}
+		diffVal = oPosY[ring7members[i][6]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[6] = oPosY[ring7members[i][6]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[6] = oPosY[ring7members[i][6]]+boxLength[1];
+		} else {
+			tempPosY[6] = oPosY[ring7members[i][6]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5]+tempPosY[6];
+		yVal /= 7;
 
-        // clear reused vectors
-        oPosX.clear();
-        oPosY.clear(); 
-        oPosZ.clear();
-        hPosX.clear();
-        hPosY.clear();
-        hPosZ.clear();
-        neighborListIndex.clear();
-        neighborList.clear();
-        hbondListIndex.clear();
-        hbondList.clear();
-        hbondVecX.clear();
-        hbondVecY.clear();
-        hbondVecZ.clear();
-        ring3members.clear(); 
-        ring4members.clear();
-        ring5members.clear();
-        ring6members.clear();
-        ring7members.clear();
-        ring8members.clear();
-        hbondCount = 0;
-        lastRing3 = 0;
-        lastRing4 = 0;
-        lastRing5 = 0;
-        lastRing6 = 0;
-        lastRing7 = 0;
-        lastRing8 = 0;
-        totalRings = 0;
+		tempPosZ[0]=oPosZ[ring7members[i][0]];
+		diffVal = oPosZ[ring7members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring7members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring7members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring7members[i][1]];
+		}
+		diffVal = oPosZ[ring7members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring7members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring7members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring7members[i][2]];
+		}
+		diffVal = oPosZ[ring7members[i][3]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring7members[i][3]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring7members[i][3]]+boxLength[2];
+		} else {
+			tempPosZ[3] = oPosZ[ring7members[i][3]];
+		}
+		diffVal = oPosZ[ring7members[i][4]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring7members[i][4]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring7members[i][4]]+boxLength[2];
+		} else {
+			tempPosZ[4] = oPosZ[ring7members[i][4]];
+		}
+		diffVal = oPosZ[ring7members[i][5]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring7members[i][5]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring7members[i][5]]+boxLength[2];
+		} else {
+			tempPosZ[5] = oPosZ[ring7members[i][5]];
+		}
+		diffVal = oPosZ[ring7members[i][6]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[6] = oPosZ[ring7members[i][6]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[6] = oPosZ[ring7members[i][6]]+boxLength[2];
+		} else {
+			tempPosZ[6] = oPosZ[ring7members[i][6]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5]+tempPosZ[6];
+		zVal /= 7;
+		//outputer_xyz << setw(5) << "N" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "N" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
 
-        // now we read in the next frame
-        inputer.getline(inLine,999,'\n');
-        inputer.getline(inLine,999,'\n');
-        if (!inputer.eof()){
-            token = strtok(inLine,delimit);
-            strcpy(inValue,token);
-            nAtoms = atoi(inValue);
-            atomCount.push_back(nAtoms);
-        }
+		if (zVal <= slab_thickness && zVal >= -slab_thickness){
+			zVal = -0.2;
+
+			pov_out << "ring7(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+
+			if (xVal < (-0.5*boxLength[0]+buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring7(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (xVal > (0.5*boxLength[0]-buffer_size)){
+				if (yVal < (-0.5*boxLength[1]+buffer_size)){
+					pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+					pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+					pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				} else {
+					pov_out << "ring7(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+				}
+			} else if (yVal < (-0.5*boxLength[1]+buffer_size)){
+				pov_out << "ring7(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			} else if (yVal > (0.5*boxLength[1]-buffer_size)){
+				pov_out << "ring7(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+			}
+		}
+	}
+
+	red_val = "1.0";
+	green_val = "0.75";
+	blue_val = "0.0";
+	for (i=0; i<ring8members.size(); i++){
+		tempPosX[0]=oPosX[ring8members[i][0]];
+		diffVal = oPosX[ring8members[i][1]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring8members[i][1]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[1] = oPosX[ring8members[i][1]]+boxLength[0];
+		} else {
+			tempPosX[1] = oPosX[ring8members[i][1]];
+		}
+		diffVal = oPosX[ring8members[i][2]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring8members[i][2]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[2] = oPosX[ring8members[i][2]]+boxLength[0];
+		} else {
+			tempPosX[2] = oPosX[ring8members[i][2]];
+		}
+		diffVal = oPosX[ring8members[i][3]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring8members[i][3]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[3] = oPosX[ring8members[i][3]]+boxLength[0];
+		} else {
+			tempPosX[3] = oPosX[ring8members[i][3]];
+		}
+		diffVal = oPosX[ring8members[i][4]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring8members[i][4]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[4] = oPosX[ring8members[i][4]]+boxLength[0];
+		} else {
+			tempPosX[4] = oPosX[ring8members[i][4]];
+		}
+		diffVal = oPosX[ring8members[i][5]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring8members[i][5]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[5] = oPosX[ring8members[i][5]]+boxLength[0];
+		} else {
+			tempPosX[5] = oPosX[ring8members[i][5]];
+		}
+		diffVal = oPosX[ring8members[i][6]]-tempPosX[0];
+		if (diffVal > 0.5*boxLength[0]){
+			tempPosX[6] = oPosX[ring8members[i][6]]-boxLength[0];
+		} else if (diffVal < -0.5*boxLength[0]){
+			tempPosX[6] = oPosX[ring8members[i][6]]+boxLength[0];
+		} else {
+			tempPosX[6] = oPosX[ring8members[i][6]];
+		}
+		xVal = tempPosX[0]+tempPosX[1]+tempPosX[2]+tempPosX[3]+tempPosX[4]+tempPosX[5]+tempPosX[6];
+		xVal /= 8;
+
+		tempPosY[0]=oPosY[ring8members[i][0]];
+		diffVal = oPosY[ring8members[i][1]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring8members[i][1]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[1] = oPosY[ring8members[i][1]]+boxLength[1];
+		} else {
+			tempPosY[1] = oPosY[ring8members[i][1]];
+		}
+		diffVal = oPosY[ring8members[i][2]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring8members[i][2]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[2] = oPosY[ring8members[i][2]]+boxLength[1];
+		} else {
+			tempPosY[2] = oPosY[ring8members[i][2]];
+		}
+		diffVal = oPosY[ring8members[i][3]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring8members[i][3]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[3] = oPosY[ring8members[i][3]]+boxLength[1];
+		} else {
+			tempPosY[3] = oPosY[ring8members[i][3]];
+		}
+		diffVal = oPosY[ring8members[i][4]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring8members[i][4]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[4] = oPosY[ring8members[i][4]]+boxLength[1];
+		} else {
+			tempPosY[4] = oPosY[ring8members[i][4]];
+		}
+		diffVal = oPosY[ring8members[i][5]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring8members[i][5]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[5] = oPosY[ring8members[i][5]]+boxLength[1];
+		} else {
+			tempPosY[5] = oPosY[ring8members[i][5]];
+		}
+		diffVal = oPosY[ring8members[i][6]]-tempPosY[0];
+		if (diffVal > 0.5*boxLength[1]){
+			tempPosY[6] = oPosY[ring8members[i][6]]-boxLength[1];
+		} else if (diffVal < -0.5*boxLength[1]){
+			tempPosY[6] = oPosY[ring8members[i][6]]+boxLength[1];
+		} else {
+			tempPosY[6] = oPosY[ring8members[i][6]];
+		}
+		yVal = tempPosY[0]+tempPosY[1]+tempPosY[2]+tempPosY[3]+tempPosY[4]+tempPosY[5]+tempPosY[6];
+		yVal /= 8;
+
+		tempPosZ[0]=oPosZ[ring8members[i][0]];
+		diffVal = oPosZ[ring8members[i][1]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring8members[i][1]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[1] = oPosZ[ring8members[i][1]]+boxLength[2];
+		} else {
+			tempPosZ[1] = oPosZ[ring8members[i][1]];
+		}
+		diffVal = oPosZ[ring8members[i][2]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring8members[i][2]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[2] = oPosZ[ring8members[i][2]]+boxLength[2];
+		} else {
+			tempPosZ[2] = oPosZ[ring8members[i][2]];
+		}
+		diffVal = oPosZ[ring8members[i][3]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring8members[i][3]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[3] = oPosZ[ring8members[i][3]]+boxLength[2];
+		} else {
+			tempPosZ[3] = oPosZ[ring8members[i][3]];
+		}
+		diffVal = oPosZ[ring8members[i][4]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring8members[i][4]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[4] = oPosZ[ring8members[i][4]]+boxLength[2];
+		} else {
+			tempPosZ[4] = oPosZ[ring8members[i][4]];
+		}
+		diffVal = oPosZ[ring8members[i][5]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring8members[i][5]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[5] = oPosZ[ring8members[i][5]]+boxLength[2];
+		} else {
+			tempPosZ[5] = oPosZ[ring8members[i][5]];
+		}
+		diffVal = oPosZ[ring8members[i][6]]-tempPosZ[0];
+		if (diffVal > 0.5*boxLength[2]){
+			tempPosZ[6] = oPosZ[ring8members[i][6]]-boxLength[2];
+		} else if (diffVal < -0.5*boxLength[2]){
+			tempPosZ[6] = oPosZ[ring8members[i][6]]+boxLength[2];
+		} else {
+			tempPosZ[6] = oPosZ[ring8members[i][6]];
+		}
+		zVal = tempPosZ[0]+tempPosZ[1]+tempPosZ[2]+tempPosZ[3]+tempPosZ[4]+tempPosZ[5]+tempPosZ[6];
+		zVal /= 8;
+		//outputer_xyz << setw(5) << "O" <<" "<< setw(12) << xVal <<" "<< setw(12) << yVal <<" "<< setw(12) << zVal << "\n";
+		outputer_xyz <<left<< setw(5) << "O" <<" "<<right<<fixed<<setprecision(6)<<setw(10) << xVal <<" "<<right<<setw(10) << yVal <<" "<<right<<setw(10) << zVal << "\n";
+
+		//    if (zVal <= slab_thickness && zVal >= -slab_thickness){
+		//        zVal = -0.2;
+		//        pov_out << "ring8(" << xVal << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//        if (xVal < (-0.5*boxLength[0]+buffer_size)){
+		//            if (yVal < (-0.5*boxLength[1]+buffer_size)){
+		//                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            } else if (yVal > (0.5*boxLength[1]-buffer_size)){
+		//                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            } else {
+		//                pov_out << "ring8(" << xVal+boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            }
+		//        } else if (xVal > (0.5*boxLength[0]-buffer_size)){
+		//            if (yVal < (-0.5*boxLength[1]+buffer_size)){
+		//                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            } else if (yVal > (0.5*boxLength[1]-buffer_size)){
+		//                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//                pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            } else {
+		//                pov_out << "ring8(" << xVal-boxLength[0] << ", " << yVal << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//            }
+		//        } else if (yVal < (-0.5*boxLength[1]+buffer_size)){
+		//            pov_out << "ring8(" << xVal << ", " << yVal+boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//        } else if (yVal > (0.5*boxLength[1]-buffer_size)){
+		//            pov_out << "ring8(" << xVal << ", " << yVal-boxLength[1] << ", " << zVal << ", " << red_val << ", " << green_val << ", " << blue_val << ", " << transparency << ")\n";
+		//        }
+		//    }
+	}
+
+	x_frame = int(scale_factor * boxLength[0]);
+	y_frame = int(scale_factor * boxLength[1]);
+	xFrameInt.str("");
+	yFrameInt.str("");
+	xFrameInt << x_frame;
+	yFrameInt << y_frame;
+	xFrameString = xFrameInt.str();
+	yFrameString = yFrameInt.str();
+	outputer_pov << "povray -w" + xFrameString + " -h" + yFrameString + " +a0.1 -D " + povName2 + "_" + frameCountString + ".pov\n";
+	frameCount++;
+
+	// close the pov file handle
+	pov_out.close();
+	povDistOut.close();
+
+	// clear reused vectors
+	oPosX.clear();
+	oPosY.clear();
+	oPosZ.clear();
+	hPosX.clear();
+	hPosY.clear();
+	hPosZ.clear();
+	neighborListIndex.clear();
+	neighborList.clear();
+	largeNeighborListIndex.clear();
+	largeNeighborList.clear();
+	nearestNeighborListIndex.clear();
+	nearestNeighborList.clear();
+	nearestNeighborMag.clear();
+	nearestNeighborVecX.clear();
+	nearestNeighborVecY.clear();
+	nearestNeighborVecZ.clear();
+	hbondListIndex.clear();
+	hbondList.clear();
+	hbondVecX.clear();
+	hbondVecY.clear();
+	hbondVecZ.clear();
+	ring3members.clear();
+	ring4members.clear();
+	ring5members.clear();
+	ring6members.clear();
+	ring7members.clear();
+	ring8members.clear();
+	hbondCount = 0;
+	average_tetrahedralParam = 0;
+	lastRing3 = 0;
+	lastRing4 = 0;
+	lastRing5 = 0;
+	lastRing6 = 0;
+	lastRing7 = 0;
+	lastRing8 = 0;
+	totalRings = 0;
+
+	// now we read in the next frame
+	inputer.getline(inLine,999,'\n');
+	inputer.getline(inLine,999,'\n');
+	if (!inputer.eof()){
+		token = strtok(inLine,delimit);
+		strcpy(inValue,token);
+		nAtoms = atoi(inValue);
+		atomCount.push_back(nAtoms);
+	}
     }
 
     //    delete calculator;
@@ -3050,3 +3187,4 @@ int main(int argc, char *argv[]) {
     cout << "Finally, a ring trajectory file was written to " << strungName2 << "\n\n";
     return 0;
 }
+
