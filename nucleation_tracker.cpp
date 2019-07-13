@@ -12,6 +12,7 @@
 #include <cstring>
 #include <iomanip>
 #include <vector>
+#include <iterator>
 #include <algorithm>
 
 using namespace std;
@@ -1051,6 +1052,18 @@ void PovObjects::printAxes(ofstream& outputFile){
     return;
 }
 
+struct Neighbor{
+    int id;
+    double distance;
+    double vectorX;
+    double vectorY;
+    double vectorZ;
+};
+
+bool compareByDistance(const Neighbor &a, const Neighbor &b)
+{
+    return a.distance < b.distance;
+};
 
 int main(int argc, char *argv[]) {
     bool trigger;
@@ -1083,9 +1096,9 @@ int main(int argc, char *argv[]) {
     int index, test_slot;
     int temp_index;
     double cosine_sum, dotProduct, inv_nearestNeighborMag1, inv_nearestNeighborMag2, unitVec1x, unitVec1y, unitVec1z, unitVec2x, unitVec2y, unitVec2z;
-    double tetrahedralParam, average_tetrahedralParam;
+    double tetrahedralParam, avg_tetrahedrality, tet_square, stdev_tetrahedrality;
     double xVal, yVal, zVal;
-    double temp_dist2;
+    double temp_dist, temp_dist2;
     double temp_value;
     double temp_val_x, temp_val_y, temp_val_z;
     double ionPosition[3], position[3];
@@ -1109,8 +1122,9 @@ int main(int argc, char *argv[]) {
     vector<double> tempList, tempVecX, tempVecY, tempVecZ;
     vector<double> tetrahedrality;
     vector<vector<int> > neighborList;
-    vector<vector<int> > largeNeighborList;
-    vector<vector<int> > nearestNeighborList;
+    vector<vector<Neighbor> > largeNeighborList;
+    vector<Neighbor> singleSort;
+    vector<vector<Neighbor> > nearestNeighborList;
     vector<vector<int> > hbondList;
     vector<vector<int> > ring3members;
     vector<vector<int> > ring4members;
@@ -1202,7 +1216,7 @@ int main(int argc, char *argv[]) {
 
     // Read the .gro file and load the positions
     cout << "\nLoading and processing trajectory...\n";
-    outputer << setw(8) << "# frame" <<  setw(8) << "1"  << setw(8) << "<q>" << setw(8) << "3" << setw(8) << "4" << setw(8) << "5" << setw(8) << "6" << setw(8) << "7" << setw(8) << "8" << "\n";
+    outputer << setw(8) << "# frame" <<  setw(8) << "HBonds"  << setw(8) << "<q>" << setw(8) << "stdev" << setw(8) << "3" << setw(8) << "4" << setw(8) << "5" << setw(8) << "6" << setw(8) << "7" << setw(8) << "8" << "\n";
 
     frameCount = 1;
     totalWaterCount = 0;
@@ -1410,25 +1424,29 @@ int main(int argc, char *argv[]) {
         }
         // okay, let's do some calculations on this frame
 
-        // okay, now we loop over the waters in the frame to determine if they
+        // we loop over the waters in the frame to determine if they
         // are neighbors
         for (i=0; i<3; i++){
             tempHBVec[i] = 0;
         }
+
+        Neighbor blank;
+        blank.id = -1;
+        blank.distance = 1000000;
+        blank.vectorX = 0;
+        blank.vectorY = 0;
+        blank.vectorZ = 0;
+
         for (i=0; i<oPosX.size(); i++){
-            // can have up to 30 neighbors
+            // can have up to 50 neighbors
             // vec2D.push_back(std::vector<int>(4, 11));
             neighborListIndex.push_back(0);
             neighborList.push_back(vector<int>(50,-1));
             largeNeighborListIndex.push_back(0);
-            largeNeighborList.push_back(vector<int>(100,-1));
-            nearestNeighborList.push_back(vector<int>(4,-1));
-            nearestNeighborVecX.push_back(vector<double>(4,0));
-            nearestNeighborVecY.push_back(vector<double>(4,0));
-            nearestNeighborVecZ.push_back(vector<double>(4,0));
-            nearestNeighborMag.push_back(vector<double>(4,0));
+            largeNeighborList.push_back(vector<Neighbor>(100,blank));
+            nearestNeighborList.push_back(vector<Neighbor>(4,blank));
 
-            // can have up to 30 HBonds
+            // can have up to 50 HBonds
             hbondListIndex.push_back(0);
             hbondList.push_back(vector<int>(50,-1));
             hbondVecX.push_back(vector<double>(50,0));
@@ -1463,9 +1481,18 @@ int main(int argc, char *argv[]) {
 
                 temp_dist2 = pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2];
                 if(temp_dist2 <= distance_tol2_long){
-                    largeNeighborList[i][largeNeighborListIndex[i]] = j;
+                    temp_dist = sqrt(temp_dist2);
+                    largeNeighborList[i][largeNeighborListIndex[i]].id = j;
+                    largeNeighborList[i][largeNeighborListIndex[i]].distance = temp_dist;
+                    largeNeighborList[i][largeNeighborListIndex[i]].vectorX = pos[0];
+                    largeNeighborList[i][largeNeighborListIndex[i]].vectorY = pos[1];
+                    largeNeighborList[i][largeNeighborListIndex[i]].vectorZ = pos[2];
                     largeNeighborListIndex[i]++;
-                    largeNeighborList[j][largeNeighborListIndex[j]] = i;
+                    largeNeighborList[j][largeNeighborListIndex[j]].id = i;
+                    largeNeighborList[j][largeNeighborListIndex[j]].distance = temp_dist;
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[0];
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[1];
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[2];
                     largeNeighborListIndex[j]++;
                     largeNeighborCount++;
                     if(temp_dist2 <= distance_tol2){
@@ -1478,13 +1505,6 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-
-        /*	
-            for (i=0; i<neighborListIndex.size(); i++){
-            cerr << largeNeighborListIndex[i] << " large_neighbors for " << i << "\n";
-            cerr << neighborListIndex[i] << " neighbors for " << i << "\n";
-            }
-            */
 
         // now build our hbond lists
         for (i=0; i<neighborList.size(); i++){
@@ -1583,130 +1603,33 @@ int main(int argc, char *argv[]) {
 
         // build the nearest neighbor list and calculate tetrahedrality
         for (i = 0; i < largeNeighborList.size(); i++){
-            // load the reference water
-            water1[0] = oPosX[i];
-            water1[1] = oPosY[i];
-            water1[2] = oPosZ[i];
-
-            tempList.push_back(0); 
-            tempVecX.push_back(0); 
-            tempVecY.push_back(0); 
-            tempVecZ.push_back(0); 
-            tempList.clear(); 
-            tempVecX.clear(); 
-            tempVecY.clear(); 
-            tempVecZ.clear(); 
-            for (j = 0; j < largeNeighborListIndex[i]; j++){
-                if (largeNeighborList[i][j] > i){
-                    // load the water
-                    water2[0] = oPosX[largeNeighborList[i][j]];
-                    water2[1] = oPosY[largeNeighborList[i][j]];
-                    water2[2] = oPosZ[largeNeighborList[i][j]];
-
-                    // calculate if they are neighbors
-                    pos[0] = water2[0]-water1[0];
-                    pos[1] = water2[1]-water1[1];
-                    pos[2] = water2[2]-water1[2];
-
-                    // do vector wrapping of periodic boundary conditions
-                    for (k=0; k<3; k++){
-                        scaled[k] = pos[k] * invhmat[k][k];
-                        scaled[k] -= round(scaled[k]);
-                        pos[k] = scaled[k] * hmat[k][k];
-                    }
-
-                    temp_dist2 = pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2];
-
-                    tempList.push_back(temp_dist2);
-                    tempVecX.push_back(pos[0]);
-                    tempVecY.push_back(pos[1]);
-                    tempVecZ.push_back(pos[2]);
-                }
-            }
-
             // let's sort our nearest neighbor list!
-            if (i==4){
-                for (j = 0; j < tempList.size(); j++){
-                    cerr << tempList[j] << " presort\n";
-                }
-            }
+            singleSort = largeNeighborList[i]; 
 
-            // let's do a bubble sort of the vectors
-            index = largeNeighborListIndex[i] - 1;
-            while (index >= 0){
-                for (j = 0; j<index; j++){
-                    if (tempList[j] > tempList[j+1]){
-                        temp_value = tempList[j];
-                        temp_val_x = tempVecX[j];
-                        temp_val_y = tempVecY[j];
-                        temp_val_z = tempVecZ[j];
-                        temp_index = largeNeighborList[i][j];
-                        tempList[j] = tempList[j+1];
-                        tempVecX[j] = tempVecX[j+1];
-                        tempVecY[j] = tempVecY[j+1];
-                        tempVecZ[j] = tempVecZ[j+1];
-                        largeNeighborList[i][j] = largeNeighborList[i][j+1];
-                        tempList[j+1] = temp_value;
-                        tempVecX[j+1] = temp_val_x;
-                        tempVecY[j+1] = temp_val_y;
-                        tempVecZ[j+1] = temp_val_z;
-                        largeNeighborList[i][j+1] = temp_index;
-                    }
-                }
-                index--;
-            }
-            // let's do an insertion sort of the vectors
-            //for (j = 1; j <= largeNeighborListIndex[i]; j++){
-            //    temp_value = tempList[j];
-            //    temp_val_x = tempVecX[j];
-            //    temp_val_y = tempVecY[j];
-            //    temp_val_z = tempVecZ[j];
-            //    temp_index = largeNeighborList[i][j];
-            //    test_slot = j - 1;
-            //    while (test_slot > -1 && tempList[test_slot] > temp_value){
-            //        tempList[test_slot + 1] = tempList[test_slot];
-            //        tempVecX[test_slot + 1] = tempVecX[test_slot];
-            //        tempVecY[test_slot + 1] = tempVecY[test_slot];
-            //        tempVecZ[test_slot + 1] = tempVecZ[test_slot];
-            //        largeNeighborList[i][test_slot + 1] = largeNeighborList[i][test_slot];
-            //        test_slot--;
-            //        tempList[test_slot + 1] = temp_value;
-            //        tempVecX[test_slot + 1] = temp_val_x;
-            //        tempVecY[test_slot + 1] = temp_val_y;
-            //        tempVecZ[test_slot + 1] = temp_val_z;
-            //        largeNeighborList[i][test_slot + 1] = temp_index;
-            //    }
-            //}
-            if (i==4){
-                for (j = 0; j < tempList.size(); j++){
-                    cerr << tempList[j] << " postsort\n";
-                }
-            }
+            // sort based on distances
+            sort(singleSort.begin(), singleSort.end(), compareByDistance);
+
+            // load the sorted list of neighbors back in
+            largeNeighborList[i] = singleSort;
 
             // load the first 4 neighbors in the nearest neighbor lists
             for (j = 0; j < 4; j++){
                 nearestNeighborList[i][j] = largeNeighborList[i][j];
-                nearestNeighborMag[i][j] = sqrt(tempList[j]);
-                nearestNeighborVecX[i][j] = tempVecX[j];
-                nearestNeighborVecY[i][j] = tempVecY[j];
-                nearestNeighborVecZ[i][j] = tempVecZ[j];
-                cerr << nearestNeighborMag[i][j] << ", ";
             }
-            cerr << " for " << i << "\n";
 
             // tetrahedrality double loop over the nearest neighbors of each molecule
             cosine_sum = 0;
             for (j = 0; j < 3; j++){
-                for (k = j + 1; k < 4; k++){
-                    inv_nearestNeighborMag1 = 1.0/nearestNeighborMag[i][j];
-                    unitVec1x = nearestNeighborVecX[i][j] * inv_nearestNeighborMag1;
-                    unitVec1y = nearestNeighborVecY[i][j] * inv_nearestNeighborMag1;
-                    unitVec1z = nearestNeighborVecZ[i][j] * inv_nearestNeighborMag1;
+                inv_nearestNeighborMag1 = 1.0/nearestNeighborList[i][j].distance;
+                unitVec1x = nearestNeighborList[i][j].vectorX * inv_nearestNeighborMag1;
+                unitVec1y = nearestNeighborList[i][j].vectorY * inv_nearestNeighborMag1;
+                unitVec1z = nearestNeighborList[i][j].vectorZ * inv_nearestNeighborMag1;
 
-                    inv_nearestNeighborMag2 = 1.0/nearestNeighborMag[i][k];
-                    unitVec2x = nearestNeighborVecX[i][k] * inv_nearestNeighborMag2;
-                    unitVec2y = nearestNeighborVecY[i][k] * inv_nearestNeighborMag2;
-                    unitVec2z = nearestNeighborVecZ[i][k] * inv_nearestNeighborMag2;
+                for (k = j + 1; k < 4; k++){
+                    inv_nearestNeighborMag2 = 1.0/nearestNeighborList[i][k].distance;
+                    unitVec2x = nearestNeighborList[i][k].vectorX * inv_nearestNeighborMag2;
+                    unitVec2y = nearestNeighborList[i][k].vectorY * inv_nearestNeighborMag2;
+                    unitVec2z = nearestNeighborList[i][k].vectorZ * inv_nearestNeighborMag2;
 
                     dotProduct = (unitVec1x * unitVec2x) + (unitVec1y * unitVec2y) + (unitVec1z * unitVec2z);
                     cosine_sum += pow((dotProduct + 1.0/3.0), 2);
@@ -1714,26 +1637,20 @@ int main(int argc, char *argv[]) {
             }
             tetrahedralParam = 1 - (0.375 * cosine_sum);
             tetrahedrality.push_back(tetrahedralParam);
-            cerr<< tetrahedralParam << " is the tetrahedral param for " << i << "\n";
         }
 
         // calculate the tetrahedrality for the frame
 
-        average_tetrahedralParam = 0;
+        avg_tetrahedrality = 0;
+        tet_square = 0;
         for(i=0; i<tetrahedrality.size(); i++){
-            average_tetrahedralParam += tetrahedrality[i];
+            avg_tetrahedrality += tetrahedrality[i];
+            tet_square += tetrahedrality[i]*tetrahedrality[i];
         }
-        average_tetrahedralParam /= tetrahedrality.size();
-        cerr << average_tetrahedralParam << " is the tetrahedrality\n";
+        avg_tetrahedrality /= tetrahedrality.size();
+        tet_square /= tetrahedrality.size();
+        stdev_tetrahedrality = sqrt(tet_square - avg_tetrahedrality*avg_tetrahedrality);
 
-        //   cerr << hbondListIndex.size() << " is the hbondListIndex size\n";
-        //   for(i=0; i<hbondListIndex.size(); i++){
-        //       cerr << "hbondListIndex["<< i << "] value: ";
-        //       for (j=0; j < 4; j++){
-        //           cerr << hbondList[i][j] << " ";
-        //       }
-        //       cerr << "\n";
-        //   }
         // now we start identifying rings to build those lists
         for(i=0; i<hbondListIndex.size(); i++){
             for(j=0; j<hbondListIndex[i]; j++){
@@ -2202,7 +2119,8 @@ int main(int argc, char *argv[]) {
         lastRing8 = ring8members.size()-lastRing8;
         outputer << setw(8) << frameCount ;
         outputer << setw(8) << hbondCount ;
-        outputer << setw(8) << average_tetrahedralParam;
+        outputer << setw(8) << setprecision(4) << avg_tetrahedrality;
+        outputer << setw(8) << setprecision(4) << stdev_tetrahedrality;
         outputer << setw(8) << lastRing3 ;
         outputer << setw(8) << lastRing4 ;
         outputer << setw(8) << lastRing5 ;
