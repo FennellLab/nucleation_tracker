@@ -1490,9 +1490,9 @@ int main(int argc, char *argv[]) {
                     largeNeighborListIndex[i]++;
                     largeNeighborList[j][largeNeighborListIndex[j]].id = i;
                     largeNeighborList[j][largeNeighborListIndex[j]].distance = temp_dist;
-                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[0];
-                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[1];
-                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = pos[2];
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorX = -pos[0];
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorY = -pos[1];
+                    largeNeighborList[j][largeNeighborListIndex[j]].vectorZ = -pos[2];
                     largeNeighborListIndex[j]++;
                     largeNeighborCount++;
                     if(temp_dist2 <= distance_tol2){
@@ -1609,13 +1609,13 @@ int main(int argc, char *argv[]) {
             // sort based on distances
             sort(singleSort.begin(), singleSort.end(), compareByDistance);
 
-            // load the sorted list of neighbors back in
-            largeNeighborList[i] = singleSort;
-
             // load the first 4 neighbors in the nearest neighbor lists
             for (j = 0; j < 4; j++){
-                nearestNeighborList[i][j] = largeNeighborList[i][j];
+                nearestNeighborList[i][j] = singleSort[j];
             }
+            
+            // load the sorted list of neighbors back in
+            largeNeighborList[i] = singleSort;
 
             // tetrahedrality double loop over the nearest neighbors of each molecule
             cosine_sum = 0;
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[]) {
         outputer << setw(8) << frameCount ;
         outputer << setw(8) << hbondCount ;
         outputer << setw(8) << setprecision(4) << avg_tetrahedrality;
-        outputer << setw(8) << setprecision(4) << stdev_tetrahedrality;
+        outputer << setw(8) << setprecision(1) << stdev_tetrahedrality;
         outputer << setw(8) << lastRing3 ;
         outputer << setw(8) << lastRing4 ;
         outputer << setw(8) << lastRing5 ;
