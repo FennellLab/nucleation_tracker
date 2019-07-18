@@ -25,6 +25,7 @@ double angle_tol = 30;       // hbond angle tolerance (in degrees)
 double angle_tol_rad = angle_tol * 3.1415926536 / 180.0; // hbond angle tolerance in radians
 double OH_length = 0.926;    // OH bond length (in Ångström)
 double OH_length_i = 1.0 / OH_length; // OH bond length (in Ångström)
+double neighbor_tol = 0.5; // neighbor distance tolerance window triggering a H-bonding screening (in Ångström)
 double rad_to_degree = 180.0 * 3.1415926536; // convert radians to degrees
 double ring3_dot_size = 0.5; // central ring dot size
 double ring4_dot_size = 0.6; // central ring dot size
@@ -1086,6 +1087,7 @@ int main(int argc, char *argv[]) {
     const char *HAtom4 = "   H4";
     const char *HAtom = "    H";
     int count = 0;
+    int tmp_count, loaded;
     int i, j, k, l, m, n, o, p, q, nAtoms, waterModel, waterNumber;
     int oCount, hCount, mCount, totalWaterCount, hbondCount, neighborCount, frameCount, largeNeighborCount;
     int index2, index3, index4, index5, index6, index7, index8, index9;
@@ -1112,6 +1114,7 @@ int main(int argc, char *argv[]) {
     double tempHBVec[3];
     double diffVal;
     double ringProbabilities[9];
+    Neighbor closest_neighbor, other_neighbor;
     vector<int> atomCount;
     vector<int> neighborListIndex;
     vector<int> largeNeighborListIndex;
@@ -1609,11 +1612,53 @@ int main(int argc, char *argv[]) {
             // sort based on distances
             sort(singleSort.begin(), singleSort.end(), compareByDistance);
 
-            // load the first 4 neighbors in the nearest neighbor lists
-            for (j = 0; j < 4; j++){
-                nearestNeighborList[i][j] = singleSort[j];
+            // check neighbors to see if we need to sort with H-bonding as a
+            // priority...
+            closest_neighbor = singleSort[0];
+            count = 0;
+            for (j=1; j<singleSort.size(); j++){
+                temp_dist = singleSort[j].distance - closest_neighbor.distance;
+                if (temp_dist < neighbor_tol) count++;
             }
             
+            if ( count > 4 ){
+                // load the 4 neighbors with a H-bonding+distance preference, 
+                // then distance only up to the 4 total neighbors
+                tmp_count = 0;
+                for (j=0; j<hbondListIndex[i]; j++){
+                    for (k=0; k<count; k++){
+                        if (singleSort[k].id == hbondList[i][j]){ 
+                            nearestNeighborList[i][tmp_count] = singleSort[k];
+                            tmp_count++;
+                            break;
+                        }
+                    }
+                    if (tmp_count > 3) break;
+                }
+                if (tmp_count < 4){
+                    // load in closest neighbors that haven't already been
+                    // selected as H-bonding
+                    for (j=0; j<count; j++){
+                        loaded = 0; 
+                        for (k=0; k<tmp_count; k++){
+                            if (nearestNeighborList[i][k].id == singleSort[j].id) {
+                                loaded = 1;
+                            }
+                        }
+                        if (loaded == 0){
+                            tmp_count++;
+                            nearestNeighborList[i][tmp_count] = singleSort[j];
+                        }
+                        if (tmp_count > 3) break;
+                    }
+                }
+            } else {
+                // load the first 4 neighbors in the nearest neighbor lists
+                for (j = 0; j < 4; j++){
+                    nearestNeighborList[i][j] = singleSort[j];
+                }
+            }
+
             // load the sorted list of neighbors back in
             largeNeighborList[i] = singleSort;
 
