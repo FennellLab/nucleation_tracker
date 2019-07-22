@@ -1635,7 +1635,7 @@ int main(int argc, char *argv[]) {
                     }
                     if (tmp_count > 3) break;
                 }
-                if (tmp_count < 4){
+                if (tmp_count < 3){
                     // load in closest neighbors that haven't already been
                     // selected as H-bonding
                     for (j=0; j<count; j++){
