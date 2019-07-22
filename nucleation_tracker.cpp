@@ -1635,7 +1635,7 @@ int main(int argc, char *argv[]) {
                     }
                     if (tmp_count > 3) break;
                 }
-                if (tmp_count < 3){
+                if (tmp_count < 4){
                     // load in closest neighbors that haven't already been
                     // selected as H-bonding
                     for (j=0; j<count; j++){
@@ -1646,8 +1646,8 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if (loaded == 0){
-                            tmp_count++;
                             nearestNeighborList[i][tmp_count] = singleSort[j];
+                            tmp_count++;
                         }
                         if (tmp_count > 3) break;
                     }
