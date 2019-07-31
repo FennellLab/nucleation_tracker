@@ -1,0 +1,28 @@
+package "nucleation_tracker"
+version "0.5"
+purpose "Program for analyzing the order in systems of water molecules, both
+with tetrahedrality and hydrogen bond path closure."
+usage "nucleation_tracker [options] [trajectory file name].gro"
+description "After running, and output file called [trajectory file
+name]_nuc_info.txt containing the resulting tetrahedrality and ring distribution
+statistics will be written to the present working directory. Note: the trajectory file currently needs to be a .gro formatted file consisting of only water molecules."
+versiontext "Fennell Lab: 2019"
+
+option "povray" p "Build a pov_files directory containing .pov files for rendering
+of ring closures and locations." flag off
+
+option "max_ring" r "Scan for ring closures up to this maximum connectivity
+value." optional
+	details="\nNote that the larger the number, the longer the calculation takes
+    because of it enumerating all possible paths. The current maximum value is
+    10."
+	int 
+    typestr="maximum ring size"
+	values="3","4","5","6","7","8","9","10"
+	default="6"
+	optional 
+
+option "tetra_pdb" t "Output a .pdb file containing the tetrahedrality in the
+b-factor column."
+    flag off
+
