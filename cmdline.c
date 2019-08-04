@@ -25,22 +25,27 @@
 
 #include "cmdline.h"
 
-const char *gengetopt_args_info_purpose = "Program for analyzing the order in systems of water molecules, both\nwith tetrahedrality and hydrogen bond path closure.";
+const char *gengetopt_args_info_purpose = "\nProgram for analyzing the order in systems of water molecules, both with\ntetrahedrality and hydrogen bond path closure.";
 
 const char *gengetopt_args_info_usage = "Usage: nucleation_tracker [options] [trajectory file name].gro";
 
 const char *gengetopt_args_info_versiontext = "Fennell Lab: 2019";
 
-const char *gengetopt_args_info_description = "After running, and output file called [trajectory file\nname]_nuc_info.txt containing the resulting tetrahedrality and ring\ndistribution\nstatistics will be written to the present working directory. Note: the\ntrajectory file currently needs to be a .gro formatted file consisting of only\nwater molecules.";
+const char *gengetopt_args_info_description = "After running an output file called [trajectory filename]_nuc_info.txt\ncontaining the resulting tetrahedrality and ring distribution statistics will\nbe written to the present working directory. Note: the trajectory file\ncurrently needs to be a .gro formatted file consisting of only water molecules.";
 
 const char *gengetopt_args_info_detailed_help[] = {
   "  -h, --help                    Print help and exit",
   "      --detailed-help           Print help, including all details and hidden\n                                  options, and exit",
   "  -V, --version                 Print version and exit",
-  "  -p, --povray                  Build a pov_files directory containing .pov\n                                  files for rendering\n                                  of ring closures and locations.\n                                  (default=off)",
-  "  -r, --max_ring=maximum ring size\n                                Scan for ring closures up to this maximum\n                                  connectivity\n                                  value.  (possible values=\"3\", \"4\", \"5\",\n                                  \"6\", \"7\", \"8\", \"9\", \"10\"\n                                  default=`6')",
-  "  \n  Note that the larger the number, the longer the calculation takes\n      because of it enumerating all possible paths. The current maximum value\n  is\n      10.",
-  "  -t, --tetra_pdb               Output a .pdb file containing the\n                                  tetrahedrality in the\n                                  b-factor column.  (default=off)",
+  "  -c, --closure_method=ring closure method\n                                Close rings using either (0) the single minimum\n                                  path for each water molecule or (1) all\n                                  non-self-intersecting ring paths.  (possible\n                                  values=\"0\", \"1\" default=`0')",
+  "  \n  Note that option 1 will lead to a lot more rings than option 0, and it might\n  take a bit longer to calculate.",
+  "  -f, --input_file=input trajectory file\n                                Load the trajectory file to process.",
+  "  \n  The trajectory file must be of a .gro form.",
+  "  -p, --povray                  Build a pov_files directory containing .pov\n                                  files for rendering of ring closures and\n                                  locations.  (default=off)",
+  "  -r, --max_ring=maximum ring size\n                                Scan for ring closures up to this maximum\n                                  connectivity value.  (possible values=\"3\",\n                                  \"4\", \"5\", \"6\", \"7\", \"8\", \"9\",\n                                  \"10\" default=`6')",
+  "  \n  Note that the larger the number, the longer the calculation takes because of\n  it enumerating all possible paths. The current maximum value is\n      10.",
+  "  -t, --tetra_pdb               Output a .pdb file containing the\n                                  tetrahedrality in the b-factor column.\n                                  (default=off)",
+  "  -x, --ring_trajectory         Output an .xyz trajectory file containing the\n                                  ring center locations and type (using atomic\n                                  number of elements for size).  (default=off)",
     0
 };
 
@@ -51,16 +56,20 @@ init_help_array(void)
   gengetopt_args_info_help[1] = gengetopt_args_info_detailed_help[1];
   gengetopt_args_info_help[2] = gengetopt_args_info_detailed_help[2];
   gengetopt_args_info_help[3] = gengetopt_args_info_detailed_help[3];
-  gengetopt_args_info_help[4] = gengetopt_args_info_detailed_help[4];
-  gengetopt_args_info_help[5] = gengetopt_args_info_detailed_help[6];
-  gengetopt_args_info_help[6] = 0; 
+  gengetopt_args_info_help[4] = gengetopt_args_info_detailed_help[5];
+  gengetopt_args_info_help[5] = gengetopt_args_info_detailed_help[7];
+  gengetopt_args_info_help[6] = gengetopt_args_info_detailed_help[8];
+  gengetopt_args_info_help[7] = gengetopt_args_info_detailed_help[10];
+  gengetopt_args_info_help[8] = gengetopt_args_info_detailed_help[11];
+  gengetopt_args_info_help[9] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[7];
+const char *gengetopt_args_info_help[10];
 
 typedef enum {ARG_NO
   , ARG_FLAG
+  , ARG_STRING
   , ARG_INT
 } cmdline_parser_arg_type;
 
@@ -73,7 +82,10 @@ static int
 cmdline_parser_internal (int argc, char **argv, struct gengetopt_args_info *args_info,
                         struct cmdline_parser_params *params, const char *additional_error);
 
+static int
+cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *prog_name, const char *additional_error);
 
+const char *cmdline_parser_closure_method_values[] = {"0", "1", 0}; /*< Possible values for closure_method. */
 const char *cmdline_parser_max_ring_values[] = {"3", "4", "5", "6", "7", "8", "9", "10", 0}; /*< Possible values for max_ring. */
 
 static char *
@@ -85,19 +97,27 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->help_given = 0 ;
   args_info->detailed_help_given = 0 ;
   args_info->version_given = 0 ;
+  args_info->closure_method_given = 0 ;
+  args_info->input_file_given = 0 ;
   args_info->povray_given = 0 ;
   args_info->max_ring_given = 0 ;
   args_info->tetra_pdb_given = 0 ;
+  args_info->ring_trajectory_given = 0 ;
 }
 
 static
 void clear_args (struct gengetopt_args_info *args_info)
 {
   FIX_UNUSED (args_info);
+  args_info->closure_method_arg = 0;
+  args_info->closure_method_orig = NULL;
+  args_info->input_file_arg = NULL;
+  args_info->input_file_orig = NULL;
   args_info->povray_flag = 0;
   args_info->max_ring_arg = 6;
   args_info->max_ring_orig = NULL;
   args_info->tetra_pdb_flag = 0;
+  args_info->ring_trajectory_flag = 0;
   
 }
 
@@ -109,9 +129,12 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->help_help = gengetopt_args_info_detailed_help[0] ;
   args_info->detailed_help_help = gengetopt_args_info_detailed_help[1] ;
   args_info->version_help = gengetopt_args_info_detailed_help[2] ;
-  args_info->povray_help = gengetopt_args_info_detailed_help[3] ;
-  args_info->max_ring_help = gengetopt_args_info_detailed_help[4] ;
-  args_info->tetra_pdb_help = gengetopt_args_info_detailed_help[6] ;
+  args_info->closure_method_help = gengetopt_args_info_detailed_help[3] ;
+  args_info->input_file_help = gengetopt_args_info_detailed_help[5] ;
+  args_info->povray_help = gengetopt_args_info_detailed_help[7] ;
+  args_info->max_ring_help = gengetopt_args_info_detailed_help[8] ;
+  args_info->tetra_pdb_help = gengetopt_args_info_detailed_help[10] ;
+  args_info->ring_trajectory_help = gengetopt_args_info_detailed_help[11] ;
   
 }
 
@@ -210,6 +233,9 @@ static void
 cmdline_parser_release (struct gengetopt_args_info *args_info)
 {
 
+  free_string_field (&(args_info->closure_method_orig));
+  free_string_field (&(args_info->input_file_arg));
+  free_string_field (&(args_info->input_file_orig));
   free_string_field (&(args_info->max_ring_orig));
   
   
@@ -288,12 +314,18 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "detailed-help", 0, 0 );
   if (args_info->version_given)
     write_into_file(outfile, "version", 0, 0 );
+  if (args_info->closure_method_given)
+    write_into_file(outfile, "closure_method", args_info->closure_method_orig, cmdline_parser_closure_method_values);
+  if (args_info->input_file_given)
+    write_into_file(outfile, "input_file", args_info->input_file_orig, 0);
   if (args_info->povray_given)
     write_into_file(outfile, "povray", 0, 0 );
   if (args_info->max_ring_given)
     write_into_file(outfile, "max_ring", args_info->max_ring_orig, cmdline_parser_max_ring_values);
   if (args_info->tetra_pdb_given)
     write_into_file(outfile, "tetra_pdb", 0, 0 );
+  if (args_info->ring_trajectory_given)
+    write_into_file(outfile, "ring_trajectory", 0, 0 );
   
 
   i = EXIT_SUCCESS;
@@ -389,9 +421,37 @@ cmdline_parser2 (int argc, char **argv, struct gengetopt_args_info *args_info, i
 int
 cmdline_parser_required (struct gengetopt_args_info *args_info, const char *prog_name)
 {
-  FIX_UNUSED (args_info);
-  FIX_UNUSED (prog_name);
-  return EXIT_SUCCESS;
+  int result = EXIT_SUCCESS;
+
+  if (cmdline_parser_required2(args_info, prog_name, 0) > 0)
+    result = EXIT_FAILURE;
+
+  if (result == EXIT_FAILURE)
+    {
+      cmdline_parser_free (args_info);
+      exit (EXIT_FAILURE);
+    }
+  
+  return result;
+}
+
+int
+cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *prog_name, const char *additional_error)
+{
+  int error_occurred = 0;
+  FIX_UNUSED (additional_error);
+
+  /* checks for required options */
+  if (! args_info->input_file_given)
+    {
+      fprintf (stderr, "%s: '--input_file' ('-f') option required%s\n", prog_name, (additional_error ? additional_error : ""));
+      error_occurred = 1;
+    }
+  
+  
+  /* checks for dependences among options */
+
+  return error_occurred;
 }
 
 
@@ -429,6 +489,7 @@ int update_arg(void *field, char **orig_field,
   char *stop_char = 0;
   const char *val = value;
   int found;
+  char **string_field;
   FIX_UNUSED (field);
 
   stop_char = 0;
@@ -475,6 +536,14 @@ int update_arg(void *field, char **orig_field,
     break;
   case ARG_INT:
     if (val) *((int *)field) = strtol (val, &stop_char, 0);
+    break;
+  case ARG_STRING:
+    if (val) {
+      string_field = (char **)field;
+      if (!no_free && *string_field)
+        free (*string_field); /* free previous string */
+      *string_field = gengetopt_strdup (val);
+    }
     break;
   default:
     break;
@@ -559,13 +628,16 @@ cmdline_parser_internal (
         { "help",	0, NULL, 'h' },
         { "detailed-help",	0, NULL, 0 },
         { "version",	0, NULL, 'V' },
+        { "closure_method",	1, NULL, 'c' },
+        { "input_file",	1, NULL, 'f' },
         { "povray",	0, NULL, 'p' },
         { "max_ring",	1, NULL, 'r' },
         { "tetra_pdb",	0, NULL, 't' },
+        { "ring_trajectory",	0, NULL, 'x' },
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVpr:t", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVc:f:pr:tx", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -581,8 +653,31 @@ cmdline_parser_internal (
           cmdline_parser_free (&local_args_info);
           exit (EXIT_SUCCESS);
 
-        case 'p':	/* Build a pov_files directory containing .pov files for rendering
-        of ring closures and locations..  */
+        case 'c':	/* Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths..  */
+        
+        
+          if (update_arg( (void *)&(args_info->closure_method_arg), 
+               &(args_info->closure_method_orig), &(args_info->closure_method_given),
+              &(local_args_info.closure_method_given), optarg, cmdline_parser_closure_method_values, "0", ARG_INT,
+              check_ambiguity, override, 0, 0,
+              "closure_method", 'c',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'f':	/* Load the trajectory file to process..  */
+        
+        
+          if (update_arg( (void *)&(args_info->input_file_arg), 
+               &(args_info->input_file_orig), &(args_info->input_file_given),
+              &(local_args_info.input_file_given), optarg, 0, 0, ARG_STRING,
+              check_ambiguity, override, 0, 0,
+              "input_file", 'f',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'p':	/* Build a pov_files directory containing .pov files for rendering of ring closures and locations..  */
         
         
           if (update_arg((void *)&(args_info->povray_flag), 0, &(args_info->povray_given),
@@ -592,8 +687,7 @@ cmdline_parser_internal (
             goto failure;
         
           break;
-        case 'r':	/* Scan for ring closures up to this maximum connectivity
-        value..  */
+        case 'r':	/* Scan for ring closures up to this maximum connectivity value..  */
         
         
           if (update_arg( (void *)&(args_info->max_ring_arg), 
@@ -605,13 +699,22 @@ cmdline_parser_internal (
             goto failure;
         
           break;
-        case 't':	/* Output a .pdb file containing the tetrahedrality in the
-        b-factor column..  */
+        case 't':	/* Output a .pdb file containing the tetrahedrality in the b-factor column..  */
         
         
           if (update_arg((void *)&(args_info->tetra_pdb_flag), 0, &(args_info->tetra_pdb_given),
               &(local_args_info.tetra_pdb_given), optarg, 0, 0, ARG_FLAG,
               check_ambiguity, override, 1, 0, "tetra_pdb", 't',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'x':	/* Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size)..  */
+        
+        
+          if (update_arg((void *)&(args_info->ring_trajectory_flag), 0, &(args_info->ring_trajectory_given),
+              &(local_args_info.ring_trajectory_given), optarg, 0, 0, ARG_FLAG,
+              check_ambiguity, override, 1, 0, "ring_trajectory", 'x',
               additional_error))
             goto failure;
         
@@ -636,7 +739,10 @@ cmdline_parser_internal (
 
 
 
-	FIX_UNUSED(check_required);
+  if (check_required)
+    {
+      error_occurred += cmdline_parser_required2 (args_info, argv[0], additional_error);
+    }
 
   cmdline_parser_release (&local_args_info);
 

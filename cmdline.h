@@ -40,27 +40,31 @@ struct gengetopt_args_info
   const char *help_help; /**< @brief Print help and exit help description.  */
   const char *detailed_help_help; /**< @brief Print help, including all details and hidden options, and exit help description.  */
   const char *version_help; /**< @brief Print version and exit help description.  */
-  int povray_flag;	/**< @brief Build a pov_files directory containing .pov files for rendering
-  of ring closures and locations. (default=off).  */
-  const char *povray_help; /**< @brief Build a pov_files directory containing .pov files for rendering
-  of ring closures and locations. help description.  */
-  int max_ring_arg;	/**< @brief Scan for ring closures up to this maximum connectivity
-  value. (default='6').  */
-  char * max_ring_orig;	/**< @brief Scan for ring closures up to this maximum connectivity
-  value. original value given at command line.  */
-  const char *max_ring_help; /**< @brief Scan for ring closures up to this maximum connectivity
-  value. help description.  */
-  int tetra_pdb_flag;	/**< @brief Output a .pdb file containing the tetrahedrality in the
-  b-factor column. (default=off).  */
-  const char *tetra_pdb_help; /**< @brief Output a .pdb file containing the tetrahedrality in the
-  b-factor column. help description.  */
+  int closure_method_arg;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. (default='0').  */
+  char * closure_method_orig;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. original value given at command line.  */
+  const char *closure_method_help; /**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. help description.  */
+  char * input_file_arg;	/**< @brief Load the trajectory file to process..  */
+  char * input_file_orig;	/**< @brief Load the trajectory file to process. original value given at command line.  */
+  const char *input_file_help; /**< @brief Load the trajectory file to process. help description.  */
+  int povray_flag;	/**< @brief Build a pov_files directory containing .pov files for rendering of ring closures and locations. (default=off).  */
+  const char *povray_help; /**< @brief Build a pov_files directory containing .pov files for rendering of ring closures and locations. help description.  */
+  int max_ring_arg;	/**< @brief Scan for ring closures up to this maximum connectivity value. (default='6').  */
+  char * max_ring_orig;	/**< @brief Scan for ring closures up to this maximum connectivity value. original value given at command line.  */
+  const char *max_ring_help; /**< @brief Scan for ring closures up to this maximum connectivity value. help description.  */
+  int tetra_pdb_flag;	/**< @brief Output a .pdb file containing the tetrahedrality in the b-factor column. (default=off).  */
+  const char *tetra_pdb_help; /**< @brief Output a .pdb file containing the tetrahedrality in the b-factor column. help description.  */
+  int ring_trajectory_flag;	/**< @brief Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). (default=off).  */
+  const char *ring_trajectory_help; /**< @brief Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int detailed_help_given ;	/**< @brief Whether detailed-help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
+  unsigned int closure_method_given ;	/**< @brief Whether closure_method was given.  */
+  unsigned int input_file_given ;	/**< @brief Whether input_file was given.  */
   unsigned int povray_given ;	/**< @brief Whether povray was given.  */
   unsigned int max_ring_given ;	/**< @brief Whether max_ring was given.  */
   unsigned int tetra_pdb_given ;	/**< @brief Whether tetra_pdb was given.  */
+  unsigned int ring_trajectory_given ;	/**< @brief Whether ring_trajectory was given.  */
 
 } ;
 
@@ -191,6 +195,7 @@ void cmdline_parser_free (struct gengetopt_args_info *args_info);
 int cmdline_parser_required (struct gengetopt_args_info *args_info,
   const char *prog_name);
 
+extern const char *cmdline_parser_closure_method_values[];  /**< @brief Possible values for closure_method. */
 extern const char *cmdline_parser_max_ring_values[];  /**< @brief Possible values for max_ring. */
 
 
