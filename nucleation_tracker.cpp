@@ -1071,7 +1071,7 @@ int main(int argc, char **argv) {
     bool trigger;
     bool isPos;
     bool fiveAtomWater = false;
-    char povDistFileName[200], povFileName[200], trajFileName[200], fileName[200], inLine[1000], inValue[200], tag[100];
+    char povDistFileName[200], povFileName[200], trajFileName[200], fileName[200], inLine[1000], inValue[200], tag[100], tetraPDBFileName[200];
     char *token;
     const char *file;
     const char *delimit = " \t\n";
@@ -1147,20 +1147,24 @@ int main(int argc, char **argv) {
     vector<vector<double> > nearestNeighborVecY;
     vector<vector<double> > nearestNeighborVecZ;
     vector<vector<double> > nearestNeighborMag;
-    string strungName, strungName2, strungName3;
+    string strungName, strungName2, strungName3, strungName4;
     string povName;
     string povName2;
+    string tetraPDBDistName;
     string povDirName;
     string povDistName;
     string red_val, green_val, blue_val;
     string lineString;
     string shortString;
+    string shortString_integer;
+    string shortString_atom;
     string frameCountString, xFrameString, yFrameString;
     stringstream frameInt, xFrameInt, yFrameInt;
     ofstream pov_out;
     ofstream outputer_pov;
     ofstream povDistOut;
     ofstream outputer_xyz;
+    ofstream outputer_PDB;
 
     gengetopt_args_info args_info;
 
@@ -1230,7 +1234,9 @@ int main(int argc, char **argv) {
     }
 
     if (tetraPDBOutOpt){
-
+        strcpy(tetraPDBFileName, token);
+        strcat(tetraPDBFileName,"_tetra.pdb");
+        strungName4 = tetraPDBFileName;
     }
 
     cmdline_parser_free (&args_info); /* release gotten options allocated memory */
@@ -1394,6 +1400,7 @@ int main(int argc, char **argv) {
                 hPosZ.push_back(zVal);
             }
         }
+
 
         // the box information - used in minimum image wrapping
         inputer.getline(inLine,999,'\n');
@@ -1734,6 +1741,143 @@ int main(int argc, char **argv) {
         avg_tetrahedrality /= tetrahedrality.size();
         tet_square /= tetrahedrality.size();
         stdev_tetrahedrality = sqrt(tet_square - avg_tetrahedrality*avg_tetrahedrality);
+
+        if (tetraPDBOutOpt){
+            outputer_PDB.open(tetraPDBFileName);
+            outputer_PDB << "COMPND" << setw(10) <<  tetraPDBFileName << ".pdb" << "\n";
+	    outputer_PDB << "AUTHOR" << setw(10) << "PDB file generated through nucleation_tracker program" << "\n";
+            outputer_PDB << "CRYST1" << setw(9) << fixed << setprecision(5) << setw(8) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
+	}
+
+	if (tetraPDBOutOpt){
+		inputer.getline(inLine,999,'\n');
+		token = strtok(inLine,delimit);
+		strcpy(inValue,token);
+		nAtoms = atoi(inValue);
+		atomCount.push_back(nAtoms);
+		while (!inputer.eof()) {
+			// grab the water atom positions
+			for(i=0; i<nAtoms; i++){
+				inputer.getline(inLine,999,'\n');
+				lineString = inLine;
+				shortString = lineString.substr(10,5);
+				shortString_atom = lineString.substr(13,3);
+				shortString_integer = lineString.substr(16,5);
+				//token = strtok(inLine,delimit);
+				//token = strtok(NULL,delimit);
+				strcpy(token, shortString.c_str());
+				// test if it is an oxygen atom and load in the appropriate vector
+				if (!strcmp(OAtom, token) || !strcmp(OWAtom, token)){
+					//token = strtok(NULL,delimit);
+					//token = strtok(NULL,delimit);
+					shortString = lineString.substr(20,8);
+					strcpy(inValue,shortString.c_str());
+					//strcpy(inValue,token);
+					xVal = atof(inValue) * 10.0;
+					oPosX.push_back(xVal);
+					//token = strtok(NULL,delimit);
+					shortString = lineString.substr(28,8);
+					strcpy(inValue,shortString.c_str());
+					//strcpy(inValue,token);
+					yVal = atof(inValue) * 10.0;
+					oPosY.push_back(yVal);
+					shortString = lineString.substr(36,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					zVal = atof(inValue) * 10.0;
+					oPosZ.push_back(zVal);
+					totalWaterCount++;
+					// test if it is a hydrogen atom and load in the appropriate vector
+				} else if (!strcmp(HAtom1, token) || !strcmp(HWAtom1, token) || !strcmp(HAtom, token)){
+					//token = strtok(NULL,delimit);
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					shortString = lineString.substr(20,8);
+					strcpy(inValue,shortString.c_str());
+					xVal = atof(inValue) * 10.0;
+					hPosX.push_back(xVal);
+					shortString = lineString.substr(28,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					yVal = atof(inValue) * 10.0;
+					hPosY.push_back(yVal);
+					shortString = lineString.substr(36,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					zVal = atof(inValue) * 10.0;
+					hPosZ.push_back(zVal);
+					// test if it is a hydrogen atom and load in the appropriate vector
+				} else if (!strcmp(HAtom2, token) || !strcmp(HWAtom2, token)){
+					//token = strtok(NULL,delimit);
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					shortString = lineString.substr(20,8);
+					strcpy(inValue,shortString.c_str());
+					xVal = atof(inValue) * 10.0;
+					hPosX.push_back(xVal);
+					shortString = lineString.substr(28,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					yVal = atof(inValue) * 10.0;
+					hPosY.push_back(yVal);
+					shortString = lineString.substr(36,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					zVal = atof(inValue) * 10.0;
+					hPosZ.push_back(zVal);
+				} else if (!strcmp(HAtom3, token) || !strcmp(HWAtom3, token)){
+					//token = strtok(NULL,delimit);
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					shortString = lineString.substr(20,8);
+					strcpy(inValue,shortString.c_str());
+					xVal = atof(inValue) * 10.0;
+					hPosX.push_back(xVal);
+					shortString = lineString.substr(28,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					yVal = atof(inValue) * 10.0;
+					hPosY.push_back(yVal);
+					shortString = lineString.substr(36,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					zVal = atof(inValue) * 10.0;
+					hPosZ.push_back(zVal);
+				} else if (!strcmp(HAtom4, token) || !strcmp(HWAtom4, token)){
+					//token = strtok(NULL,delimit);
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					shortString = lineString.substr(20,8);
+					strcpy(inValue,shortString.c_str());
+					xVal = atof(inValue) * 10.0;
+					hPosX.push_back(xVal);
+					shortString = lineString.substr(28,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					yVal = atof(inValue) * 10.0;
+					hPosY.push_back(yVal);
+					shortString = lineString.substr(36,8);
+					strcpy(inValue,shortString.c_str());
+					//token = strtok(NULL,delimit);
+					//strcpy(inValue,token);
+					zVal = atof(inValue) * 10.0;
+					hPosZ.push_back(zVal);
+				}
+			}
+
+		}
+                outputer_PDB << left << "Atom" << right << setw(2) << shortString_integer << right << setw(1) << shortString_atom << right << setw(1) << "WAT" << right << fixed << setprecision(6) << right <<  setw(10) << xVal << right << yVal << right << zVal << right << setw(6) << avg_tetrahedrality << "\n";
+
+}
+
 
         // now we start identifying rings to build those lists
         for(i=0; i<hbondListIndex.size(); i++){
@@ -3344,6 +3488,9 @@ int main(int argc, char **argv) {
     //    delete povrayObjects;
 
     cout << "\nRing distribution results written to " << fileName << "\n\n";
+    if (tetraPDBOutOpt){
+	cout << "A pdb file has been generated as " << strungName4 << "\n";
+    }
     if (povrayOutOpt){
         cout << "POVRay rendering command written to " << strungName3 << "\n";
         cout << "\t...potentially useful for rendering files in the NEWLY made pov_files directory\n\n";
