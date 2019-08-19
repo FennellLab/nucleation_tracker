@@ -1871,16 +1871,21 @@ int main(int argc, char **argv) {
 					zVal = atof(inValue) * 10.0;
 					hPosZ.push_back(zVal);
 				}
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(14) << "WAT";
+				outputer_PDB << left << setw(6) << "ATOM";
 			}
 
 		}
-                outputer_PDB << right << setw(11) << shortString_integer << right << setw(5) << shortString_atom << fixed << setprecision(6) << right <<  setw(22) << xVal << right << setw(8) << yVal << right << setw(8) << zVal << right << setw(12) << avg_tetrahedrality << "\n";
+                outputer_PDB << right << setw(5) << shortString_integer << right << setw(5) << shortString_atom;
+		for(i=0; i<nAtoms; i++){
+			outputer_PDB << right << setw(4) << "WAT";
+		}
+		
+		outputer_PDB << fixed << setprecision(6) << right <<  setw(18) << xVal << right << setw(8) << yVal << right << setw(8) << zVal << right << setw(12) << avg_tetrahedrality << "\n";
 
 		for(i=0; i<nAtoms; i++){
 			outputer_PDB << "CONECT";
 		}
-		outputer_PDB << right << setw(11) << shortString_integer << "\n";
+		outputer_PDB << right << setw(5) << shortString_integer << "\n";
 		outputer_PDB << "MASTER" << "\n" << "END";
 }
 
