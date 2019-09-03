@@ -1742,152 +1742,29 @@ int main(int argc, char **argv) {
         tet_square /= tetrahedrality.size();
         stdev_tetrahedrality = sqrt(tet_square - avg_tetrahedrality*avg_tetrahedrality);
 
-        if (tetraPDBOutOpt){
-            outputer_PDB.open(tetraPDBFileName);
-            outputer_PDB << "COMPND" << setw(10) <<  tetraPDBFileName << ".pdb" << "\n";
-	    outputer_PDB << "AUTHOR" << setw(10) << "PDB file generated through nucleation_tracker program" << "\n";
-            outputer_PDB << "CRYST1" << setw(9) << fixed << setprecision(5) << setw(8) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
-	}
-
 	if (tetraPDBOutOpt){
-		inputer.getline(inLine,999,'\n');
-		token = strtok(inLine,delimit);
-		strcpy(inValue,token);
-		nAtoms = atoi(inValue);
-		atomCount.push_back(nAtoms);
-		while (!inputer.eof()) {
-			// grab the water atom positions
-			for(i=0; i<nAtoms; i++){
-				inputer.getline(inLine,999,'\n');
-				lineString = inLine;
-				shortString = lineString.substr(10,5);
-				shortString_atom = lineString.substr(13,3);
-				shortString_integer = lineString.substr(16,5);
-				//token = strtok(inLine,delimit);
-				//token = strtok(NULL,delimit);
-				strcpy(token, shortString.c_str());
-				// test if it is an oxygen atom and load in the appropriate vector
-				if (!strcmp(OAtom, token) || !strcmp(OWAtom, token)){
-					//token = strtok(NULL,delimit);
-					//token = strtok(NULL,delimit);
-					shortString = lineString.substr(20,8);
-					strcpy(inValue,shortString.c_str());
-					//strcpy(inValue,token);
-					xVal = atof(inValue) * 10.0;
-					oPosX.push_back(xVal);
-					//token = strtok(NULL,delimit);
-					shortString = lineString.substr(28,8);
-					strcpy(inValue,shortString.c_str());
-					//strcpy(inValue,token);
-					yVal = atof(inValue) * 10.0;
-					oPosY.push_back(yVal);
-					shortString = lineString.substr(36,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					zVal = atof(inValue) * 10.0;
-					oPosZ.push_back(zVal);
-					totalWaterCount++;
-					// test if it is a hydrogen atom and load in the appropriate vector
-				} else if (!strcmp(HAtom1, token) || !strcmp(HWAtom1, token) || !strcmp(HAtom, token)){
-					//token = strtok(NULL,delimit);
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					shortString = lineString.substr(20,8);
-					strcpy(inValue,shortString.c_str());
-					xVal = atof(inValue) * 10.0;
-					hPosX.push_back(xVal);
-					shortString = lineString.substr(28,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					yVal = atof(inValue) * 10.0;
-					hPosY.push_back(yVal);
-					shortString = lineString.substr(36,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					zVal = atof(inValue) * 10.0;
-					hPosZ.push_back(zVal);
-					// test if it is a hydrogen atom and load in the appropriate vector
-				} else if (!strcmp(HAtom2, token) || !strcmp(HWAtom2, token)){
-					//token = strtok(NULL,delimit);
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					shortString = lineString.substr(20,8);
-					strcpy(inValue,shortString.c_str());
-					xVal = atof(inValue) * 10.0;
-					hPosX.push_back(xVal);
-					shortString = lineString.substr(28,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					yVal = atof(inValue) * 10.0;
-					hPosY.push_back(yVal);
-					shortString = lineString.substr(36,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					zVal = atof(inValue) * 10.0;
-					hPosZ.push_back(zVal);
-				} else if (!strcmp(HAtom3, token) || !strcmp(HWAtom3, token)){
-					//token = strtok(NULL,delimit);
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					shortString = lineString.substr(20,8);
-					strcpy(inValue,shortString.c_str());
-					xVal = atof(inValue) * 10.0;
-					hPosX.push_back(xVal);
-					shortString = lineString.substr(28,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					yVal = atof(inValue) * 10.0;
-					hPosY.push_back(yVal);
-					shortString = lineString.substr(36,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					zVal = atof(inValue) * 10.0;
-					hPosZ.push_back(zVal);
-				} else if (!strcmp(HAtom4, token) || !strcmp(HWAtom4, token)){
-					//token = strtok(NULL,delimit);
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					shortString = lineString.substr(20,8);
-					strcpy(inValue,shortString.c_str());
-					xVal = atof(inValue) * 10.0;
-					hPosX.push_back(xVal);
-					shortString = lineString.substr(28,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					yVal = atof(inValue) * 10.0;
-					hPosY.push_back(yVal);
-					shortString = lineString.substr(36,8);
-					strcpy(inValue,shortString.c_str());
-					//token = strtok(NULL,delimit);
-					//strcpy(inValue,token);
-					zVal = atof(inValue) * 10.0;
-					hPosZ.push_back(zVal);
-				}
-				outputer_PDB << left << setw(6) << "ATOM";
-			}
-
+		outputer_PDB.open(tetraPDBFileName);
+		outputer_PDB << "COMPND:" << '\t' << tetraPDBFileName << "\n";
+		outputer_PDB << "AUTHOR:" << '\t' << "PDB file generated by nucleation_tracker program" << "\n";
+		outputer_PDB << "CRYST1" << right << fixed << setprecision(3) << setw(10) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
+		m = 1;
+		n = 0;
+		for (i = 0; i < oPosX.size(); i++){
+			outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "OW" << right << setw(4) << "WAT" << right << setw(2) << "A" << fixed << setprecision(3) << right <<  setw(16) << oPosX[i] << right << setw(8) << oPosY[i] << right << setw(8) << oPosZ[i] << right << setw(12) << tetrahedrality[i] << "\n";
+			m++;
+			outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW1" << right << setw(4) << "WAT" << right << setw(2) << "A" << fixed << setprecision(3) << right <<  setw(16) << hPosX[n] << right << setw(8) << hPosY[n] << right << setw(8) << hPosZ[n] << right << setw(12) << tetrahedrality[i] << "\n";
+			m++;
+			outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW2" << right << setw(4) << "WAT" << right << setw(2) << "A" << fixed << setprecision(3) << right <<  setw(16) << hPosX[n+1] << right << setw(8) << hPosY[n+1] << right << setw(8) << hPosZ[n+1] << right << setw(12) << tetrahedrality[i] << "\n";
+			n += 2;
+			m++;
 		}
-                outputer_PDB << right << setw(5) << shortString_integer << right << setw(5) << shortString_atom;
-		for(i=0; i<nAtoms; i++){
-			outputer_PDB << right << setw(4) << "WAT";
+		m = 1;
+		for(j = 0; j < tetrahedrality.size()*3; j++){
+			outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
+			m++;
 		}
-		
-		outputer_PDB << fixed << setprecision(6) << right <<  setw(18) << xVal << right << setw(8) << yVal << right << setw(8) << zVal << right << setw(12) << avg_tetrahedrality << "\n";
-
-		for(i=0; i<nAtoms; i++){
-			outputer_PDB << "CONECT";
-		}
-		outputer_PDB << right << setw(5) << shortString_integer << "\n";
 		outputer_PDB << "MASTER" << "\n" << "END";
-}
+	}
 
 
         // now we start identifying rings to build those lists
