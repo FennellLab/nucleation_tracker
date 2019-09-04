@@ -1156,8 +1156,6 @@ int main(int argc, char **argv) {
     string red_val, green_val, blue_val;
     string lineString;
     string shortString;
-    string shortString_integer;
-    string shortString_atom;
     string frameCountString, xFrameString, yFrameString;
     stringstream frameInt, xFrameInt, yFrameInt;
     ofstream pov_out;
@@ -1759,7 +1757,7 @@ int main(int argc, char **argv) {
 			m++;
 		}
 		m = 1;
-		for(j = 0; j < tetrahedrality.size()*3; j++){
+		for(j = 0; j < nAtoms; j++){
 			outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
 			m++;
 		}
