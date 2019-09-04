@@ -1207,11 +1207,10 @@ int main(int argc, char **argv) {
     file = strungName.c_str();
     strcpy(fileName, file);
     token = strtok(fileName, period);
-    strcpy(fileName, token);
 
     // Build readers and writers as necessary given options
-    ifstream inputer(args_info.input_file_arg);
-    ofstream outputer(fileName);
+    // ifstream inputer(args_info.input_file_arg);
+    // ofstream outputer(fileName);
 
     if (ringTrajOutOpt){ 
         strcpy(trajFileName, token);
@@ -1238,7 +1237,13 @@ int main(int argc, char **argv) {
     }
 
     // finally appending "_nuc_info.txt" to a file
+    strcpy(fileName, token);
     strcat(fileName,"_nuc_info.txt");
+
+
+    // Build readers and writers as necessary given options
+    ifstream inputer(args_info.input_file_arg);
+    ofstream outputer(fileName);
  
     cmdline_parser_free (&args_info); /* release gotten options allocated memory */
 
