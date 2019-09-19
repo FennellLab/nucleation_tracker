@@ -1762,11 +1762,11 @@ int main(int argc, char **argv) {
 
 		if (2*oPosX.size() == hPosX.size()){
 			for (i = 0; i < oPosX.size(); i++){
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "OW" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << oPosX[i] << right << setw(8) << oPosY[i] << right << setw(8) << oPosZ[i] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "O" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW1" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n] << right << setw(8) << hPosY[n] << right << setw(8) << hPosZ[n] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW2" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n+1] << right << setw(8) << hPosY[n+1] << right << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				n += 2;
 				m++;
 				o++;
@@ -1775,15 +1775,15 @@ int main(int argc, char **argv) {
 
 		else {
 			for (i = 0; i < oPosX.size(); i++){
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "OW" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << oPosX[i] << right << setw(8) << oPosY[i] << right << setw(8) << oPosZ[i] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "O" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW1" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n] << right << setw(8) << hPosY[n] << right << setw(8) << hPosZ[n] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW2" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n+1] << right << setw(8) << hPosY[n+1] << right << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW3" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n+2] << right << setw(8) << hPosY[n+2] << right << setw(8) << hPosZ[n+2] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW3" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+2] << setw(8) << hPosY[n+2] << setw(8) << hPosZ[n+2] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << right << setw(5) << "HW4" << right << setw(4) << "WAT" << right << setw(2) << "A" << right << setw(4) << o << fixed << setprecision(3) << right <<  setw(12) << hPosX[n+3] << right << setw(8) << hPosY[n+3] << right << setw(8) << hPosZ[n+3] << fixed << setprecision(2) << right << setw(6) << occupancy << right << setw(6) << tetrahedrality[i] << right << setw(12) << "H" << right << setw(2) << "0" << "\n";
+				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW4" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+3] << setw(8) << hPosY[n+3] << setw(8) << hPosZ[n+3] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
 				n += 4;
 				m++;
 				o++;
