@@ -2376,7 +2376,7 @@ int main(int argc, char **argv) {
         if (ringTrajOutOpt){
             outputer_xyz.open(trajFileName);
             outputer_xyz << totalRings << "\n";
-            outputer_xyz <<fixed<<setprecision(5)<<setw(8) << boxLength[0] <<" "<< boxLength[1] <<" "<< boxLength[2] << "\n";
+            outputer_xyz << 0 << "; " << fixed<<setprecision(5)<<setw(8) << boxLength[0] << " " << hmat[0][1] << " " << hmat[0][2] << "; " << hmat[1][0] << " " << boxLength[1] << " " << hmat[1][2] << "; " << hmat[2][0] << " " << hmat[2][1] << " " << boxLength[2] << "\n";
         }
 
         // outputer << setw(8) << lastRing7 ;
