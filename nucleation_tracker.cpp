@@ -1096,16 +1096,18 @@ int main(int argc, char **argv) {
     int x_frame, y_frame;
     int ringOutOpt;
     int maxRingOpt;
+    int directionalityOpt = 0;
     int povrayOutOpt = 0;
     int ringTrajOutOpt = 0;
     int tetraPDBOutOpt = 0;
     int totalRings;
     int index, test_slot;
     int temp_index;
+    int is_donor = 0;
     double cosine_sum, dotProduct, inv_nearestNeighborMag1, inv_nearestNeighborMag2, unitVec1x, unitVec1y, unitVec1z, unitVec2x, unitVec2y, unitVec2z;
     double tetrahedralParam, avg_tetrahedrality, tet_square, stdev_tetrahedrality;
     double xVal, yVal, zVal;
-    double temp_dist, temp_dist2;
+    double temp_dist_inv, temp_dist, temp_dist2;
     double temp_value;
     double temp_val_x, temp_val_y, temp_val_z;
     double ionPosition[3], position[3];
@@ -1116,7 +1118,7 @@ int main(int argc, char **argv) {
     double hmat[3][3], invhmat[3][3];
     double determinant, invdeterminant;
     double tempPosX[8], tempPosY[8], tempPosZ[8];
-    double tempHBVec[3];
+    double tempHBVec[3], tempHBVec2[3];
     double diffVal;
     double ringProbabilities[9];
     Neighbor closest_neighbor, other_neighbor;
@@ -1168,6 +1170,9 @@ int main(int argc, char **argv) {
     if (cmdline_parser (argc, argv, &args_info) != 0)
         exit(1) ;
 
+    if (args_info.directionality_flag == 1){
+        directionalityOpt = 1;
+    }
     if (args_info.povray_flag == 1){
         povrayOutOpt = 1;
     }
@@ -1626,17 +1631,49 @@ int main(int argc, char **argv) {
                         }
                     } else {
                         if(calculator->IsWat3HBond(water1, water2, hmat, invhmat, tempHBVec, i, neighborList[i][j])){
-                            hbondList[i][hbondListIndex[i]] = neighborList[i][j];
-                            hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
-                            hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
-                            hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
-                            hbondListIndex[i]++;
-                            hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
-                            hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
-                            hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
-                            hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
-                            hbondListIndex[neighborList[i][j]]++;
+                            if (directionalityOpt == 1){
+                                tempHBVec2[0] = water2[0]-water1[0];
+                                tempHBVec2[1] = water2[1]-water1[1];
+                                tempHBVec2[2] = water2[2]-water1[2];
+                                temp_dist2 = tempHBVec2[0]*tempHBVec2[0] + tempHBVec2[1]*tempHBVec2[1] + tempHBVec2[2]*tempHBVec2[2]; 
+                                temp_dist_inv = 1.0 / sqrt(temp_dist2);
+                                tempHBVec2[0] *= temp_dist_inv;
+                                tempHBVec2[1] *= temp_dist_inv;
+                                tempHBVec2[2] *= temp_dist_inv;
+                                // check if it is a donating HBond
+                                if ((tempHBVec[0]*tempHBVec2[0] + tempHBVec[1]*tempHBVec2[1] + tempHBVec[2]*tempHBVec2[2]) > 0){
+                                    is_donor = 1;
+                                } else {
+                                    is_donor = 0;
+                                }
+
+                                if (is_donor == 1){
+                                    hbondList[i][hbondListIndex[i]] = neighborList[i][j];
+                                    hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
+                                    hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
+                                    hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
+                                    hbondListIndex[i]++;
+                                } else {
+                                    hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
+                                    hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
+                                    hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
+                                    hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
+                                    hbondListIndex[neighborList[i][j]]++;
+                                }
+                            } else {
+                                hbondList[i][hbondListIndex[i]] = neighborList[i][j];
+                                hbondVecX[i][hbondListIndex[i]] = 0.5*tempHBVec[0];
+                                hbondVecY[i][hbondListIndex[i]] = 0.5*tempHBVec[1];
+                                hbondVecZ[i][hbondListIndex[i]] = 0.5*tempHBVec[2];
+                                hbondListIndex[i]++;
+                                hbondList[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = i;
+                                hbondVecX[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[0];
+                                hbondVecY[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[1];
+                                hbondVecZ[neighborList[i][j]][hbondListIndex[neighborList[i][j]]] = 0.5*tempHBVec[2];
+                                hbondListIndex[neighborList[i][j]]++;
+                            }
                             hbondCount++;
+
                         }
                     }
                 }

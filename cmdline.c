@@ -39,6 +39,7 @@ const char *gengetopt_args_info_detailed_help[] = {
   "  -V, --version                 Print version and exit",
   "  -c, --closure_method=ring closure method\n                                Close rings using either (0) the single minimum\n                                  path for each water molecule or (1) all\n                                  non-self-intersecting ring paths.  (possible\n                                  values=\"0\", \"1\" default=`0')",
   "  \n  Note that option 1 will lead to a lot more rings than option 0, and it might\n  take a bit longer to calculate.",
+  "  -d, --directionality          Consider H-bond directionality. Only include\n                                  donated H-bonds.  (default=off)",
   "  -f, --input_file=input trajectory file\n                                Load the trajectory file to process.",
   "  \n  The trajectory file must be of a .gro form.",
   "  -p, --povray                  Build a pov_files directory containing .pov\n                                  files for rendering of ring closures and\n                                  locations.  (default=off)",
@@ -57,15 +58,16 @@ init_help_array(void)
   gengetopt_args_info_help[2] = gengetopt_args_info_detailed_help[2];
   gengetopt_args_info_help[3] = gengetopt_args_info_detailed_help[3];
   gengetopt_args_info_help[4] = gengetopt_args_info_detailed_help[5];
-  gengetopt_args_info_help[5] = gengetopt_args_info_detailed_help[7];
+  gengetopt_args_info_help[5] = gengetopt_args_info_detailed_help[6];
   gengetopt_args_info_help[6] = gengetopt_args_info_detailed_help[8];
-  gengetopt_args_info_help[7] = gengetopt_args_info_detailed_help[10];
+  gengetopt_args_info_help[7] = gengetopt_args_info_detailed_help[9];
   gengetopt_args_info_help[8] = gengetopt_args_info_detailed_help[11];
-  gengetopt_args_info_help[9] = 0; 
+  gengetopt_args_info_help[9] = gengetopt_args_info_detailed_help[12];
+  gengetopt_args_info_help[10] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[10];
+const char *gengetopt_args_info_help[11];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -98,6 +100,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->detailed_help_given = 0 ;
   args_info->version_given = 0 ;
   args_info->closure_method_given = 0 ;
+  args_info->directionality_given = 0 ;
   args_info->input_file_given = 0 ;
   args_info->povray_given = 0 ;
   args_info->max_ring_given = 0 ;
@@ -111,6 +114,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   FIX_UNUSED (args_info);
   args_info->closure_method_arg = 0;
   args_info->closure_method_orig = NULL;
+  args_info->directionality_flag = 0;
   args_info->input_file_arg = NULL;
   args_info->input_file_orig = NULL;
   args_info->povray_flag = 0;
@@ -130,11 +134,12 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->detailed_help_help = gengetopt_args_info_detailed_help[1] ;
   args_info->version_help = gengetopt_args_info_detailed_help[2] ;
   args_info->closure_method_help = gengetopt_args_info_detailed_help[3] ;
-  args_info->input_file_help = gengetopt_args_info_detailed_help[5] ;
-  args_info->povray_help = gengetopt_args_info_detailed_help[7] ;
-  args_info->max_ring_help = gengetopt_args_info_detailed_help[8] ;
-  args_info->tetra_pdb_help = gengetopt_args_info_detailed_help[10] ;
-  args_info->ring_trajectory_help = gengetopt_args_info_detailed_help[11] ;
+  args_info->directionality_help = gengetopt_args_info_detailed_help[5] ;
+  args_info->input_file_help = gengetopt_args_info_detailed_help[6] ;
+  args_info->povray_help = gengetopt_args_info_detailed_help[8] ;
+  args_info->max_ring_help = gengetopt_args_info_detailed_help[9] ;
+  args_info->tetra_pdb_help = gengetopt_args_info_detailed_help[11] ;
+  args_info->ring_trajectory_help = gengetopt_args_info_detailed_help[12] ;
   
 }
 
@@ -316,6 +321,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "version", 0, 0 );
   if (args_info->closure_method_given)
     write_into_file(outfile, "closure_method", args_info->closure_method_orig, cmdline_parser_closure_method_values);
+  if (args_info->directionality_given)
+    write_into_file(outfile, "directionality", 0, 0 );
   if (args_info->input_file_given)
     write_into_file(outfile, "input_file", args_info->input_file_orig, 0);
   if (args_info->povray_given)
@@ -629,6 +636,7 @@ cmdline_parser_internal (
         { "detailed-help",	0, NULL, 0 },
         { "version",	0, NULL, 'V' },
         { "closure_method",	1, NULL, 'c' },
+        { "directionality",	0, NULL, 'd' },
         { "input_file",	1, NULL, 'f' },
         { "povray",	0, NULL, 'p' },
         { "max_ring",	1, NULL, 'r' },
@@ -637,7 +645,7 @@ cmdline_parser_internal (
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVc:f:pr:tx", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVc:df:pr:tx", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -661,6 +669,16 @@ cmdline_parser_internal (
               &(local_args_info.closure_method_given), optarg, cmdline_parser_closure_method_values, "0", ARG_INT,
               check_ambiguity, override, 0, 0,
               "closure_method", 'c',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'd':	/* Consider H-bond directionality. Only include donated H-bonds..  */
+        
+        
+          if (update_arg((void *)&(args_info->directionality_flag), 0, &(args_info->directionality_given),
+              &(local_args_info.directionality_given), optarg, 0, 0, ARG_FLAG,
+              check_ambiguity, override, 1, 0, "directionality", 'd',
               additional_error))
             goto failure;
         

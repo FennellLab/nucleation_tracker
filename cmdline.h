@@ -43,6 +43,8 @@ struct gengetopt_args_info
   int closure_method_arg;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. (default='0').  */
   char * closure_method_orig;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. original value given at command line.  */
   const char *closure_method_help; /**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths. help description.  */
+  int directionality_flag;	/**< @brief Consider H-bond directionality. Only include donated H-bonds. (default=off).  */
+  const char *directionality_help; /**< @brief Consider H-bond directionality. Only include donated H-bonds. help description.  */
   char * input_file_arg;	/**< @brief Load the trajectory file to process..  */
   char * input_file_orig;	/**< @brief Load the trajectory file to process. original value given at command line.  */
   const char *input_file_help; /**< @brief Load the trajectory file to process. help description.  */
@@ -60,6 +62,7 @@ struct gengetopt_args_info
   unsigned int detailed_help_given ;	/**< @brief Whether detailed-help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
   unsigned int closure_method_given ;	/**< @brief Whether closure_method was given.  */
+  unsigned int directionality_given ;	/**< @brief Whether directionality was given.  */
   unsigned int input_file_given ;	/**< @brief Whether input_file was given.  */
   unsigned int povray_given ;	/**< @brief Whether povray was given.  */
   unsigned int max_ring_given ;	/**< @brief Whether max_ring was given.  */
