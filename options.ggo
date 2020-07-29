@@ -13,6 +13,8 @@ option "closure_method" c "Close rings using either (0) the single minimum path 
 	default="0"
 	optional 
     
+option "directionality" d "Consider H-bond directionality. Only include donated H-bonds." flag off
+
 option "input_file" f "Load the trajectory file to process." required
 	details="\nThe trajectory file must be of a .gro form."
 	string
