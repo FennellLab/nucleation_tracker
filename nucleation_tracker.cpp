@@ -34,6 +34,8 @@ double ring5_dot_size = 0.7; // central ring dot size
 double ring6_dot_size = 0.8; // central ring dot size
 double ring7_dot_size = 0.9; // central ring dot size
 double ring8_dot_size = 1.0; // central ring dot size
+double ring9_dot_size = 1.1; // central ring dot size
+double ring10_dot_size = 1.2; // central ring dot size
 double scale_factor = 20;    // scale the pixels!
 double buffer_size = 2;      // the imaging buffer size
 double slab_thickness = 100;  // 0.5*slab thickness
@@ -581,6 +583,8 @@ class PovObjects {
         void printRing6(ofstream& outputFile, double (&boxLength)[3]);
         void printRing7(ofstream& outputFile, double (&boxLength)[3]);
         void printRing8(ofstream& outputFile, double (&boxLength)[3]);
+        void printRing9(ofstream& outputFile, double (&boxLength)[3]);
+        void printRing10(ofstream& outputFile, double (&boxLength)[3]);
         void printBar(ofstream& outputFile);
         void printAxes(ofstream& outputFile);
     private:
@@ -898,6 +902,72 @@ void PovObjects::printRing8(ofstream& outputFile, double (&boxLength)[3]){
     return;
 }
 
+void PovObjects::printRing9(ofstream& outputFile, double (&boxLength)[3]){
+    outputFile << "#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
+        "  intersection{\n"
+        "    sphere{\n"
+        "      < center_x, center_y, center_z >,\n    " << ring9_dot_size << "\n"
+        "       texture{\n"
+        "          pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }\n"
+        "          finish{\n"
+        "            ambient .2\n"
+        "              diffuse .6\n"
+        "              specular .1\n"
+        "              roughness .1\n"
+        "          }\n"
+        "        }\n"
+        "    }\n"
+        "    box{\n"
+        "      < " << -boxLength[0] << ", " << -boxLength[1] << ", center_z-0.01 >,< "
+        << boxLength[0] << ", " << boxLength[0] << ", center_z+0.01 >\n"
+        "        texture{\n"
+        "          pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }\n"
+        "          finish{\n"
+        "            ambient .2\n"
+        "              diffuse .6\n"
+        "              specular .1\n"
+        "              roughness .1\n"
+        "          }\n"
+        "        }\n"
+        "    }\n"
+        "  }\n"
+        "#end\n";
+    return;
+}
+
+void PovObjects::printRing10(ofstream& outputFile, double (&boxLength)[3]){
+    outputFile << "#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)\n "
+        "  intersection{\n"
+        "    sphere{\n"
+        "      < center_x, center_y, center_z >,\n    " << ring10_dot_size << "\n"
+        "       texture{\n"
+        "          pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }\n"
+        "          finish{\n"
+        "            ambient .2\n"
+        "              diffuse .6\n"
+        "              specular .1\n"
+        "              roughness .1\n"
+        "          }\n"
+        "        }\n"
+        "    }\n"
+        "    box{\n"
+        "      < " << -boxLength[0] << ", " << -boxLength[1] << ", center_z-0.01 >,< "
+        << boxLength[0] << ", " << boxLength[0] << ", center_z+0.01 >\n"
+        "        texture{\n"
+        "          pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }\n"
+        "          finish{\n"
+        "            ambient .2\n"
+        "              diffuse .6\n"
+        "              specular .1\n"
+        "              roughness .1\n"
+        "          }\n"
+        "        }\n"
+        "    }\n"
+        "  }\n"
+        "#end\n";
+    return;
+}
+
 void PovObjects::printBar(ofstream& outputFile){
     outputFile << "#macro bar (bottom_x, high, wide, outerRed, outerGreen, outerBlue, dot_transparency)\n "
         "    box{\n"
@@ -1089,10 +1159,10 @@ int main(int argc, char **argv) {
     const char *HAtom = "    H";
     int count = 0;
     int tmp_count, loaded;
-    int i, j, k, l, m, n, o, p, q, nAtoms, waterModel, waterNumber;
+    int i, j, k, l, m, n, o, p, q, r, s, nAtoms, waterModel, waterNumber;
     int oCount, hCount, mCount, totalWaterCount, hbondCount, neighborCount, frameCount, largeNeighborCount;
-    int index2, index3, index4, index5, index6, index7, index8, index9;
-    int lastRing3, lastRing4, lastRing5, lastRing6, lastRing7, lastRing8;
+    int index2, index3, index4, index5, index6, index7, index8, index9, index10, index11;
+    int lastRing3, lastRing4, lastRing5, lastRing6, lastRing7, lastRing8, lastRing9, lastRing10;
     int x_frame, y_frame;
     int ringOutOpt;
     int maxRingOpt;
@@ -1120,7 +1190,7 @@ int main(int argc, char **argv) {
     double tempPosX[8], tempPosY[8], tempPosZ[8];
     double tempHBVec[3], tempHBVec2[3];
     double diffVal;
-    double ringProbabilities[9];
+    double ringProbabilities[11];
     double occupancy;
     Neighbor closest_neighbor, other_neighbor;
     vector<int> atomCount;
@@ -1143,6 +1213,8 @@ int main(int argc, char **argv) {
     vector<vector<int> > ring6members;
     vector<vector<int> > ring7members;
     vector<vector<int> > ring8members;
+    vector<vector<int> > ring9members;
+    vector<vector<int> > ring10members;
     vector<vector<double> > hbondVecX;
     vector<vector<double> > hbondVecY;
     vector<vector<double> > hbondVecZ;
@@ -1270,6 +1342,12 @@ int main(int argc, char **argv) {
                     outputer << setw(8) << "7";
                     if (maxRingOpt > 7){
                         outputer << setw(8) << "8";
+                        if (maxRingOpt > 8){
+                            outputer << setw(8) << "9";
+                            if (maxRingOpt > 9){
+                                outputer << setw(8) << "10";
+                            }
+                        }
                     }
                 }
             }
@@ -1288,6 +1366,8 @@ int main(int argc, char **argv) {
     lastRing6 = 0;
     lastRing7 = 0;
     lastRing8 = 0;
+    lastRing9 = 0;
+    lastRing10 = 0;
     totalRings = 0;
 
     inputer.getline(inLine,999,'\n');
@@ -1786,68 +1866,68 @@ int main(int argc, char **argv) {
         stdev_tetrahedrality = sqrt(tet_square - avg_tetrahedrality*avg_tetrahedrality);
 
 
-	// output pdb file with tetrahedrality and use it to color the structure
-	if (tetraPDBOutOpt){
-		outputer_PDB.open(tetraPDBFileName);
-		outputer_PDB << "COMPND" << "    " << tetraPDBFileName << "\n";
-		outputer_PDB << "AUTHOR" << "    " << "PDB file generated by nucleation_tracker program" << "\n";
-		outputer_PDB << "CRYST1" << right << setw(9) << fixed << setprecision(3) << boxLength[0] << setw(9) << boxLength[1] << setw(9) << boxLength[2] << setw(7) << fixed << setprecision(2) << 90.00 << setw(7) << 90.00 << setw(7) << 90.00 << " " << "P" << " " << 1 << setw(12) << 1 << "\n";
-		m = 1;
-		n = 0;
-		o = 1;
-		occupancy = 1;
+        // output pdb file with tetrahedrality and use it to color the structure
+        if (tetraPDBOutOpt){
+            outputer_PDB.open(tetraPDBFileName);
+            outputer_PDB << "COMPND" << "    " << tetraPDBFileName << "\n";
+            outputer_PDB << "AUTHOR" << "    " << "PDB file generated by nucleation_tracker program" << "\n";
+            outputer_PDB << "CRYST1" << right << setw(9) << fixed << setprecision(3) << boxLength[0] << setw(9) << boxLength[1] << setw(9) << boxLength[2] << setw(7) << fixed << setprecision(2) << 90.00 << setw(7) << 90.00 << setw(7) << 90.00 << " " << "P" << " " << 1 << setw(12) << 1 << "\n";
+            m = 1;
+            n = 0;
+            o = 1;
+            occupancy = 1;
 
-		if (2*oPosX.size() == hPosX.size()){
-			for (i = 0; i < oPosX.size(); i++){
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				n += 2;
-				m++;
-				o++;
-			}
-		}
+            if (2*oPosX.size() == hPosX.size()){
+                for (i = 0; i < oPosX.size(); i++){
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    n += 2;
+                    m++;
+                    o++;
+                }
+            }
 
-		else {
-			for (i = 0; i < oPosX.size(); i++){
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW3" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+2] << setw(8) << hPosY[n+2] << setw(8) << hPosZ[n+2] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				m++;
-				outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW4" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+3] << setw(8) << hPosY[n+3] << setw(8) << hPosZ[n+3] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
-				n += 4;
-				m++;
-				o++;
-			}
-		}
-/*
-		m = 1;
-		if (2*oPosX.size() == hPosX.size()){
-			for(j = 0; j < 3*oPosX.size(); j++){
-				outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
-				m++;
-			}
-		}
-		else{
-			for(j = 0; j < 5*oPosX.size(); j++){
-				outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
-				m++;
-			}
-		}
-*/
-		if (2*oPosX.size() == hPosX.size()){
-			outputer_PDB << "MASTER" << right << setw(9) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 3*oPosX.size() << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << "\n" << left << setw(6) << "END";
-		}
-		else{
-			outputer_PDB << "MASTER" << right << setw(9) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 5*oPosX.size() << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << "\n" << left << setw(6) << "END";
-		}
-	}
+            else {
+                for (i = 0; i < oPosX.size(); i++){
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "OW" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << oPosX[i] << setw(8) << oPosY[i] << setw(8) << oPosZ[i] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "O" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW1" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n] << setw(8) << hPosY[n] << setw(8) << hPosZ[n] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW2" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+1] << setw(8) << hPosY[n+1] << setw(8) << hPosZ[n+1] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW3" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+2] << setw(8) << hPosY[n+2] << setw(8) << hPosZ[n+2] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    m++;
+                    outputer_PDB << left << setw(6) << "ATOM" << right << setw(5) << m << setw(5) << "HW4" << setw(4) << "WAT" << setw(2) << "A" << setw(4) << o << fixed << setprecision(3) <<  setw(12) << hPosX[n+3] << setw(8) << hPosY[n+3] << setw(8) << hPosZ[n+3] << fixed << setprecision(2) << setw(6) << occupancy << setw(6) << tetrahedrality[i] << setw(12) << "H" << setw(2) << 0 << "\n";
+                    n += 4;
+                    m++;
+                    o++;
+                }
+            }
+            /*
+               m = 1;
+               if (2*oPosX.size() == hPosX.size()){
+               for(j = 0; j < 3*oPosX.size(); j++){
+               outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
+               m++;
+               }
+               }
+               else{
+               for(j = 0; j < 5*oPosX.size(); j++){
+               outputer_PDB << "CONECT" << right << setw(5) << m << "\n";
+               m++;
+               }
+               }
+               */
+            if (2*oPosX.size() == hPosX.size()){
+                outputer_PDB << "MASTER" << right << setw(9) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 3*oPosX.size() << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << "\n" << left << setw(6) << "END";
+            }
+            else{
+                outputer_PDB << "MASTER" << right << setw(9) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << setw(5) << 5*oPosX.size() << setw(5) << 0 << setw(5) << 0 << setw(5) << 0 << "\n" << left << setw(6) << "END";
+            }
+        }
 
 
         // now we start identifying rings to build those lists
@@ -1951,9 +2031,51 @@ int main(int argc, char **argv) {
                                                                             tempVec.clear();
                                                                             break;
                                                                         }
+                                                                        if (maxRingOpt > 8 && index9 != index8 && index9 != index7 && index9 != index6 && index9 != index5 && index9 != index4 && index9 != index3 && index9 != index2){
+                                                                            for(r=0; r<hbondListIndex[index9]; r++){
+                                                                                index10 = hbondList[index9][r];
+                                                                                // test if a 9 member ring
+                                                                                if (index10 == i){
+                                                                                    tempVec.push_back(i);
+                                                                                    tempVec.push_back(index2);
+                                                                                    tempVec.push_back(index3);
+                                                                                    tempVec.push_back(index4);
+                                                                                    tempVec.push_back(index5);
+                                                                                    tempVec.push_back(index6);
+                                                                                    tempVec.push_back(index7);
+                                                                                    tempVec.push_back(index8);
+                                                                                    tempVec.push_back(index9);
+                                                                                    sort(tempVec.begin(),tempVec.end());
+                                                                                    ring9members.push_back(tempVec);
+                                                                                    tempVec.clear();
+                                                                                    break;
+                                                                                }
+                                                                                if (maxRingOpt > 9 && index10 != index9 && index10 != index8 && index10 != index7 && index10 != index6 && index10 != index5 && index10 != index4 && index10 != index3 && index10 != index2){
+                                                                                    for(s=0; s<hbondListIndex[index10]; s++){
+                                                                                        index11 = hbondList[index10][s];
+                                                                                        // test if a 10 member ring
+                                                                                        if (index11 == i){
+                                                                                            tempVec.push_back(i);
+                                                                                            tempVec.push_back(index2);
+                                                                                            tempVec.push_back(index3);
+                                                                                            tempVec.push_back(index4);
+                                                                                            tempVec.push_back(index5);
+                                                                                            tempVec.push_back(index6);
+                                                                                            tempVec.push_back(index7);
+                                                                                            tempVec.push_back(index8);
+                                                                                            tempVec.push_back(index9);
+                                                                                            tempVec.push_back(index10);
+                                                                                            sort(tempVec.begin(),tempVec.end());
+                                                                                            ring10members.push_back(tempVec);
+                                                                                            tempVec.clear();
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
-
                                                             }
                                                         }
                                                     }
@@ -1982,6 +2104,8 @@ int main(int argc, char **argv) {
         //cerr << ring6members.size() << " is the 6 member ring count\n";
         //cerr << ring7members.size() << " is the 7 member ring count\n";
         //cerr << ring8members.size() << " is the 8 member ring count\n";
+        //cerr << ring9members.size() << " is the 9 member ring count\n";
+        //cerr << ring10members.size() << " is the 10 member ring count\n";
         // prune the subset information
         // ...self ring lists first...
         for(i=ring3members.size()-1; i>0; i--){
@@ -2037,6 +2161,26 @@ int main(int argc, char **argv) {
                 for (j=i-1; j>=0; j--){
                     if(includes(ring8members[j].begin(),ring8members[j].end(), ring8members[i].begin(), ring8members[i].end())){
                         ring8members.erase(ring8members.begin() + i);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            for(i=ring9members.size()-1; i>0; i--){
+                for (j=i-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring9members[i].begin(), ring9members[i].end())){
+                        ring9members.erase(ring9members.begin() + i);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            for(i=ring10members.size()-1; i>0; i--){
+                for (j=i-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring10members[i].begin(), ring10members[i].end())){
+                        ring10members.erase(ring10members.begin() + i);
                         break;
                     }
                 }
@@ -2209,6 +2353,149 @@ int main(int argc, char **argv) {
                 }
             }
         }
+        if (maxRingOpt > 8){
+            // ...3s in 9s...
+            for(i=ring3members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            // ...4s in 9s...
+            for(i=ring4members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            // ...5s in 9s...
+            for(i=ring5members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            // ...6s in 9s...
+            for(i=ring6members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            // ...7s in 9s...
+            for(i=ring7members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 8){
+            // ...8s in 9s...
+            for(i=ring8members.size()-1; i>=0; i--){
+                for (j=ring9members.size()-1; j>=0; j--){
+                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+                        ring9members.erase(ring9members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...3s in 10s...
+            for(i=ring3members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...4s in 10s...
+            for(i=ring4members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...5s in 10s...
+            for(i=ring5members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...6s in 10s...
+            for(i=ring6members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...7s in 10s...
+            for(i=ring7members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...8s in 10s...
+            for(i=ring8members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxRingOpt > 9){
+            // ...9s in 10s...
+            for(i=ring9members.size()-1; i>=0; i--){
+                for (j=ring10members.size()-1; j>=0; j--){
+                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring9members[i].begin(), ring9members[i].end())){
+                        ring10members.erase(ring10members.begin() + j);
+                        break;
+                    }
+                }
+            }
+        }
 
         //            cerr << "\n...after pruning:\n";
         //cerr << ring3members.size() << " is the 3 member ring count\n";
@@ -2217,6 +2504,8 @@ int main(int argc, char **argv) {
         //cerr << ring6members.size() << " is the 6 member ring count\n";
         //cerr << ring7members.size() << " is the 7 member ring count\n";
         //cerr << ring8members.size() << " is the 8 member ring count\n";
+        //cerr << ring9members.size() << " is the 9 member ring count\n";
+        //cerr << ring10members.size() << " is the 10 member ring count\n";
         if (ringOutOpt == 0){
             // sort through the rings to insure only minimal path rings are included for
             // each water molecule
@@ -2350,6 +2639,54 @@ int main(int argc, char **argv) {
                         }
                     }
                 }
+
+                if (maxRingOpt > 8){
+                    if (doEliminateRings == false){
+                        // continue our search for a minimum ring size for this water molecule
+                        for (j=ring9members.size()-1; j>=0; j--){
+                            for (k=0; k<9; k++){
+                                if (ring9members[j][k] == i){
+                                    doEliminateRings = true;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // eliminate all rings containing this water molecule
+                        for (j=ring9members.size()-1; j>=0; j--){
+                            for (k=0; k<9; k++){
+                                if (ring9members[j][k] == i){
+                                    ring9members.erase(ring9members.begin() + j);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (maxRingOpt > 9){
+                    if (doEliminateRings == false){
+                        // continue our search for a minimum ring size for this water molecule
+                        for (j=ring10members.size()-1; j>=0; j--){
+                            for (k=0; k<10; k++){
+                                if (ring10members[j][k] == i){
+                                    doEliminateRings = true;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // eliminate all rings containing this water molecule
+                        for (j=ring10members.size()-1; j>=0; j--){
+                            for (k=0; k<10; k++){
+                                if (ring10members[j][k] == i){
+                                    ring10members.erase(ring10members.begin() + j);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         //            cerr << "\n...after elimination:\n";
@@ -2359,6 +2696,8 @@ int main(int argc, char **argv) {
         //cerr << ring6members.size() << " is the 6 member ring count\n";
         //cerr << ring7members.size() << " is the 7 member ring count\n";
         //cerr << ring8members.size() << " is the 8 member ring count\n";
+        //cerr << ring9members.size() << " is the 9 member ring count\n";
+        //cerr << ring10members.size() << " is the 10 member ring count\n";
 
         // output ring data
         lastRing3 = ring3members.size()-lastRing3;
@@ -2367,6 +2706,8 @@ int main(int argc, char **argv) {
         lastRing6 = ring6members.size()-lastRing6;
         lastRing7 = ring7members.size()-lastRing7;
         lastRing8 = ring8members.size()-lastRing8;
+        lastRing9 = ring9members.size()-lastRing9;
+        lastRing10 = ring10members.size()-lastRing10;
         outputer << setw(8) << frameCount ;
         outputer << setw(8) << hbondCount ;
         outputer << setw(8) << setprecision(4) << avg_tetrahedrality;
@@ -2388,6 +2729,14 @@ int main(int argc, char **argv) {
                         if (maxRingOpt > 7){
                             outputer << setw(8) << lastRing8; 
                             totalRings += lastRing8;
+                            if (maxRingOpt > 8){
+                                outputer << setw(8) << lastRing9; 
+                                totalRings += lastRing9;
+                                if (maxRingOpt > 9){
+                                    outputer << setw(8) << lastRing10; 
+                                    totalRings += lastRing10;
+                                }
+                            }
                         }
                     }
                 }
@@ -2409,6 +2758,8 @@ int main(int argc, char **argv) {
         ringProbabilities[6] = (float)lastRing6/totalRings;
         ringProbabilities[7] = (float)lastRing7/totalRings;
         ringProbabilities[8] = (float)lastRing8/totalRings;
+        ringProbabilities[9] = (float)lastRing9/totalRings;
+        ringProbabilities[10] = (float)lastRing10/totalRings;
 
         if (ringTrajOutOpt){
             outputer_xyz.open(trajFileName);
@@ -2440,6 +2791,8 @@ int main(int argc, char **argv) {
             povrayObjects->printRing6(pov_out, boxLength);
             povrayObjects->printRing7(pov_out, boxLength);
             povrayObjects->printRing8(pov_out, boxLength);
+            povrayObjects->printRing9(pov_out, boxLength);
+            povrayObjects->printRing10(pov_out, boxLength);
 
             // print out the header and object info. to the distribution .pov file
             povrayObjects->printHeader2(povDistOut);
@@ -3400,12 +3753,12 @@ int main(int argc, char **argv) {
                 yFrameString = yFrameInt.str();
                 outputer_pov << "povray -w" + xFrameString + " -h" + yFrameString + " +a0.1 -D " + povName2 + "_" + frameCountString + ".pov\n";
             }
-            frameCount++;
 
             // close the pov file handle
             pov_out.close();
             povDistOut.close();
         }
+        frameCount++;
 
         // clear reused vectors
         oPosX.clear();
@@ -3435,6 +3788,8 @@ int main(int argc, char **argv) {
         ring6members.clear();
         ring7members.clear();
         ring8members.clear();
+        ring9members.clear();
+        ring10members.clear();
         hbondCount = 0;
         lastRing3 = 0;
         lastRing4 = 0;
@@ -3442,6 +3797,8 @@ int main(int argc, char **argv) {
         lastRing6 = 0;
         lastRing7 = 0;
         lastRing8 = 0;
+        lastRing9 = 0;
+        lastRing10 = 0;
         totalRings = 0;
 
         // now we read in the next frame
@@ -3460,7 +3817,7 @@ int main(int argc, char **argv) {
 
     cout << "\nRing distribution results written to " << fileName << "\n\n";
     if (tetraPDBOutOpt){
-	cout << "A pdb file has been generated as " << strungName4 << "\n";
+        cout << "A pdb file has been generated as " << strungName4 << "\n";
     }
     if (povrayOutOpt){
         cout << "POVRay rendering command written to " << strungName3 << "\n";
