@@ -1187,10 +1187,10 @@ int main(int argc, char **argv) {
     double boxLength[3];
     double hmat[3][3], invhmat[3][3];
     double determinant, invdeterminant;
-    double tempPosX[8], tempPosY[8], tempPosZ[8];
-    double tempHBVec[3], tempHBVec2[3];
+    double tempPosX[10], tempPosY[10], tempPosZ[10];
+    double tempHBVec[3], tempHBVec2[3], tempScaledHBVec[3];
     double diffVal;
-    double ringProbabilities[9];
+    double ringProbabilities[11];
     double occupancy;
     Neighbor closest_neighbor, other_neighbor;
     vector<int> atomCount;
@@ -1730,6 +1730,12 @@ int main(int argc, char **argv) {
                                 tempHBVec2[0] = water2[0]-water1[0];
                                 tempHBVec2[1] = water2[1]-water1[1];
                                 tempHBVec2[2] = water2[2]-water1[2];
+                                // do vector wrapping of periodic boundary conditions
+                                for (k=0; k<3; k++){
+                                    tempScaledHBVec[k] = tempHBVec2[k] * invhmat[k][k];
+                                    tempScaledHBVec[k] -= round(tempScaledHBVec[k]);
+                                    tempHBVec2[k] = tempScaledHBVec[k] * hmat[k][k];
+                                }
                                 temp_dist2 = tempHBVec2[0]*tempHBVec2[0] + tempHBVec2[1]*tempHBVec2[1] + tempHBVec2[2]*tempHBVec2[2]; 
                                 temp_dist_inv = 1.0 / sqrt(temp_dist2);
                                 tempHBVec2[0] *= temp_dist_inv;
