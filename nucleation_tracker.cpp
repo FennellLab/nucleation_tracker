@@ -49,7 +49,7 @@ class Calcs {
         ~Calcs();
         //int IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&box)[3]);
         int IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j);
-        int IsWat3HBondEnergy(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j);
+        int IsWat3HBondEnergy(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j, double &etol);
         int IsWat5HBond(double (&pos1)[15], double (&pos2)[15], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j);
     private:
         bool printFlag;
@@ -247,7 +247,7 @@ int Calcs::IsWat3HBond(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3
     return isHBond;
 }
 
-int Calcs::IsWat3HBondEnergy(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j){
+int Calcs::IsWat3HBondEnergy(double (&pos1)[9], double (&pos2)[9], double (&hmatrix)[3][3], double (&ihmatrix)[3][3], double (&bondvec)[3], int &i, int &j, double &etol){
     // NOT FOR DIRECTIONALITY!!!!
 
     // a function to identify if there is an HBond between 3 point water models
@@ -263,7 +263,7 @@ int Calcs::IsWat3HBondEnergy(double (&pos1)[9], double (&pos2)[9], double (&hmat
     double lj_pot = 0;
     double el_pot = 0;
     double m_offset = 0.15;
-    double energy_tol = -2.0; // kcal/mol
+    double energy_tol = etol; // kcal/mol
     double coulomb_const = 332.0636; // kcal Å/(mol e^2)
     double q_val = 1.040;
     double e_val = 0.1550;
@@ -1271,6 +1271,7 @@ int main(int argc, char **argv) {
     int x_frame, y_frame;
     int ringOutOpt;
     int maxRingOpt;
+    int ringInRingOpt;
     int directionalityOpt = 0;
     int povrayOutOpt = 0;
     int ringTrajOutOpt = 0;
@@ -1364,6 +1365,9 @@ int main(int argc, char **argv) {
     }
     if (args_info.tetra_pdb_flag == 1){
         tetraPDBOutOpt = 1;
+    }
+    if (args_info.ring_within_ring_flag == 1){
+        ringInRingOpt = 1;
     }
     maxRingOpt = args_info.max_ring_arg;
     ringOutOpt = args_info.closure_method_arg;
@@ -2250,312 +2254,315 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        // now we do the pruning tree...
-        if (maxRingOpt > 3){
-            // ...3s in 4s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring4members.size()-1; j>=0; j--){
-                    if(includes(ring4members[j].begin(),ring4members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring4members.erase(ring4members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 4){
-            // ...3s in 5s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring5members.size()-1; j>=0; j--){
-                    if(includes(ring5members[j].begin(),ring5members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring5members.erase(ring5members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 4){
-            // ...4s in 5s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring5members.size()-1; j>=0; j--){
-                    if(includes(ring5members[j].begin(),ring5members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring5members.erase(ring5members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 5){
-            // ...3s in 6s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring6members.size()-1; j>=0; j--){
-                    if(includes(ring6members[j].begin(),ring6members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring6members.erase(ring6members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 5){
-            // ...4s in 6s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring6members.size()-1; j>=0; j--){
-                    if(includes(ring6members[j].begin(),ring6members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring6members.erase(ring6members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 5){
-            // ...5s in 6s...
-            for(i=ring5members.size()-1; i>=0; i--){
-                for (j=ring6members.size()-1; j>=0; j--){
-                    if(includes(ring6members[j].begin(),ring6members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                        ring6members.erase(ring6members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 6){
-            // ...3s in 7s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring7members.size()-1; j>=0; j--){
-                    if(includes(ring7members[j].begin(),ring7members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring7members.erase(ring7members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 6){
-            // ...4s in 7s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring7members.size()-1; j>=0; j--){
-                    if(includes(ring7members[j].begin(),ring7members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring7members.erase(ring7members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 6){
-            // ...5s in 7s...
-            for(i=ring5members.size()-1; i>=0; i--){
-                for (j=ring7members.size()-1; j>=0; j--){
-                    if(includes(ring7members[j].begin(),ring7members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                        ring7members.erase(ring7members.begin() + j);
-                        break;
-                    }
-                }
-            }
-        }
-        if (maxRingOpt > 6){
-            // ...6s in 7s...
-            for(i=ring6members.size()-1; i>=0; i--){
-                for (j=ring7members.size()-1; j>=0; j--){
-                    if(includes(ring7members[j].begin(),ring7members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                        ring7members.erase(ring7members.begin() + j);
-                        break;
-                    }
-                }
-            }
 
-        }
-        if (maxRingOpt > 7){
-            // ...3s in 8s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring8members.size()-1; j>=0; j--){
-                    if(includes(ring8members[j].begin(),ring8members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring8members.erase(ring8members.begin() + j);
-                        break;
+        // ring within ring elimination procedure
+        if (ringInRingOpt == 1){
+            if (maxRingOpt > 3){
+                // ...3s in 4s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring4members.size()-1; j>=0; j--){
+                        if(includes(ring4members[j].begin(),ring4members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring4members.erase(ring4members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 7){
-            // ...4s in 8s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring8members.size()-1; j>=0; j--){
-                    if(includes(ring8members[j].begin(),ring8members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring8members.erase(ring8members.begin() + j);
-                        break;
+            if (maxRingOpt > 4){
+                // ...3s in 5s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring5members.size()-1; j>=0; j--){
+                        if(includes(ring5members[j].begin(),ring5members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring5members.erase(ring5members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 7){
-            // ...5s in 8s...
-            for(i=ring5members.size()-1; i>=0; i--){
-                for (j=ring8members.size()-1; j>=0; j--){
-                    if(includes(ring8members[j].begin(),ring8members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                        ring8members.erase(ring8members.begin() + j);
-                        break;
+            if (maxRingOpt > 4){
+                // ...4s in 5s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring5members.size()-1; j>=0; j--){
+                        if(includes(ring5members[j].begin(),ring5members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring5members.erase(ring5members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 7){
-            // ...6s in 8s...
-            for(i=ring6members.size()-1; i>=0; i--){
-                for (j=ring8members.size()-1; j>=0; j--){
-                    if(includes(ring8members[j].begin(),ring8members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                        ring8members.erase(ring8members.begin() + j);
-                        break;
+            if (maxRingOpt > 5){
+                // ...3s in 6s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring6members.size()-1; j>=0; j--){
+                        if(includes(ring6members[j].begin(),ring6members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring6members.erase(ring6members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 7){
-            // ...7s in 8s...
-            for(i=ring7members.size()-1; i>=0; i--){
-                for (j=ring8members.size()-1; j>=0; j--){
-                    if(includes(ring8members[j].begin(),ring8members[j].end(), ring7members[i].begin(), ring7members[i].end())){
-                        ring8members.erase(ring8members.begin() + j);
-                        break;
+            if (maxRingOpt > 5){
+                // ...4s in 6s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring6members.size()-1; j>=0; j--){
+                        if(includes(ring6members[j].begin(),ring6members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring6members.erase(ring6members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...3s in 9s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 5){
+                // ...5s in 6s...
+                for(i=ring5members.size()-1; i>=0; i--){
+                    for (j=ring6members.size()-1; j>=0; j--){
+                        if(includes(ring6members[j].begin(),ring6members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                            ring6members.erase(ring6members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...4s in 9s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 6){
+                // ...3s in 7s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring7members.size()-1; j>=0; j--){
+                        if(includes(ring7members[j].begin(),ring7members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring7members.erase(ring7members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...5s in 9s...
-            for(i=ring5members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 6){
+                // ...4s in 7s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring7members.size()-1; j>=0; j--){
+                        if(includes(ring7members[j].begin(),ring7members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring7members.erase(ring7members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...6s in 9s...
-            for(i=ring6members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 6){
+                // ...5s in 7s...
+                for(i=ring5members.size()-1; i>=0; i--){
+                    for (j=ring7members.size()-1; j>=0; j--){
+                        if(includes(ring7members[j].begin(),ring7members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                            ring7members.erase(ring7members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...7s in 9s...
-            for(i=ring7members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring7members[i].begin(), ring7members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 6){
+                // ...6s in 7s...
+                for(i=ring6members.size()-1; i>=0; i--){
+                    for (j=ring7members.size()-1; j>=0; j--){
+                        if(includes(ring7members[j].begin(),ring7members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                            ring7members.erase(ring7members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+
+            }
+            if (maxRingOpt > 7){
+                // ...3s in 8s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring8members.size()-1; j>=0; j--){
+                        if(includes(ring8members[j].begin(),ring8members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring8members.erase(ring8members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 8){
-            // ...8s in 9s...
-            for(i=ring8members.size()-1; i>=0; i--){
-                for (j=ring9members.size()-1; j>=0; j--){
-                    if(includes(ring9members[j].begin(),ring9members[j].end(), ring8members[i].begin(), ring8members[i].end())){
-                        ring9members.erase(ring9members.begin() + j);
-                        break;
+            if (maxRingOpt > 7){
+                // ...4s in 8s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring8members.size()-1; j>=0; j--){
+                        if(includes(ring8members[j].begin(),ring8members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring8members.erase(ring8members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...3s in 10s...
-            for(i=ring3members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring3members[i].begin(), ring3members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 7){
+                // ...5s in 8s...
+                for(i=ring5members.size()-1; i>=0; i--){
+                    for (j=ring8members.size()-1; j>=0; j--){
+                        if(includes(ring8members[j].begin(),ring8members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                            ring8members.erase(ring8members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...4s in 10s...
-            for(i=ring4members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring4members[i].begin(), ring4members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 7){
+                // ...6s in 8s...
+                for(i=ring6members.size()-1; i>=0; i--){
+                    for (j=ring8members.size()-1; j>=0; j--){
+                        if(includes(ring8members[j].begin(),ring8members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                            ring8members.erase(ring8members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...5s in 10s...
-            for(i=ring5members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring5members[i].begin(), ring5members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 7){
+                // ...7s in 8s...
+                for(i=ring7members.size()-1; i>=0; i--){
+                    for (j=ring8members.size()-1; j>=0; j--){
+                        if(includes(ring8members[j].begin(),ring8members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                            ring8members.erase(ring8members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...6s in 10s...
-            for(i=ring6members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring6members[i].begin(), ring6members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 8){
+                // ...3s in 9s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...7s in 10s...
-            for(i=ring7members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring7members[i].begin(), ring7members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 8){
+                // ...4s in 9s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...8s in 10s...
-            for(i=ring8members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring8members[i].begin(), ring8members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 8){
+                // ...5s in 9s...
+                for(i=ring5members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (maxRingOpt > 9){
-            // ...9s in 10s...
-            for(i=ring9members.size()-1; i>=0; i--){
-                for (j=ring10members.size()-1; j>=0; j--){
-                    if(includes(ring10members[j].begin(),ring10members[j].end(), ring9members[i].begin(), ring9members[i].end())){
-                        ring10members.erase(ring10members.begin() + j);
-                        break;
+            if (maxRingOpt > 8){
+                // ...6s in 9s...
+                for(i=ring6members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 8){
+                // ...7s in 9s...
+                for(i=ring7members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 8){
+                // ...8s in 9s...
+                for(i=ring8members.size()-1; i>=0; i--){
+                    for (j=ring9members.size()-1; j>=0; j--){
+                        if(includes(ring9members[j].begin(),ring9members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+                            ring9members.erase(ring9members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...3s in 10s...
+                for(i=ring3members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...4s in 10s...
+                for(i=ring4members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...5s in 10s...
+                for(i=ring5members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...6s in 10s...
+                for(i=ring6members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...7s in 10s...
+                for(i=ring7members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...8s in 10s...
+                for(i=ring8members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (maxRingOpt > 9){
+                // ...9s in 10s...
+                for(i=ring9members.size()-1; i>=0; i--){
+                    for (j=ring10members.size()-1; j>=0; j--){
+                        if(includes(ring10members[j].begin(),ring10members[j].end(), ring9members[i].begin(), ring9members[i].end())){
+                            ring10members.erase(ring10members.begin() + j);
+                            break;
+                        }
                     }
                 }
             }

@@ -5,7 +5,7 @@ usage "nucleation_tracker [options] [trajectory file name].gro"
 description "After running an output file called [trajectory filename]_nuc_info.txt containing the resulting tetrahedrality and ring distribution statistics will be written to the present working directory. Note: the trajectory file currently needs to be a .gro formatted file consisting of only water molecules."
 versiontext "Fennell Lab: 2019"
 
-option "closure_method" c "Close rings using either (0) the single minimum path for each water molecule or (1) all non-self-intersecting ring paths." optional
+option "closure_method" c "Close rings using either (0) the single minimum path for each water molecule or (1) all ring paths." optional
 	details="\nNote that option 1 will lead to a lot more rings than option 0, and it might take a bit longer to calculate."
 	int 
     typestr="ring closure method"
@@ -15,22 +15,35 @@ option "closure_method" c "Close rings using either (0) the single minimum path 
     
 option "directionality" d "Consider H-bond directionality. Only include donated H-bonds." flag off
 
+option "energy_definition" e "Use a TIP4P water energy tolerance (kcal/mol) for identifying H-bonds." optional
+	details="\nSelect an energy tolerance for H-bond identification. H-bonds are
+    from water pair energies that are less than this tolerance. The current
+    tolerance is -2.0 kcal/mol."
+	double
+    typestr="H-bond energy tolerance in kcal/mol"
+	default="-2.0"
+	optional 
+
 option "input_file" f "Load the trajectory file to process." required
 	details="\nThe trajectory file must be of a .gro form."
 	string
     typestr="input trajectory file"
 	required 
 
-option "povray" p "Build a pov_files directory containing .pov files for rendering of ring closures and locations." flag off
-
-option "max_ring" r "Scan for ring closures up to this maximum connectivity value." optional
-	details="\nNote that the larger the number, the longer the calculation takes because of it enumerating all possible paths. The current maximum value is
+option "max_ring" m "Scan for ring closures up to this maximum connectivity value." optional
+	details="\nNote that the larger the number, the longer the calculation takes
+    because of it enumerating all possible paths. The current absolute maximum value is
     10."
 	int 
     typestr="maximum ring size"
 	values="3","4","5","6","7","8","9","10"
 	default="6"
 	optional 
+
+option "povray" p "Build a pov_files directory containing .pov files for rendering of ring closures and locations." flag off
+
+option "ring_within_ring" r "Eliminate excessively long self-intersecting ring paths by subdividing such rings into the sets of smallest component rings." 
+    flag off
 
 option "tetra_pdb" t "Output a .pdb file containing the tetrahedrality in the b-factor column."
     flag off
