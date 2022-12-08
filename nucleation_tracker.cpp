@@ -1315,6 +1315,7 @@ int main(int argc, char **argv) {
     vector<vector<Neighbor> > nearestNeighborList;
     vector<vector<int> > hbondList;
     vector<vector<int> > identifiedRings;
+    vector<vector<int> > identifiedRingsUnsorted;
     vector<vector<int> > ring3members;
     vector<vector<int> > ring4members;
     vector<vector<int> > ring5members;
@@ -1323,6 +1324,14 @@ int main(int argc, char **argv) {
     vector<vector<int> > ring8members;
     vector<vector<int> > ring9members;
     vector<vector<int> > ring10members;
+    vector<vector<int> > ring3membersUnsorted;
+    vector<vector<int> > ring4membersUnsorted;
+    vector<vector<int> > ring5membersUnsorted;
+    vector<vector<int> > ring6membersUnsorted;
+    vector<vector<int> > ring7membersUnsorted;
+    vector<vector<int> > ring8membersUnsorted;
+    vector<vector<int> > ring9membersUnsorted;
+    vector<vector<int> > ring10membersUnsorted;
     vector<vector<int> > hbondNetwork;
     vector<vector<double> > hbondVecX;
     vector<vector<double> > hbondVecY;
@@ -2133,6 +2142,7 @@ int main(int argc, char **argv) {
                         for(l=0; l<j; l++){
                             tempVec.push_back(hbondNetwork[k][l]);
                         }
+                        identifiedRingsUnsorted.push_back(tempVec);
                         sort(tempVec.begin(),tempVec.end());
                         identifiedRings.push_back(tempVec);
                         tempVec.clear();
@@ -2149,27 +2159,35 @@ int main(int argc, char **argv) {
             switch(identifiedRings[i].size()) {
                 case 3 :
                     ring3members.push_back(identifiedRings[i]);
+                    ring3membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 4 :
                     ring4members.push_back(identifiedRings[i]);
+                    ring4membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 5 :
                     ring5members.push_back(identifiedRings[i]);
+                    ring5membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 6 :
                     ring6members.push_back(identifiedRings[i]);
+                    ring6membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 7 :
                     ring7members.push_back(identifiedRings[i]);
+                    ring7membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 8 :
                     ring8members.push_back(identifiedRings[i]);
+                    ring8membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 9 :
                     ring9members.push_back(identifiedRings[i]);
+                    ring9membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
                 case 10 :
                     ring10members.push_back(identifiedRings[i]);
+                    ring10membersUnsorted.push_back(identifiedRingsUnsorted[i]);
                     break;
             }
         }
@@ -2179,6 +2197,7 @@ int main(int argc, char **argv) {
         for(i=ring3members.size()-1; i>0; i--){
             for (j=i-1; j>=0; j--){
                 if(includes(ring3members[j].begin(),ring3members[j].end(), ring3members[i].begin(), ring3members[i].end())){
+                    ring3membersUnsorted.erase(ring3members.begin() + i);
                     ring3members.erase(ring3members.begin() + i);
                     break;
                 }
@@ -2188,6 +2207,7 @@ int main(int argc, char **argv) {
             for(i=ring4members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring4members[j].begin(),ring4members[j].end(), ring4members[i].begin(), ring4members[i].end())){
+                        ring4membersUnsorted.erase(ring4members.begin() + i);
                         ring4members.erase(ring4members.begin() + i);
                         break;
                     }
@@ -2198,6 +2218,7 @@ int main(int argc, char **argv) {
             for(i=ring5members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring5members[j].begin(),ring5members[j].end(), ring5members[i].begin(), ring5members[i].end())){
+                        ring5membersUnsorted.erase(ring5members.begin() + i);
                         ring5members.erase(ring5members.begin() + i);
                         break;
                     }
@@ -2208,6 +2229,7 @@ int main(int argc, char **argv) {
             for(i=ring6members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring6members[j].begin(),ring6members[j].end(), ring6members[i].begin(), ring6members[i].end())){
+                        ring6membersUnsorted.erase(ring6members.begin() + i);
                         ring6members.erase(ring6members.begin() + i);
                         break;
                     }
@@ -2218,6 +2240,7 @@ int main(int argc, char **argv) {
             for(i=ring7members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring7members[j].begin(),ring7members[j].end(), ring7members[i].begin(), ring7members[i].end())){
+                        ring7membersUnsorted.erase(ring7members.begin() + i);
                         ring7members.erase(ring7members.begin() + i);
                         break;
                     }
@@ -2228,6 +2251,7 @@ int main(int argc, char **argv) {
             for(i=ring8members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring8members[j].begin(),ring8members[j].end(), ring8members[i].begin(), ring8members[i].end())){
+                        ring8membersUnsorted.erase(ring8members.begin() + i);
                         ring8members.erase(ring8members.begin() + i);
                         break;
                     }
@@ -2238,6 +2262,7 @@ int main(int argc, char **argv) {
             for(i=ring9members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring9members[j].begin(),ring9members[j].end(), ring9members[i].begin(), ring9members[i].end())){
+                        ring9membersUnsorted.erase(ring9members.begin() + i);
                         ring9members.erase(ring9members.begin() + i);
                         break;
                     }
@@ -2248,6 +2273,7 @@ int main(int argc, char **argv) {
             for(i=ring10members.size()-1; i>0; i--){
                 for (j=i-1; j>=0; j--){
                     if(includes(ring10members[j].begin(),ring10members[j].end(), ring10members[i].begin(), ring10members[i].end())){
+                        ring10membersUnsorted.erase(ring10members.begin() + i);
                         ring10members.erase(ring10members.begin() + i);
                         break;
                     }
@@ -2748,6 +2774,24 @@ int main(int argc, char **argv) {
                             }
                         }
                     }
+                }
+            }
+        } else if (ringOutOpt == 1){
+            // sort through the rings to insure only minimal path rings are included for each bond
+            for(i=0; i<oPosX.size(); i++){
+                for(j=0; i<oPosX.size(); i++){
+                
+            // each water molecule
+            for(i=0; i<oPosX.size(); i++){
+                bool doEliminateRings = false;
+                for (j=ring3members.size()-1; j>=0; j--){
+                    for (k=0; k<3; k++){
+                        if (ring3members[j][k] == i){
+                            doEliminateRings = true;
+                            break;
+                        }
+                    }
+                }
                 }
             }
         }
