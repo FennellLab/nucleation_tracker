@@ -9,6 +9,7 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -c = '0' for minimal ring counting and '1' for total non-self-intersecting rings; by default to minimal rings
        -m = algorithm for ring pruning [vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
        -d = generates only directional rings tracking proton acceptor waters
+       -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
 """
 
 import sys
