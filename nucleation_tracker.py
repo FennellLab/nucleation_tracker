@@ -3,12 +3,13 @@
 """
 The program is used to calculate the number of hydrogen bonded rings in the pure water system.\n
 
-USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m one_vertex -d]\n
-       -f = input gro file; File format: a gro file
+USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
+       -f = input a gro file with correct box dimension
        -r = size of the rings; 9 or 10 membered closed rings; by default to 8 membered polygons
        -c = '0' for minimal ring counting and '1' for total non-self-intersecting rings; by default to minimal rings
-       -m = algorithm for ring pruning [one_vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
-       -d = generate only directional rings tracking proton acceptor waters
+       -m = algorithm for ring pruning [vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
+       -d = generates only directional rings tracking proton acceptor waters
+       -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
 """
 
 import sys
@@ -60,7 +61,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		# shutil.copy("rings_location.xyz", "rings_location2.xyz")	
 		os.remove("rings_location.xyz")
 	
-	print("The directional rings has been output to 'ringsCount.dat")
+	print("The closed rings has been output to 'ringsCount.dat")
 	outFile = open("ringsCount.dat", 'w')
 	outFile2 = open("rings_location.xyz", 'w')
 	outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
@@ -660,7 +661,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 												temp_loop.extend([i,j,k,l])
 												wat_sort = sorted(list(set(temp_loop)))
 												if (wat_sort not in wat_loop):
-													# for forming rings, there should be equal outgoing and incoming hbonds
+													# we take 'temp_loop' for avoiding a test for hbonds
+													# test for ring pbc, there should be equal outgoing and incoming hbonds
 													for var_a in range(len(temp_loop)-1):
 														count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 													# test for initial and final members
@@ -678,7 +680,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 														temp_loop.extend([i,j,k,l,m])
 														wat_sort = sorted(list(set(temp_loop)))
 														if (wat_sort not in wat_loop):
-															# for forming rings, there should be equal outgoing and incoming hbonds
+															# we take 'temp_loop' for avoiding a test for hbonds
+															# test for ring pbc, there should be equal outgoing and incoming hbonds
 															for var_a in range(len(temp_loop)-1):
 																count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 															# test for initial and final members
@@ -696,7 +699,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																temp_loop.extend([i,j,k,l,m,n])
 																wat_sort = sorted(list(set(temp_loop)))
 																if (wat_sort not in wat_loop):
-																	# for forming rings, there should be equal outgoing and incoming hbonds
+																	# we take 'temp_loop' for avoiding a test for hbonds
+																	# test for ring pbc, there should be equal outgoing and incoming hbonds
 																	for var_a in range(len(temp_loop)-1):
 																		count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 																	# test for initial and final members
@@ -714,7 +718,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																		temp_loop.extend([i,j,k,l,m,n,o])
 																		wat_sort = sorted(list(set(temp_loop)))
 																		if (wat_sort not in wat_loop):
-																			# for forming rings, there should be equal outgoing and incoming hbonds
+																			# we take 'temp_loop' for avoiding a test for hbonds
+																			# test for ring pbc, there should be equal outgoing and incoming hbonds
 																			for var_a in range(len(temp_loop)-1):
 																				count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 																			# test for initial and final members
@@ -732,7 +737,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																				temp_loop.extend([i,j,k,l,m,n,o,p])
 																				wat_sort = sorted(list(set(temp_loop)))
 																				if (wat_sort not in wat_loop):
-																					# for forming rings, there should be equal outgoing and incoming hbonds
+																					# we take 'temp_loop' for avoiding a test for hbonds
+																					# test for ring pbc, there should be equal outgoing and incoming hbonds
 																					for var_a in range(len(temp_loop)-1):
 																						count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 																					# test for initial and final members
@@ -751,7 +757,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																							temp_loop.extend([i,j,k,l,m,n,o,p,q])
 																							wat_sort = sorted(list(set(temp_loop)))
 																							if (wat_sort not in wat_loop):
-																								# for forming rings, there should be equal outgoing and incoming hbonds
+																								# we take 'temp_loop' for avoiding a test for hbonds
+																								# test for ring pbc, there should be equal outgoing and incoming hbonds
 																								for var_a in range(len(temp_loop)-1):
 																									count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 																								# test for initial and final members
@@ -770,7 +777,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																										temp_loop.extend([i,j,k,l,m,n,o,p,q,r])
 																										wat_sort = sorted(list(set(temp_loop)))
 																										if (wat_sort not in wat_loop):
-																											# for forming rings, there should be equal outgoing and incoming hbonds
+																											# we take 'temp_loop' for avoiding a test for hbonds
+																											# test for ring pbc, there should be equal outgoing and incoming hbonds
 																											for var_a in range(len(temp_loop)-1):
 																												count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
 																											# test for initial and final members
@@ -818,7 +826,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 					# test if two molecules are hbonded; algorithm of 'common hbond' for pruning larger rings
 					def common_edge(larger_ring, small_ring):
 						common_elem = list(set(small_ring).intersection(set(larger_ring)))
-						for i in common_elem:
+						for i in common_elem:			# looping over the same list/water is fine because we do not see water index in its own vector
 							for j in common_elem:
 								# test for hbond formation
 								if i in hbond_ndx[j]:
@@ -826,13 +834,13 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 									return minimal_rings
 
 					# test if three molecules are bonded but not necessarily forming closed ring; algorithm of 'common angle' for pruning larger rings
-					def pruningRings(larger_ring, small_ring):
+					def common_angle(larger_ring, small_ring):
 						common_elem = list(set(small_ring).intersection(set(larger_ring)))
 						for i in common_elem:
 							for j in common_elem:
 								if i in hbond_ndx[j]:
 									for k in common_elem:
-										if k == i:
+										if k == i:			# 'i' is already included on the path
 											continue
 										# forms three molecules connected by hbond
 										elif j in hbond_ndx[k]:
@@ -847,11 +855,11 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for j in common_elem:
 								if i in hbond_ndx[j]:
 									for k in common_elem:
-										if k == i:
+										if k == i:			# 'i' is already included on the path
 											continue
 										elif j in hbond_ndx[k]:
 											for l in common_elem:
-												if l == i:
+												if l == i or l == j:		# 'i' and 'j' are already included on the path
 													continue
 												# forms three molecules connected by hbond
 												elif k in hbond_ndx[l]:
@@ -863,7 +871,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						for ring_size in [ring4, ring5, ring6, ring7, ring8, ring9, ring10]:
 							for small_ring in ring3:
 								for larger_ring in ring_size:
-									if len(set(small_ring).intersection(set(larger_ring))) >= 2:		# test if there are 3 or more common elements
+									if len(set(small_ring).intersection(set(larger_ring))) >= 2:		# test if there are 2 or more common elements
 										common_edge(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
@@ -942,7 +950,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						for ring_size in [ring6, ring7, ring8, ring9, ring10]:
 							for small_ring in ring5:
 								for larger_ring in ring_size:
-									if len(set(small_ring).intersection(set(larger_ring))) >= 4:	
+									if len(set(small_ring).intersection(set(larger_ring))) >= 4:		# test if there are 4 or more common elements
 										common_torsion(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
@@ -1001,7 +1009,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for small_ring in ring4:
 								for larger_ring in ring_size:
 									if len(set(small_ring).intersection(set(larger_ring))) >= 3:		# test if there are 3 or more common elements
-										pruningRings(larger_ring, small_ring)
+										common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
@@ -1011,7 +1019,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for small_ring in ring5:
 								for larger_ring in ring_size:
 									if len(set(small_ring).intersection(set(larger_ring))) >= 3:
-										pruningRings(larger_ring, small_ring)
+										common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
@@ -1021,7 +1029,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for small_ring in ring6:
 								for larger_ring in ring_size:
 									if len(set(small_ring).intersection(set(larger_ring))) >= 3:
-										pruningRings(larger_ring, small_ring)
+										common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
@@ -1031,7 +1039,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for small_ring in ring7:
 								for larger_ring in ring_size:
 									if len(set(small_ring).intersection(set(larger_ring))) >= 3:
-										pruningRings(larger_ring, small_ring)
+										common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
@@ -1041,7 +1049,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							for small_ring in ring8:
 								for larger_ring in ring_size:
 									if len(set(small_ring).intersection(set(larger_ring))) >= 3:
-										pruningRings(larger_ring, small_ring)
+										common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
@@ -1050,18 +1058,18 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						for small_ring in ring9:
 							for larger_ring in ring10:
 								if len(set(small_ring).intersection(set(larger_ring))) >= 3:
-									pruningRings(larger_ring, small_ring)
+									common_angle(larger_ring, small_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
 							minimal_rings = []
 
 					# test if single water molecule are found common vertex between two rings
-					elif algorithm == "one_vertex":
+					elif algorithm == "vertex":
 						# 3 membered rings 
 						for ring_size in [ring4, ring5, ring6, ring7, ring8, ring9, ring10]:
 							for small_ring in ring3:
 								for larger_ring in ring_size:
-									if len(set(small_ring).intersection(set(larger_ring))) >= 1:	
+									if len(set(small_ring).intersection(set(larger_ring))) >= 1:		# test if there are 1 or more common elements
 										minimal_rings.append(larger_ring)
 							if minimal_rings:
 								primitiveRings.extend(minimal_rings)
@@ -1196,11 +1204,11 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		 		# writing xyz file for the location of directional rings
 				# wrt to oxygen (heavy atom), if take hydrogen atoms, then divide by total items taken
 				outFile2.write("%d\n" %(len(wat_loop)))
-				outFile2.write("Directional ring location\n")
+				outFile2.write("ring location in the system\n")
 	
 				# minimum image wrapping and finding center of the ring
 				if Lx != Ly and Ly != Lz:
-					print("Note: check the system size for perpendicular lattice/edge vector")
+					print("Note: Not cubic! please check the system size for orthogonal lattice/edge vector")
 				def min_image_wrap(ring):
 					# we directly find the average position of the ring
 					tempX_pbc = 0
