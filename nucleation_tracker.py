@@ -10,6 +10,7 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -m = algorithm for ring pruning [vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
        -d = generates only directional rings tracking proton acceptor waters
        -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
+P,Cl,Ar
 """
 
 import sys
@@ -90,6 +91,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		lj_pot = 0
 		el_pot = 0
 		m_offset = 0.15
+		# 'etol': -2 kcal/mol(more range) show greater ring population than -4 kcal/mol; non-ideal less stable hbond has high energy(+)
 		energy_tol = etol   # kcal/mol
 		coulomb_const = 332.0636  # kcal Å/(mol e^2)
 		q_val = 1.040
@@ -106,7 +108,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		
 		# TIP4P default: determine the massless site location
 		# to build the 3 site charge vectors
-		# for water 1
+		# for water 1;  pos1 = [Ox, Oy, Oz, H1x, H1y, H1z, H2x, H2y, H2z]
 		for k in range(3):
 			tmp_vec[k] = pos1[3+k] + pos1[6+k] - 2*pos1[k]
 			mag += tmp_vec[k]*tmp_vec[k]
@@ -573,7 +575,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				# energy criteria of hbonding
 				if hbond_energy:
 					# energy value default to -2kcal/mol
-					# etol = -2.0			# kcal/mol; energy criteria if require other that 2.0 kcal/mol (-4kcal/mol has higher hbond energy than -2kcal/mol)
+					# etol = -2.0			# kcal/mol; energy criteria if require other that -2.0 kcal/mol (-4kcal/mol has higher hbond energy than -2kcal/mol)
 					# this is to loop over water environment to test H-bonding
 					for i, hbondWat in enumerate(hbondListIndex):
 						# this is a reference water
