@@ -40,9 +40,9 @@ struct gengetopt_args_info
   const char *help_help; /**< @brief Print help and exit help description.  */
   const char *detailed_help_help; /**< @brief Print help, including all details and hidden options, and exit help description.  */
   const char *version_help; /**< @brief Print version and exit help description.  */
-  int closure_method_arg;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all ring paths. (default='0').  */
-  char * closure_method_orig;	/**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all ring paths. original value given at command line.  */
-  const char *closure_method_help; /**< @brief Close rings using either (0) the single minimum path for each water molecule or (1) all ring paths. help description.  */
+  int closure_method_arg;	/**< @brief Close rings using (0) common vertex, (1) common bond, (2) common angle, (3) common dihedral, or (4) all ring paths. (default='0').  */
+  char * closure_method_orig;	/**< @brief Close rings using (0) common vertex, (1) common bond, (2) common angle, (3) common dihedral, or (4) all ring paths. original value given at command line.  */
+  const char *closure_method_help; /**< @brief Close rings using (0) common vertex, (1) common bond, (2) common angle, (3) common dihedral, or (4) all ring paths. help description.  */
   int directionality_flag;	/**< @brief Consider H-bond directionality. Only include donated H-bonds. (default=off).  */
   const char *directionality_help; /**< @brief Consider H-bond directionality. Only include donated H-bonds. help description.  */
   double energy_definition_arg;	/**< @brief Use a TIP4P water energy tolerance (kcal/mol) for identifying H-bonds. (default='-2.0').  */

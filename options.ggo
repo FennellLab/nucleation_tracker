@@ -5,11 +5,12 @@ usage "nucleation_tracker [options] [trajectory file name].gro"
 description "After running an output file called [trajectory filename]_nuc_info.txt containing the resulting tetrahedrality and ring distribution statistics will be written to the present working directory. Note: the trajectory file currently needs to be a .gro formatted file consisting of only water molecules."
 versiontext "Fennell Lab: 2019"
 
-option "closure_method" c "Close rings using either (0) the single minimum path for each water molecule or (1) all ring paths." optional
-	details="\nNote that option 1 will lead to a lot more rings than option 0, and it might take a bit longer to calculate."
+option "closure_method" c "Close rings using (0) common vertex, (1) common bond, (2) common angle, (3) common dihedral, or (4) all ring paths." optional
+	details="\nNote the smaller the option, the more the pruning of rings, and
+    the larger values might take a bit longer to calculate."
 	int 
     typestr="ring closure method"
-	values="0","1"
+	values="0","1","2","3","4"
 	default="0"
 	optional 
     
