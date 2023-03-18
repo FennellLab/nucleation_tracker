@@ -1939,7 +1939,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-
         // now we start identifying rings to build those lists
         for(i=0; i<hbondListIndex.size(); i++){
             for(j=0; j<hbondListIndex[i]; j++){
@@ -2101,15 +2100,18 @@ int main(int argc, char **argv) {
 		    }
 		}
 	    }
-            // purge atom i from hbond lists
-            for(j=0; j<hbondListIndex[i]; j++){
-                index2 = hbondList[i][j];
-                for(k=0; k<hbondListIndex[index2]; k++){
-                    hbondList[index2][k] = hbondList[index2][k+1];
-                }
-                hbondListIndex[index2]--;
-            }
+//            // purge atom i from hbond lists
+//            // ...this is only valid if we use common vertex be default
+//            for(j=0; j<hbondListIndex[i]; j++){
+//                index2 = hbondList[i][j];
+//                for(k=0; k<hbondListIndex[index2]; k++){
+//                    hbondList[index2][k] = hbondList[index2][k+1];
+//                }
+//                hbondListIndex[index2]--;
+//            }
         }
+        
+        // cerr << "initial ring set\n";
         // cerr << ring3members.size() << " is the 3 member ring count\n";
         // cerr << ring4members.size() << " is the 4 member ring count\n";
         // cerr << ring5members.size() << " is the 5 member ring count\n";
@@ -2201,13 +2203,13 @@ int main(int argc, char **argv) {
             }
         }
 
-        //            cerr << "\n...after pruning:\n";
-        //cerr << ring3members.size() << " is the 3 member ring count\n";
-        //cerr << ring4members.size() << " is the 4 member ring count\n";
-        //cerr << ring5members.size() << " is the 5 member ring count\n";
-        //cerr << ring6members.size() << " is the 6 member ring count\n";
-        //cerr << ring7members.size() << " is the 7 member ring count\n";
-        //cerr << ring8members.size() << " is the 8 member ring count\n";
+        // cerr << "\n...after pruning self rings:\n";
+        // cerr << ring3members.size() << " is the 3 member ring count\n";
+        // cerr << ring4members.size() << " is the 4 member ring count\n";
+        // cerr << ring5members.size() << " is the 5 member ring count\n";
+        // cerr << ring6members.size() << " is the 6 member ring count\n";
+        // cerr << ring7members.size() << " is the 7 member ring count\n";
+        // cerr << ring8members.size() << " is the 8 member ring count\n";
         if (ringOutOpt == 0){
             // Sort through the rings to insure only minimal path rings are included for
             // each water molecule.
