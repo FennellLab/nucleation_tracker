@@ -614,23 +614,25 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 
 				# we test the rings if it crosses the pbc; rings should come back from the same wall
 				# This check ensures that a chain like |-A-B-C|-A-B-C|-A- is not counted as a polygon 'A-B-C'
-				def ring_pbc(member1, member2, outRing):
+				def ring_pbc(member1, member2, outRing_x, outRing_y, outRing_z):
 					xVecRing = water[member1][0] - water[member2][0]
 					yVecRing = water[member1][1] - water[member2][1]
 					zVecRing = water[member1][2] - water[member2][2]
 					if abs(xVecRing) > 0.5 * Lx:
-						outRing += 1
+						outRing_x += 1
 					if abs(yVecRing) > 0.5 * Ly:
-						outRing += 1
+						outRing_y += 1
 					if abs(zVecRing) > 0.5 * Lz:
-						outRing += 1
+						outRing_z += 1
 					# if 'outRing%2 == 0' is even then consider a ring else not a ring
-					return outRing
+					return outRing_x, outRing_y, outRing_z
 
 				# now counting all possible non short-circuit rings
 				# test for hbond donor in the hbond_ndx
 				wat_loop = []
-				count = 0
+				count_x = 0
+				count_y = 0
+				count_z = 0
 				for i in range(int(nMols)):
 					temp_loop = []
 					for j, element in enumerate(hbond_ndx):
@@ -646,12 +648,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 										if (wat_sort not in wat_loop):
 											# for forming rings, there should be equal outgoing and incoming hbonds
 											for var_a in range(len(temp_loop)-1):
-												count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+												count_x += tempCount_x
+												count_y += tempCount_y
+												count_z += tempCount_z
 											# test for initial and final members
-											count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-											if count%2 == 0:
+											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+											count_x += tempCount_x
+											count_y += tempCount_y
+											count_z += tempCount_z
+											is_ring = count_x + count_y + count_z
+											if is_ring%2 == 0:
 												wat_loop.append(wat_sort)
-											count = 0
+											count_x = 0
+											count_y = 0
+											count_z = 0
 											temp_loop = []
 										temp_loop = []
 									for l, element3 in enumerate(hbond_ndx):
@@ -665,12 +676,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 													# we take 'temp_loop' for avoiding a test for hbonds
 													# test for ring pbc, there should be equal outgoing and incoming hbonds
 													for var_a in range(len(temp_loop)-1):
-														count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+														tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+														count_x += tempCount_x
+														count_y += tempCount_y
+														count_z += tempCount_z
 													# test for initial and final members
-													count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-													if count%2 == 0:
+													tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+													count_x += tempCount_x
+													count_y += tempCount_y
+													count_z += tempCount_z
+													is_ring = count_x + count_y + count_z
+													if is_ring%2 == 0:
 														wat_loop.append(wat_sort)
-													count = 0
+													count_x = 0
+													count_y = 0
+													count_z = 0
 													temp_loop = []
 												temp_loop = []
 											for m, element4 in enumerate(hbond_ndx):
@@ -684,12 +704,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 															# we take 'temp_loop' for avoiding a test for hbonds
 															# test for ring pbc, there should be equal outgoing and incoming hbonds
 															for var_a in range(len(temp_loop)-1):
-																count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																count_x += tempCount_x
+																count_y += tempCount_y
+																count_z += tempCount_z
 															# test for initial and final members
-															count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-															if count%2 == 0:
+															tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+															count_x += tempCount_x
+															count_y += tempCount_y
+															count_z += tempCount_z
+															is_ring = count_x + count_y + count_z
+															if is_ring%2 == 0:
 																wat_loop.append(wat_sort)
-															count = 0
+															count_x = 0
+															count_y = 0
+															count_z = 0
 															temp_loop = []
 														temp_loop = []
 													for n, element5 in enumerate(hbond_ndx):
@@ -703,12 +732,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																	# we take 'temp_loop' for avoiding a test for hbonds
 																	# test for ring pbc, there should be equal outgoing and incoming hbonds
 																	for var_a in range(len(temp_loop)-1):
-																		count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																		tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																		count_x += tempCount_x
+																		count_y += tempCount_y
+																		count_z += tempCount_z
 																	# test for initial and final members
-																	count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-																	if count%2 == 0:
+																	tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																	count_x += tempCount_x
+																	count_y += tempCount_y
+																	count_z += tempCount_z
+																	is_ring = count_x + count_y + count_z
+																	if is_ring%2 == 0:
 																		wat_loop.append(wat_sort)
-																	count = 0
+																	count_x = 0
+																	count_y = 0
+																	count_z = 0
 																	temp_loop = []
 																temp_loop = []
 															for o, element6 in enumerate(hbond_ndx):
@@ -722,12 +760,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																			# we take 'temp_loop' for avoiding a test for hbonds
 																			# test for ring pbc, there should be equal outgoing and incoming hbonds
 																			for var_a in range(len(temp_loop)-1):
-																				count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																				tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																				count_x += tempCount_x
+																				count_y += tempCount_y
+																				count_z += tempCount_z
 																			# test for initial and final members
-																			count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-																			if count%2 == 0:
+																			tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																			count_x += tempCount_x
+																			count_y += tempCount_y
+																			count_z += tempCount_z
+																			is_ring = count_x + count_y + count_z
+																			if is_ring%2 == 0:
 																				wat_loop.append(wat_sort)
-																			count = 0
+																			count_x = 0
+																			count_y = 0
+																			count_z = 0
 																			temp_loop = []
 																		temp_loop = []
 																	for p, element7 in enumerate(hbond_ndx):
@@ -741,12 +788,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																					# we take 'temp_loop' for avoiding a test for hbonds
 																					# test for ring pbc, there should be equal outgoing and incoming hbonds
 																					for var_a in range(len(temp_loop)-1):
-																						count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																						tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																						count_x += tempCount_x
+																						count_y += tempCount_y
+																						count_z += tempCount_z
 																					# test for initial and final members
-																					count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-																					if count%2 == 0:
+																					tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																					count_x += tempCount_x
+																					count_y += tempCount_y
+																					count_z += tempCount_z
+																					is_ring = count_x + count_y + count_z
+																					if is_ring%2 == 0:
 																						wat_loop.append(wat_sort)
-																					count = 0
+																					count_x = 0
+																					count_y = 0
+																					count_z = 0
 																					temp_loop = []
 																				temp_loop = []
 																			if max_ring > 8:
@@ -761,12 +817,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																								# we take 'temp_loop' for avoiding a test for hbonds
 																								# test for ring pbc, there should be equal outgoing and incoming hbonds
 																								for var_a in range(len(temp_loop)-1):
-																									count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																									tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																									count_x += tempCount_x
+																									count_y += tempCount_y
+																									count_z += tempCount_z
 																								# test for initial and final members
-																								count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-																								if count%2 == 0:
+																								tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																								count_x += tempCount_x
+																								count_y += tempCount_y
+																								count_z += tempCount_z
+																								is_ring = count_x + count_y + count_z
+																								if is_ring%2 == 0:
 																									wat_loop.append(wat_sort)
-																								count = 0
+																								count_x = 0
+																								count_y = 0
+																								count_z = 0
 																								temp_loop = []
 																							temp_loop = []
 																						if max_ring > 9:
@@ -781,12 +846,21 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																											# we take 'temp_loop' for avoiding a test for hbonds
 																											# test for ring pbc, there should be equal outgoing and incoming hbonds
 																											for var_a in range(len(temp_loop)-1):
-																												count += ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing = 0)
+																												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																												count_x += tempCount_x
+																												count_y += tempCount_y
+																												count_z += tempCount_z
 																											# test for initial and final members
-																											count += ring_pbc(temp_loop[0], temp_loop[-1], outRing = 0)
-																											if count%2 == 0:
+																											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
+																											count_x += tempCount_x
+																											count_y += tempCount_y
+																											count_z += tempCount_z
+																											is_ring = count_x + count_y + count_z
+																											if is_ring%2 == 0:
 																												wat_loop.append(wat_sort)
-																											count = 0
+																											count_x = 0
+																											count_y = 0
+																											count_z = 0
 																											temp_loop = []
 																										temp_loop = []
 				# rings segregation
