@@ -10,7 +10,7 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -m = algorithm for ring pruning [vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
        -d = generates only directional rings tracking proton acceptor waters
        -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
-P,Cl,Ar
+       -x = Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). (default=off)
 """
 
 import sys
@@ -58,13 +58,12 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 	if os.path.isfile("ringsCount.dat"):
 		# shutil.copy("ringsCount.dat", "ringsCount2.dat")
 		os.remove("ringsCount.dat")
-	if os.path.isfile("ringsCount.dat"):
+	if os.path.isfile("rings_location.xyz"):
 		# shutil.copy("rings_location.xyz", "rings_location2.xyz")	
 		os.remove("rings_location.xyz")
 	
-	print("The closed rings has been output to 'ringsCount.dat")
+	print("\nEnumerating the closed rings in the system . . . \n")
 	outFile = open("ringsCount.dat", 'w')
-	outFile2 = open("rings_location.xyz", 'w')
 	outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
 	if max_ring > 8:
 		outFile.write("{:>10s}".format("rings_9"))
@@ -817,8 +816,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						ring9.append(i)
 					elif len(i) ==10:
 						ring10.append(i)
-				# output test for total ring counts
-				# print(len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8), len(ring9), len(ring10))
 
 				# pruning down larger rings if smaller closed rings are available
 				# now we do primitive/minimal ring counting
@@ -1203,87 +1200,91 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				else:
 					outFile.write("\n")
 	
-		 		# writing xyz file for the location of directional rings
-				# wrt to oxygen (heavy atom), if take hydrogen atoms, then divide by total items taken
-				outFile2.write("%d\n" %(len(wat_loop)))
-				outFile2.write("ring location in the system\n")
+				if ring_traj:
+		 			# writing xyz file for the location of directional rings
+					# wrt to oxygen (heavy atom), if take hydrogen atoms, then divide by total items taken
+					outFile2 = open("rings_location.xyz", 'w')
+					outFile2.write("%d\n" %(len(wat_loop)))
+					outFile2.write("ring location in the system\n")
 	
-				# minimum image wrapping and finding center of the ring
-				if Lx != Ly and Ly != Lz:
-					print("Note: Not cubic! please check the system size for orthogonal lattice/edge vector")
-				def min_image_wrap(ring):
-					# we directly find the average position of the ring
-					tempX_pbc = 0
-					tempY_pbc = 0
-					tempZ_pbc = 0
-					# "water[ring[0]][0]" is the first member of the rings and taken as the reference molecule for "min_image_wrap"
-					tempX_pbc += water[ring[0]][0]
-					tempY_pbc += water[ring[0]][1]
-					tempZ_pbc += water[ring[0]][2]
-					# now we loop over all remaining waters and determine the pbc of other molecule with reference to the first molecule
-					for i in ring[1:]:
-						xVec = water[i][0] - water[ring[0]][0]
-						yVec = water[i][1] - water[ring[0]][1]
-						zVec = water[i][2] - water[ring[0]][2]
-						# this is condition of pbc in the system
-						# we need the CG of the ring, so directly outputing the position of the ring center
-						if xVec > 0.5 * Lx:
-							tempX_pbc += (water[i][0] - Lx)
-						elif xVec <= 0.5 * (-Lx):
-							tempX_pbc += (water[i][0] + Lx)
-						else:
-							tempX_pbc += water[i][0]
-						if yVec > 0.5 * Ly:
-							tempY_pbc += (water[i][1] - Ly)
-						elif yVec <= 0.5 * (-Ly):
-							tempY_pbc += (water[i][1] + Ly)
-						else:
-							tempY_pbc += water[i][1]
-						if zVec > 0.5 * Lz:
-							tempZ_pbc += (water[i][2] - Lz)
-						elif zVec <= 0.5 * (-Lz):
-							tempZ_pbc += (water[i][2] + Lz)
-						else:
-							tempZ_pbc += water[i][2]
-					# now output the average position of the ring
-					return tempX_pbc/(len(ring)), tempY_pbc/(len(ring)), tempZ_pbc/(len(ring))
+					# minimum image wrapping and finding center of the ring
+					if Lx != Ly and Ly != Lz:
+						print("Note: Not cubic! please check the system size for orthogonal lattice/edge vector")
+					def min_image_wrap(ring):
+						# we directly find the average position of the ring
+						tempX_pbc = 0
+						tempY_pbc = 0
+						tempZ_pbc = 0
+						# "water[ring[0]][0]" is the first member of the rings and taken as the reference molecule for "min_image_wrap"
+						tempX_pbc += water[ring[0]][0]
+						tempY_pbc += water[ring[0]][1]
+						tempZ_pbc += water[ring[0]][2]
+						# now we loop over all remaining waters and determine the pbc of other molecule with reference to the first molecule
+						for i in ring[1:]:
+							xVec = water[i][0] - water[ring[0]][0]
+							yVec = water[i][1] - water[ring[0]][1]
+							zVec = water[i][2] - water[ring[0]][2]
+							# this is condition of pbc in the system
+							# we need the CG of the ring, so directly outputing the position of the ring center
+							if xVec > 0.5 * Lx:
+								tempX_pbc += (water[i][0] - Lx)
+							elif xVec <= 0.5 * (-Lx):
+								tempX_pbc += (water[i][0] + Lx)
+							else:
+								tempX_pbc += water[i][0]
+							if yVec > 0.5 * Ly:
+								tempY_pbc += (water[i][1] - Ly)
+							elif yVec <= 0.5 * (-Ly):
+								tempY_pbc += (water[i][1] + Ly)
+							else:
+								tempY_pbc += water[i][1]
+							if zVec > 0.5 * Lz:
+								tempZ_pbc += (water[i][2] - Lz)
+							elif zVec <= 0.5 * (-Lz):
+								tempZ_pbc += (water[i][2] + Lz)
+							else:
+								tempZ_pbc += water[i][2]
+						# now output the average position of the ring
+						return tempX_pbc/(len(ring)), tempY_pbc/(len(ring)), tempZ_pbc/(len(ring))
 
-				# we loop over all the segregated rings
-				for ring in ring3:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("Li  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				for ring in ring4:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("Be  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				for ring in ring5:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("B   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				for ring in ring6:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("C   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				for ring in ring7:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("N   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				for ring in ring8:
-					tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-					outFile2.write("S   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				if max_ring > 8:
-					for ring in ring9:
+					# we loop over all the segregated rings
+					for ring in ring3:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-						outFile2.write("F   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-					if max_ring > 9:
-						for ring in ring10:
+						outFile2.write("Li  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					for ring in ring4:
+						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						outFile2.write("Be  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					for ring in ring5:
+						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						outFile2.write("B   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					for ring in ring6:
+						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						outFile2.write("C   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					for ring in ring7:
+						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						outFile2.write("N   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					for ring in ring8:
+						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						outFile2.write("S   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					if max_ring > 8:
+						for ring in ring9:
 							tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-							outFile2.write("Ne  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
-				
-				# for visualizer [chimera]; for testing code
-				def visualizer(ring):
-					for i in range(len(ring)):
-						for j in range(len(ring[i])):
-							ring[i][j] += 1
-					print(ring)
-					return ring
-				# visualizer(ring4)
+							outFile2.write("F   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+						if max_ring > 9:
+							for ring in ring10:
+								tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+								outFile2.write("Ne  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					
+					outFile2.close()
+					print("The location of the closed rings has been written to 'rings_location.xyz'\n")
+					# for visualizer [chimera]; for testing code
+					def visualizer(ring):
+						for i in range(len(ring)):
+							for j in range(len(ring[i])):
+								ring[i][j] += 1
+						print(ring)
+						return ring
+					# visualizer(ring4)			# P,Cl,Ar might be good for Li, B, and Be
 
 				hbond_ndx = [[] for _ in range(int(nMols))]
 				hbondIndex = []
@@ -1306,21 +1307,25 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 			else:
 				continue
 	outFile.close()
-	outFile2.close()
-		
-	print("\n'rings_location.xyz' file has be created to show rings distribution\n")
+
+	if directionality:
+		print("The closed directional rings have been output to 'ringsCount.dat\n")
+	else:
+		print("The closed rings have been output to 'ringsCount.dat\n")
+
 
 def main(argv):
-	global directionality, hbond_energy
+	global directionality, hbond_energy, ring_traj
 
 	directionality = False
 	hbond_energy = False
+	ring_traj = False
 	_haveinputFileName = 0
 	max_ring = 0
 	ring_closure = 0
 	algorithm = "hbondAngle"
 	try:
-		opts, args = getopt.getopt(argv, "hedf:r:c:m:", ["help", "energy_defn", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hd' do not take arguments, 'frcm' take argument
+		opts, args = getopt.getopt(argv, "hexdf:r:c:m:", ["help", "energy_defn", "ring_traj", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hed' do not take arguments, 'frcm' take argument
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -1341,6 +1346,8 @@ def main(argv):
 			directionality = True
 		elif opt in ("-e", "--energy_defn"):
 			hbond_energy = True
+		elif opt in ("-x", "--ring_traj"):
+			ring_traj = True
 
 	if (_haveinputFileName != 1):
 		usage()
