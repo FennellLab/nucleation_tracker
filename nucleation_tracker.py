@@ -657,8 +657,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 											count_x += tempCount_x
 											count_y += tempCount_y
 											count_z += tempCount_z
-											is_ring = count_x + count_y + count_z
-											if is_ring%2 == 0:
+											if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 												wat_loop.append(wat_sort)
 											count_x = 0
 											count_y = 0
@@ -685,8 +684,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 													count_x += tempCount_x
 													count_y += tempCount_y
 													count_z += tempCount_z
-													is_ring = count_x + count_y + count_z
-													if is_ring%2 == 0:
+													if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 														wat_loop.append(wat_sort)
 													count_x = 0
 													count_y = 0
@@ -713,8 +711,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 															count_x += tempCount_x
 															count_y += tempCount_y
 															count_z += tempCount_z
-															is_ring = count_x + count_y + count_z
-															if is_ring%2 == 0:
+															if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																wat_loop.append(wat_sort)
 															count_x = 0
 															count_y = 0
@@ -741,8 +738,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																	count_x += tempCount_x
 																	count_y += tempCount_y
 																	count_z += tempCount_z
-																	is_ring = count_x + count_y + count_z
-																	if is_ring%2 == 0:
+																	if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																		wat_loop.append(wat_sort)
 																	count_x = 0
 																	count_y = 0
@@ -769,8 +765,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																			count_x += tempCount_x
 																			count_y += tempCount_y
 																			count_z += tempCount_z
-																			is_ring = count_x + count_y + count_z
-																			if is_ring%2 == 0:
+																			if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																				wat_loop.append(wat_sort)
 																			count_x = 0
 																			count_y = 0
@@ -797,8 +792,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																					count_x += tempCount_x
 																					count_y += tempCount_y
 																					count_z += tempCount_z
-																					is_ring = count_x + count_y + count_z
-																					if is_ring%2 == 0:
+																					if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																						wat_loop.append(wat_sort)
 																					count_x = 0
 																					count_y = 0
@@ -826,8 +820,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																								count_x += tempCount_x
 																								count_y += tempCount_y
 																								count_z += tempCount_z
-																								is_ring = count_x + count_y + count_z
-																								if is_ring%2 == 0:
+																								if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																									wat_loop.append(wat_sort)
 																								count_x = 0
 																								count_y = 0
@@ -855,8 +848,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																											count_x += tempCount_x
 																											count_y += tempCount_y
 																											count_z += tempCount_z
-																											is_ring = count_x + count_y + count_z
-																											if is_ring%2 == 0:
+																											if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
 																												wat_loop.append(wat_sort)
 																											count_x = 0
 																											count_y = 0
@@ -1407,6 +1399,12 @@ def main(argv):
 		if opt in ("-h", "--help"):
 			usage()
 			sys.exit()
+		elif opt in ("-e", "--energy_defn"):
+			hbond_energy = True
+		elif opt in ("-x", "--ring_traj"):
+			ring_traj = True
+		elif opt in ("-d", "--directional_rings"):
+			directionality = True
 		elif opt in ("-f", "--input-file"):
 			inputFileName = arg
 			_haveinputFileName = 1
@@ -1416,12 +1414,6 @@ def main(argv):
 			ring_closure = int(arg)
 		elif opt in ("-m", "--method_algorithm"):
 			algorithm = arg
-		elif opt in ("-d", "--directional_rings"):
-			directionality = True
-		elif opt in ("-e", "--energy_defn"):
-			hbond_energy = True
-		elif opt in ("-x", "--ring_traj"):
-			ring_traj = True
 
 	if (_haveinputFileName != 1):
 		usage()
