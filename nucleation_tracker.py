@@ -11,8 +11,10 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -d = generates only directional rings tracking proton acceptor waters
        -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
        -x = Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). (default=off)
+       -b = binning rings for ring distribution; by default at 3.0 nm bin width
 """
 
+# import multiprocessing
 import sys
 import getopt
 import os
@@ -54,7 +56,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 	hbondIndex = []
 	threeAtomWater = False
 	fourAtomWater = False
-	
+
 	if os.path.isfile("ringsCount.dat"):
 		# shutil.copy("ringsCount.dat", "ringsCount2.dat")
 		os.remove("ringsCount.dat")
@@ -62,9 +64,34 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		# shutil.copy("rings_location.xyz", "rings_location2.xyz")	
 		os.remove("rings_location.xyz")
 	
+	if ring_traj:
+		outFile2 = open("rings_location.xyz", 'w')
+		# for binning rings
+		setRings_Li = []
+		setRings_Be = []
+		setRings_B = []
+		setRings_C = []
+		setRings_N = []
+		setRings_O = []
+		setRings_F = []
+		setRings_Ne = []
+
+	# for binning ring distribution; the 3 positions are sorted by polygons (x,y,z)
+	if binning_rings:
+		outFile3 = open("rings_dist.dat", 'w')
+		outFile3.write("{:^10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("bins", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
+		if max_ring > 8:
+			outFile3.write("{:>10s}".format("rings_9"))
+			if max_ring > 9:
+				outFile3.write("{:>10s}\n".format("rings_10"))
+			else:
+				outFile3.write("\n")
+		else:
+			outFile3.write("\n")
+
 	print("\nEnumerating the closed rings in the system . . . \n")
 	outFile = open("ringsCount.dat", 'w')
-	outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
+	outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "RSF_val", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
 	if max_ring > 8:
 		outFile.write("{:>10s}".format("rings_9"))
 		if max_ring > 9:
@@ -614,18 +641,18 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 
 				# we test the rings if it crosses the pbc; rings should come back from the same wall
 				# This check ensures that a chain like |-A-B-C|-A-B-C|-A- is not counted as a polygon 'A-B-C'
-				def ring_pbc(member1, member2, outRingX, outRingY, outRingZ):
+				def ring_pbc(member1, member2, outRing_x, outRing_y, outRing_z):
 					xVecRing = water[member1][0] - water[member2][0]
 					yVecRing = water[member1][1] - water[member2][1]
 					zVecRing = water[member1][2] - water[member2][2]
 					if abs(xVecRing) > 0.5 * Lx:
-						outRingX += 1
+						outRing_x += 1
 					if abs(yVecRing) > 0.5 * Ly:
-						outRingY += 1
+						outRing_y += 1
 					if abs(zVecRing) > 0.5 * Lz:
-						outRingZ += 1
+						outRing_z += 1
 					# if 'outRing%2 == 0' is even then consider a ring else not a ring
-					return outRingX, outRingY, outRingZ
+					return outRing_x, outRing_y, outRing_z
 
 				# now counting all possible non short-circuit rings
 				# test for hbond donor in the hbond_ndx
@@ -633,27 +660,30 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				count_x = 0
 				count_y = 0
 				count_z = 0
-				for i in range(int(nMols)):
+				for init_wat in range(int(nMols)):
 					temp_loop = []
-					for j, element in enumerate(hbond_ndx):
-						if i in element:
-							for k, element2 in enumerate(hbond_ndx):
-								if k == i:				# skip already counted rings; saves computational time
-									continue
-								elif j in element2:
-									if k in hbond_ndx[i]:
-										temp_loop.extend([i,j,k])
+					for i in hbond_ndx[init_wat]:
+						for j in hbond_ndx[i]:
+							if j == init_wat:		# already a hbond; skip already counted rings; saves computational time
+								continue
+							else:
+								for k in hbond_ndx[j]:
+									if k == i or k == j:		# skip already counted rings; saves computational time
+										continue
+									elif k == init_wat:			# rings back to the first water
+										temp_loop.extend([init_wat, i, j])
 										# we do not want double counting of rings . . .
 										wat_sort = sorted(list(set(temp_loop)))
+										# we take 'temp_loop' for avoiding a test for hbonds
 										if (wat_sort not in wat_loop):
-											# for forming rings, there should be equal outgoing and incoming hbonds
+											# test for ring pbc; for forming rings, there should be equal outgoing and incoming hbonds
 											for var_a in range(len(temp_loop)-1):
-												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 												count_x += tempCount_x
 												count_y += tempCount_y
 												count_z += tempCount_z
 											# test for initial and final members
-											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 											count_x += tempCount_x
 											count_y += tempCount_y
 											count_z += tempCount_z
@@ -664,23 +694,23 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 											count_z = 0
 											temp_loop = []
 										temp_loop = []
-									for l, element3 in enumerate(hbond_ndx):
-										if l == i or l ==j:
-											continue
-										elif k in element3:
-											if l in hbond_ndx[i]:
-												temp_loop.extend([i,j,k,l])
+									else:
+										for l in hbond_ndx[k]:
+											if l == i or l == j or l == k:			# skip already counted rings; saves computational time
+												continue
+											elif l == init_wat:
+												temp_loop.extend([init_wat, i, j, k])
+												# we do not want double counting of rings . . .
 												wat_sort = sorted(list(set(temp_loop)))
 												if (wat_sort not in wat_loop):
-													# we take 'temp_loop' for avoiding a test for hbonds
-													# test for ring pbc, there should be equal outgoing and incoming hbonds
+													# for forming rings, there should be equal outgoing and incoming hbonds
 													for var_a in range(len(temp_loop)-1):
-														tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+														tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 														count_x += tempCount_x
 														count_y += tempCount_y
 														count_z += tempCount_z
 													# test for initial and final members
-													tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+													tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 													count_x += tempCount_x
 													count_y += tempCount_y
 													count_z += tempCount_z
@@ -691,23 +721,23 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 													count_z = 0
 													temp_loop = []
 												temp_loop = []
-											for m, element4 in enumerate(hbond_ndx):
-												if m == i or m == j or m == k:
-													continue
-												elif l in element4:
-													if m in hbond_ndx[i]:
-														temp_loop.extend([i,j,k,l,m])
+											else:
+												for m in hbond_ndx[l]:
+													if m == i or m == j or m == k or m == l:
+														continue
+													elif m == init_wat:
+														temp_loop.extend([init_wat, i, j, k, l])
+														# we do not want double counting of rings . . .
 														wat_sort = sorted(list(set(temp_loop)))
 														if (wat_sort not in wat_loop):
-															# we take 'temp_loop' for avoiding a test for hbonds
-															# test for ring pbc, there should be equal outgoing and incoming hbonds
+															# for forming rings, there should be equal outgoing and incoming hbonds
 															for var_a in range(len(temp_loop)-1):
-																tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																count_x += tempCount_x
 																count_y += tempCount_y
 																count_z += tempCount_z
 															# test for initial and final members
-															tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+															tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 															count_x += tempCount_x
 															count_y += tempCount_y
 															count_z += tempCount_z
@@ -718,23 +748,23 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 															count_z = 0
 															temp_loop = []
 														temp_loop = []
-													for n, element5 in enumerate(hbond_ndx):
-														if n == i or n == j or n == k or n == l:
-															continue
-														elif m in element5:	
-															if n in hbond_ndx[i]:
-																temp_loop.extend([i,j,k,l,m,n])
+													else:
+														for n in hbond_ndx[m]:
+															if n == i or n == j or n == k or n == l or n == m:
+																continue
+															elif n == init_wat:
+																temp_loop.extend([init_wat, i, j, k, l, m])
+																# we do not want double counting of rings . . .
 																wat_sort = sorted(list(set(temp_loop)))
 																if (wat_sort not in wat_loop):
-																	# we take 'temp_loop' for avoiding a test for hbonds
-																	# test for ring pbc, there should be equal outgoing and incoming hbonds
+																	# for forming rings, there should be equal outgoing and incoming hbonds
 																	for var_a in range(len(temp_loop)-1):
-																		tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																		tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																		count_x += tempCount_x
 																		count_y += tempCount_y
 																		count_z += tempCount_z
 																	# test for initial and final members
-																	tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																	tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																	count_x += tempCount_x
 																	count_y += tempCount_y
 																	count_z += tempCount_z
@@ -745,23 +775,23 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																	count_z = 0
 																	temp_loop = []
 																temp_loop = []
-															for o, element6 in enumerate(hbond_ndx):
-																if o == i or o == j or o == k or o == l or o == m:
-																	continue
-																elif n in element6:	
-																	if o in hbond_ndx[i]:
-																		temp_loop.extend([i,j,k,l,m,n,o])
+															else:
+																for o in hbond_ndx[n]:
+																	if o == i or o == j or o == k or o == l or o == m or o == n:
+																		continue
+																	elif o == init_wat:
+																		temp_loop.extend([init_wat, i, j, k, l, m, n])
+																		# we do not want double counting of rings . . .
 																		wat_sort = sorted(list(set(temp_loop)))
 																		if (wat_sort not in wat_loop):
-																			# we take 'temp_loop' for avoiding a test for hbonds
-																			# test for ring pbc, there should be equal outgoing and incoming hbonds
+																			# for forming rings, there should be equal outgoing and incoming hbonds
 																			for var_a in range(len(temp_loop)-1):
-																				tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																				tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																				count_x += tempCount_x
 																				count_y += tempCount_y
 																				count_z += tempCount_z
 																			# test for initial and final members
-																			tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																			tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																			count_x += tempCount_x
 																			count_y += tempCount_y
 																			count_z += tempCount_z
@@ -772,23 +802,23 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																			count_z = 0
 																			temp_loop = []
 																		temp_loop = []
-																	for p, element7 in enumerate(hbond_ndx):
-																		if p == i or p == j or p == k or p == l or p == m or p == n:
-																			continue
-																		elif o in element7:	
-																			if p in hbond_ndx[i]:
-																				temp_loop.extend([i,j,k,l,m,n,o,p])
+																	else:
+																		for p in hbond_ndx[o]:
+																			if p == i or p == j or p == k or p == l or p == m or p == n or p == o:
+																				continue
+																			elif p == init_wat:
+																				temp_loop.extend([init_wat, i, j, k, l, m, n, o])
+																				# we do not want double counting of rings . . .
 																				wat_sort = sorted(list(set(temp_loop)))
 																				if (wat_sort not in wat_loop):
-																					# we take 'temp_loop' for avoiding a test for hbonds
-																					# test for ring pbc, there should be equal outgoing and incoming hbonds
+																					# for forming rings, there should be equal outgoing and incoming hbonds
 																					for var_a in range(len(temp_loop)-1):
-																						tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																						tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																						count_x += tempCount_x
 																						count_y += tempCount_y
 																						count_z += tempCount_z
 																					# test for initial and final members
-																					tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																					tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																					count_x += tempCount_x
 																					count_y += tempCount_y
 																					count_z += tempCount_z
@@ -799,24 +829,24 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																					count_z = 0
 																					temp_loop = []
 																				temp_loop = []
-																			if max_ring > 8:
-																				for q, element8 in enumerate(hbond_ndx):
-																					if q == i or q == j or q == k or q == l or q == m or q == n or q == o:
-																						continue
-																					elif p in element8:	
-																						if q in hbond_ndx[i]:
-																							temp_loop.extend([i,j,k,l,m,n,o,p,q])
+																			else:
+																				if max_ring > 8:
+																					for q in hbond_ndx[p]:
+																						if q in [i, j, k, l, m, n, o, p]:
+																							continue
+																						elif q == init_wat:
+																							temp_loop.extend([init_wat, i, j, k, l, m, n, o, p])
+																							# we do not want double counting of rings . . .
 																							wat_sort = sorted(list(set(temp_loop)))
 																							if (wat_sort not in wat_loop):
-																								# we take 'temp_loop' for avoiding a test for hbonds
-																								# test for ring pbc, there should be equal outgoing and incoming hbonds
+																								# for forming rings, there should be equal outgoing and incoming hbonds
 																								for var_a in range(len(temp_loop)-1):
-																									tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																									tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																									count_x += tempCount_x
 																									count_y += tempCount_y
 																									count_z += tempCount_z
 																								# test for initial and final members
-																								tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																								tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																								count_x += tempCount_x
 																								count_y += tempCount_y
 																								count_z += tempCount_z
@@ -827,24 +857,24 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																								count_z = 0
 																								temp_loop = []
 																							temp_loop = []
-																						if max_ring > 9:
-																							for r, element9 in enumerate(hbond_ndx):
-																								if r == i or r == j or r == k or r == l or r == m or r == n or r == o or r == p:
-																									continue
-																								elif q in element9:	
-																									if r in hbond_ndx[i]:
-																										temp_loop.extend([i,j,k,l,m,n,o,p,q,r])
+																						else:
+																							if max_ring > 9:
+																								for r in hbond_ndx[q]:
+																									if r in [i, j, k, l, m, n, o, p, q]:
+																										continue
+																									elif r == init_wat:
+																										temp_loop.extend([init_wat, i, j, k, l, m, n, o, p, q])
+																										# we do not want double counting of rings . . .
 																										wat_sort = sorted(list(set(temp_loop)))
 																										if (wat_sort not in wat_loop):
-																											# we take 'temp_loop' for avoiding a test for hbonds
-																											# test for ring pbc, there should be equal outgoing and incoming hbonds
+																											# for forming rings, there should be equal outgoing and incoming hbonds
 																											for var_a in range(len(temp_loop)-1):
-																												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																												tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																												count_x += tempCount_x
 																												count_y += tempCount_y
 																												count_z += tempCount_z
 																											# test for initial and final members
-																											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRingX = 0, outRingY = 0, outRingZ = 0)
+																											tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
 																											count_x += tempCount_x
 																											count_y += tempCount_y
 																											count_z += tempCount_z
@@ -855,6 +885,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																											count_z = 0
 																											temp_loop = []
 																										temp_loop = []
+																				continue
+
 				# rings segregation
 				ring3 = []
 				ring4 = []
@@ -1256,7 +1288,13 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 
 				# now writing the number of enumerated closed rings
 				frame_count +=1
-				outFile.write("{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(frame_count, hbonds, len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8)))
+				rsf_val = len(ring3) + len(ring4) + len(ring5) + len(ring6) + len(ring7) + len(ring8)
+				if max_ring > 8:
+					rsf_val += len(ring9)
+					if max_ring > 9:
+						rsf_val += len(ring10)
+				rsf_val /= (2*nMols)
+				outFile.write("{:>10d}{:>10d}{:>10.4f}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(frame_count, hbonds, rsf_val, len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8)))
 				if max_ring > 8:
 					outFile.write("{:>10d}".format(len(ring9)))
 					if max_ring > 9:
@@ -1265,11 +1303,11 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						outFile.write("\n")
 				else:
 					outFile.write("\n")
+				outFile.flush()
 	
 				if ring_traj:
 		 			# writing xyz file for the location of directional rings
 					# wrt to oxygen (heavy atom), if take hydrogen atoms, then divide by total items taken
-					outFile2 = open("rings_location.xyz", 'w')
 					outFile2.write("%d\n" %(len(wat_loop)))
 					outFile2.write("ring location in the system\n")
 	
@@ -1316,33 +1354,40 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 					# we loop over all the segregated rings
 					for ring in ring3:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						setRings_Li.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 						outFile2.write("Li  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					for ring in ring4:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						setRings_Be.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 						outFile2.write("Be  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					for ring in ring5:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						setRings_B.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 						outFile2.write("B   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					for ring in ring6:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						setRings_C.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 						outFile2.write("C   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					for ring in ring7:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+						setRings_N.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 						outFile2.write("N   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					for ring in ring8:
 						tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
-						outFile2.write("S   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+						setRings_O.append([tempX_pbc, tempY_pbc, tempZ_pbc])
+						outFile2.write("O   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 					if max_ring > 8:
 						for ring in ring9:
 							tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+							setRings_F.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 							outFile2.write("F   {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
 						if max_ring > 9:
 							for ring in ring10:
 								tempX_pbc, tempY_pbc, tempZ_pbc = min_image_wrap(ring)
+								setRings_Ne.append([tempX_pbc, tempY_pbc, tempZ_pbc])
 								outFile2.write("Ne  {:>10.5f} {:>10.5f} {:>10.5f}\n".format(tempX_pbc, tempY_pbc, tempZ_pbc))
+					outFile2.flush()
 					
-					outFile2.close()
-					print("The location of the closed rings has been written to 'rings_location.xyz'\n")
 					# for visualizer [chimera]; for testing code
 					def visualizer(ring):
 						for i in range(len(ring)):
@@ -1352,6 +1397,87 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						return ring
 					# visualizer(ring4)			# P,Cl,Ar might be good for Li, B, and Be
 
+				# Now, let us bin the ring distribution
+				if binning_rings:			# please check for the box dimension to manage the bin width; we consider z-axis in this case
+					bin_width = 30				# unit in Angstrom
+					binNum = 0
+					outFile3.write(";%f 0 0; 0 %f 0; 0 0 %f; hbonds = %d\n"%(Lx, Ly, Lz, hbonds))
+					
+					# final binning of the system
+					for i in range(0, int(Lz), bin_width):
+						binNum += 1
+						# last binning of the system; less than double of the bin_width (60); compensation bin
+						if (Lz - i) < 50:	
+							def count_rings(ringList,countRings):
+								for j in range(len(ringList)):
+									if i < ringList[j][2] <= Lz:
+										countRings += 1
+									elif ringList[j][2] > Lz or ringList[j][2] <= 0:	# rings outside the pbc
+										countRings += 1
+								return countRings
+							count_Li = count_rings(setRings_Li, 0)
+							count_Be = count_rings(setRings_Be, 0)
+							count_B = count_rings(setRings_B, 0)
+							count_C = count_rings(setRings_C, 0)
+							count_N = count_rings(setRings_N, 0)
+							count_O = count_rings(setRings_O, 0)
+							if max_ring > 8:
+								count_F = count_rings(setRings_F, 0)
+							if max_ring > 9:
+								count_Ne = count_rings(setRings_Ne, 0)
+
+							# writing a file after binning
+							outFile3.write("  bin{:<2d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(binNum, count_Li, count_Be, count_B, count_C, count_N, count_O))
+							if max_ring > 8:
+								outFile3.write("{:>10d}".format(count_F))
+								if max_ring > 9:
+									outFile3.write("{:>10d}\n".format(count_Ne))
+								else:
+									outFile3.write("\n")
+							else:
+								outFile3.write("\n")
+							outFile3.write("\n")
+							break
+						else:
+							# sequential binning
+							def count_rings(ringList,countRings):
+								for j in range(len(ringList)):
+									if i < ringList[j][2] <= (i+bin_width):
+										countRings += 1
+								return countRings
+							count_Li = count_rings(setRings_Li, 0)
+							count_Be = count_rings(setRings_Be, 0)
+							count_B = count_rings(setRings_B, 0)
+							count_C = count_rings(setRings_C, 0)
+							count_N = count_rings(setRings_N, 0)
+							count_O = count_rings(setRings_O, 0)
+							if max_ring > 8:
+								count_F = count_rings(setRings_F, 0)
+							if max_ring > 9:
+								count_Ne = count_rings(setRings_Ne, 0)
+
+							# writing a file after binning
+							outFile3.write("  bin{:<2d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(binNum, count_Li, count_Be, count_B, count_C, count_N, count_O))
+							if max_ring > 8:
+								outFile3.write("{:>10d}".format(count_F))
+								if max_ring > 9:
+									outFile3.write("{:>10d}\n".format(count_Ne))
+								else:
+									outFile3.write("\n")
+							else:
+								outFile3.write("\n")
+					outFile3.flush()
+
+					# for binning ring distribution; the 3 positions are sorted by polygons (x,y,z)
+					setRings_Li = []
+					setRings_Be = []
+					setRings_B = []
+					setRings_C = []
+					setRings_N = []
+					setRings_O = []
+					setRings_F = []
+					setRings_Ne = []
+
 				hbond_ndx = [[] for _ in range(int(nMols))]
 				hbondIndex = []
 				hbonds = 0
@@ -1360,38 +1486,51 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				oPosX = []
 				oPosY = []
 				oPosZ = []
-				h1Posx = []
-				h1Posy = []
-				h1Posz = []
-				h2Posx = []
-				h2Posy = []
-				h2Posz = []
 				wat_loop = []
+				primitiveRings = []
+				minimal_rings = []
 				water = [[0 for _ in range(9)] for _ in range(int(nMols))]
 				pos = 0
 				ref_ndx = 0
+				# rings segregation
+				ring3 = []
+				ring4 = []
+				ring5 = []
+				ring6 = []
+				ring7 = []
+				ring8 = []
+				ring9 = []
+				ring10 = []
 			else:
 				continue
 	outFile.close()
+	if ring_traj:
+		outFile2.close()
+	if binning_rings:
+		outFile3.close()
 
 	if directionality:
 		print("The closed directional rings have been output to 'ringsCount.dat\n")
 	else:
 		print("The closed rings have been output to 'ringsCount.dat\n")
-
+	if ring_traj:
+		print("The location of the closed rings has been written to 'rings_location.xyz'\n")
+	if binning_rings:
+		print("The binning of the trajectory has been written to 'rings_dist.dat'")
 
 def main(argv):
-	global directionality, hbond_energy, ring_traj
+	global directionality, hbond_energy, ring_traj, binning_rings
 
 	directionality = False
 	hbond_energy = False
 	ring_traj = False
+	binning_rings = False
 	_haveinputFileName = 0
 	max_ring = 0
 	ring_closure = 0
 	algorithm = "hbondAngle"
 	try:
-		opts, args = getopt.getopt(argv, "hexdf:r:c:m:", ["help", "energy_defn", "ring_traj", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hed' do not take arguments, 'frcm' take argument
+		opts, args = getopt.getopt(argv, "hexbdf:r:c:m:", ["help", "energy_defn", "ring_traj", "binning_rings", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hed' do not take arguments, 'frcm' take argument
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -1403,6 +1542,9 @@ def main(argv):
 			hbond_energy = True
 		elif opt in ("-x", "--ring_traj"):
 			ring_traj = True
+		elif opt in ("-b", "--binning_rings"):
+			binning_rings = True
+			ring_traj = True		# requires ring trajectory file
 		elif opt in ("-d", "--directional_rings"):
 			directionality = True
 		elif opt in ("-f", "--input-file"):
@@ -1427,3 +1569,4 @@ if __name__ == "__main__":
 		usage()
 		sys.exit()
 	main(sys.argv[1:])
+
