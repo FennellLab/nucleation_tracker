@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-The program is used to calculate the number of hydrogen bonded rings in the pure water system.\n
+The program is used to calculate the number of hydrogen bonded rings in the aqueous HCl.\n
 
 USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -f = input a gro file with correct box dimension
