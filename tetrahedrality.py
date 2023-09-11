@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-The program is used to calculate the tetrahedrality of water using Errington and Debenedetti equation of order paramter.\n
+This program is used to calculate the tetrahedrality of water using Errington and Debenedetti equation of order paramter.\n
 
-USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
+USAGE: ./tetrahedrality filename.gro\n
 """
 
 # import multiprocessing
