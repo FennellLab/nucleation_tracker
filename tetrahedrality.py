@@ -515,5 +515,5 @@ with open (inputFileName, 'r') as inFile:
 			oPosY = []
 			oPosZ = []
 	outputFileName.close()
-print("The file has been output to '%s_tetra.pdb' for molecular visualization"%(filename))
+print("The files have been output to '%s_tetra.dat' with enlisted order parameters \n and '%s_tetra.pdb' for molecular visualization"%(filename, filename))
 
