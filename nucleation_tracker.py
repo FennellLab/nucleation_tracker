@@ -530,13 +530,12 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		done = False
 		def animate():
 			for c in itertools.cycle(['|', '/', '-', '\\']):
-				# if done:
-				if frame_count > 3:		# this is to limit the computational cost for large frames loading
+				if done or frame_count > 5:      # this is to limit the computational cost for large frames loading:
 					break
 				sys.stdout.write('\rloading ' + c)
 				sys.stdout.flush()
 				time.sleep(0.1)
-			sys.stdout.write('\rDone 3 frames loading!      \n ')
+			sys.stdout.write('\rDone!      \n ')
 		
 		t = threading.Thread(target=animate)
 		t.start()
@@ -1461,7 +1460,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						# writing ring coordinates to pov files
 						self.buffer_size = 2		# the imaging buffer size
 						self.slab_thickness = 100	# 0.5*slab thickness
-						self.scale_factor = 40		# scale the pixels!
+						self.scale_factor = 20		# scale the pixels!
 						self.transparency = 0.5		# the transparency of ring dots
 
 					def outFile(self):
@@ -2275,8 +2274,9 @@ global_settings { ambient_light rgb 1 }\n""")
 		pov_out.close()
 
 	#long process here and end of animation
-	time.sleep(10)
-	# done = True			# use this if used 'done' in the function
+	time.sleep(5)
+	done = True			# use this if used 'done' in the function
+	time.sleep(1)
 
 	if directionality:
 		print("\nThe closed directional rings have been output to 'ringsCount.dat\n")
