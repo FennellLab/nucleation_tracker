@@ -2,7 +2,6 @@
 
 """
 The program is used to calculate the number of hydrogen bonded rings in the pure water system.\n
-
 USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -f = input a gro file with correct box dimension
        -r = size of the rings; 9 or 10 membered closed rings; by default to 8 membered polygons
@@ -11,6 +10,8 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -d = generates only directional rings tracking proton acceptor waters
        -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
        -x = Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). (default=off)
+
+       -t = Output a .pdb file containing the tetrahedrality in the b-factor column. (default=off)
        -p = Build a pov_files directory containing .pov files for rendering of ring closures and locations. (default=off)
        -b = binning rings for ring distribution; by default at 3.0 nm bin width
 """
@@ -34,9 +35,14 @@ def usage():
 
 def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 	distance_tol = 3.5    # hbond distance tolerance (in Ångström)
+	distance_tol2_long = 2.0*distance_tol*distance_tol   # long square distance tolerance
 	angle_tol = 30        # hbond angle tolerance (in degrees)
 	angle_tol_rad = angle_tol * 3.1415926536 / 180.0  # hbond angle tolerance in radians
 	tolerance = 10e-5
+	neighbor_tol = 0.5
+	tetrahedrality = []
+	deviation = 0
+
 	
 	num = 0
 	hbonds = 0
@@ -106,11 +112,26 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 			os.makedirs(path, exist_ok = False) 
 			# print("Directory '%s' created successfully" % directory) 
 		except OSError as error: 
-			print("Directory '%s' already existed" % directory) 
+			print("Directory '%s' already existed" %directory) 
 
 		# writing a single file for povray program execution
 		fileName, file_extension = os.path.splitext(inputFileName)
 		pov_info = open("%s/%s_pov.txt"%(path, fileName), 'w')
+
+	# output tetrahedral order parameter in pdb file
+	if tetraPDBOutOpt:
+		directory2 = "tetra_files"
+		current_directory = os.getcwd()
+		path = os.path.join(current_directory, directory2)
+		try: 
+			os.makedirs(path, exist_ok = False) 
+		except OSError as error: 
+			print("Directory '%s' already existed" %directory2) 
+
+		fileName, file_extension = os.path.splitext(inputFileName)
+		tetraPDBOutput = open("%s/%s_tetra.pdb"%(path, fileName), 'w')
+		tetraOrderOutput = open("%s/%s_tetra.dat"%(path, fileName), 'w')
+		tetraOrderOutput.write(" avg_<q>     stdev\n")
 
 	outFile = open("ringsCount.dat", 'w')
 	outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "RSF_val", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
@@ -537,6 +558,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				time.sleep(0.1)
 			sys.stdout.write('\rDone!      \n ')
 		
+		# checkpoint for starting animation
 		t = threading.Thread(target=animate)
 		t.start()
 		
@@ -1442,6 +1464,205 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						return ring
 					# visualizer(ring5)			# P,Cl,Ar might be good for Li, B, and Be
 
+				# calculation of tetrahedral order parameter of water
+				if tetraPDBOutOpt:
+					# defining vectors with central water and a surrounding water
+					def defVec(pos1, pos2):
+						# first, we do the O-O vector
+						posVec[0] = pos2[0]-pos1[0]
+						posVec[1] = pos2[1]-pos1[1]
+						posVec[2] = pos2[2]-pos1[2]
+					
+						# do vector wrapping of periodic boundary conditions
+						for k in range(3):
+							scaledVec[k] = posVec[k] * invhmat[k][k]
+							scaledVec[k] -= round(scaledVec[k])
+							posVec[k] = scaledVec[k] * hmat[k][k]
+						return posVec
+
+					halfDistance_tol_array = np.array([distance_tol2_long/2 for i in range(int(nMols))])
+					distance_tol_array = np.add.outer(halfDistance_tol_array,halfDistance_tol_array)
+					dx = np.subtract.outer(oPosX,oPosX)
+					dy = np.subtract.outer(oPosY,oPosY)
+					dz = np.subtract.outer(oPosZ,oPosZ)
+					
+					# do vector wrapping of periodic boundary conditions
+					def pbc(oVec, k):
+						scaledVec = oVec * invhmat[k][k]
+						scaledVec -= np.round(scaledVec)
+						oVec = scaledVec * hmat[k][k]
+						return oVec
+					dx = pbc(dx, 0)
+					dy = pbc(dy, 1)
+					dz = pbc(dz, 2)
+					distance = np.array( np.square(dx) + np.square(dy) + np.square(dz) )
+					
+					# to find the number of surrounding water molecules around central water molecule
+					touching = np.where( distance < distance_tol_array, 1.0, 0.0) #elementwise conditional operator (condition ? 1 : 0 in this case)
+					
+					# building up the water cluster with proper identification
+					neighborList = [[] for i in range(int(nMols))]
+					neighborDistance = [[] for i in range(int(nMols))]
+					nearestNeighbor_dist = [[0 for _ in range(4)] for _ in range(int(nMols))]
+					nearestNeighbor_index = [[0 for _ in range(4)] for _ in range(int(nMols))]
+					for i in range(int(nMols)):
+						for j in range(int(nMols)):
+							if i==j: continue
+							if (abs(touching[i,j]*distance_tol_array[i,j] - distance_tol_array[i,j])) < tolerance:
+								neighborList[i].append(j)
+								neighborDistance[i].append(math.sqrt(distance[i,j]))
+							else: continue
+
+					# this is to loop over water environment to test H-bonding
+					hbond_ndx = [[] for _ in range(int(nMols))]
+					for i, hbondWat in enumerate(neighborList):
+						# this is a reference water
+						pos1 = water[i] 
+						for j in hbondWat:
+							pos2 = water[j]
+							isHBond = IsHBonding(pos1, pos2, i, j, isHBond=0)
+
+					# build the nearest neighbor list and calculate tetrahedrality
+					for i in range(len(neighborList)):
+						# let's sort our nearest neighbor list!
+						# sort based on distances
+						singleSort_dist = neighborDistance[i]
+						singleSort_index = neighborList[i]
+						# correspondingly rearragne index list based on distance in ascending order
+						singleSort_dist, singleSort_index = (list(t) for t in zip(*sorted(zip(singleSort_dist, singleSort_index))))
+
+						# check neighbors to see if we need to sort with H-bonding as a
+						# priority . . .
+						closest_neighbor = singleSort_dist[0]
+						count = 0
+						for j in range(1, len(singleSort_dist)):
+							temp_dist = singleSort_dist[j] - closest_neighbor
+							if (temp_dist < neighbor_tol):
+								count += 1
+
+						# print(singleSort_dist)
+						# print(len(singleSort_dist))
+						# print(count)
+						if (count > 4):
+							# load the 4 neighbors with a H-bonding+distance preference,
+							# then distance only up to the 4 total neighbors
+							temp_count = 0
+							for j in range(len(hbond_ndx[i])):
+								for k in range(count):		# applicable because of sorted distance with central water
+									if singleSort_index[k] == hbond_ndx[i][j]:
+										nearestNeighbor_index[i][temp_count] = singleSort_index[k]
+										nearestNeighbor_dist[i][temp_count] = singleSort_dist[k]
+										temp_count += 1
+										break			# loop of 'count' is done
+
+								if temp_count > 3:
+									break
+					
+							# print(nearestNeighbor_index[i])
+							if temp_count < 4:
+								# load in closest neighbors that haven't already been
+								# selected as H bonding
+								for j in range(count):
+									loaded = 0
+									for k in range(temp_count):
+										if nearestNeighbor_index[i][k] == singleSort_index[j]:
+											loaded = 1
+									if loaded == 0:
+										nearestNeighbor_index[i][temp_count] = singleSort_index[j]
+										nearestNeighbor_dist[i][temp_count] = singleSort_dist[j]
+										temp_count += 1
+									if temp_count > 3:
+										break
+
+							# creating a vector matrix of central water with four surrounding waters
+							vec_OO = [[] for i in range(int(4))]
+							# this is a reference water
+							pos1 = water[i] 
+							# this is to loop over water environment to test H-bonding
+							ndx = 0
+							for j in nearestNeighbor_index[i]:
+								pos2 = water[j]
+								tempVec = defVec(pos1, pos2)
+								vec_OO[ndx].append(tempVec[0])
+								vec_OO[ndx].append(tempVec[1])
+								vec_OO[ndx].append(tempVec[2])
+								ndx += 1
+
+						else:
+							# load the first 4 neighbors in the nearest neighbor lists
+							for j in range(4):
+								nearestNeighbor_dist[i][j] = singleSort_dist[j]
+
+							# creating a vector matrix of central water with four surrounding waters
+							vec_OO = [[] for i in range(int(4))]
+							# this is a reference water
+							pos1 = water[i] 
+							# this is to loop over water environment to test H-bonding
+							ndx = 0
+							for j in singleSort_index[0:4]:
+								pos2 = water[j]
+								tempVec = defVec(pos1, pos2)
+								vec_OO[ndx].append(tempVec[0])
+								vec_OO[ndx].append(tempVec[1])
+								vec_OO[ndx].append(tempVec[2])
+								ndx += 1
+
+						# tetrahedrality double loop over the nearest neighbors of each molecule
+						cosine_sum = 0
+						for j in range(3):
+							inv_nearestNeighborMag1 = 1.0/nearestNeighbor_dist[i][j]
+							unitVec1x = vec_OO[j][0] * inv_nearestNeighborMag1
+							unitVec1y = vec_OO[j][1] * inv_nearestNeighborMag1
+							unitVec1z = vec_OO[j][2] * inv_nearestNeighborMag1
+
+							for k in range(j+1, 4):
+								inv_nearestNeighborMag2 = 1.0/nearestNeighbor_dist[i][k]
+								unitVec2x = vec_OO[k][0] * inv_nearestNeighborMag2
+								unitVec2y = vec_OO[k][1] * inv_nearestNeighborMag2
+								unitVec2z = vec_OO[k][2] * inv_nearestNeighborMag2
+
+								dotProduct = (unitVec1x * unitVec2x) + (unitVec1y * unitVec2y) + (unitVec1z * unitVec2z)
+								cosine_sum += pow((dotProduct + 1.0/3.0), 2)
+
+						tetrahedralParam = 1 - (0.375 * cosine_sum)
+						tetrahedrality.append(tetrahedralParam)
+						
+					# calculate the tetrahedrality for the frame
+					avg_tetrahedrality = 0
+					for i in range(len(tetrahedrality)):
+						avg_tetrahedrality += tetrahedrality[i]
+
+					avg_tetrahedrality /= len(tetrahedrality)
+
+					for i in range(len(tetrahedrality)):
+						deviation += (tetrahedrality[i] - avg_tetrahedrality)*(tetrahedrality[i] - avg_tetrahedrality)
+					stdev_tetrahedrality = math.sqrt(deviation / (len(tetrahedrality)-1))
+
+					# output a file with the list of order parameters
+					tetraOrderOutput.write(" %6.4f     %6.4f\n"%(avg_tetrahedrality, stdev_tetrahedrality))
+
+					# output a pdb file for molecular visualization
+					tetraPDBOutput.write("COMPD    %s_%d\n" %(inputFileName, frame_count))
+					tetraPDBOutput.write("{:6}{:9.3f}{:9.3f}{:9.3f}\n".format("CRYST1", Lx, Ly, Lz))
+					tetraPDBOutput.write("MODEL {:>8d}\n".format(frame_count))
+					m = 1
+					o = 1
+					occupancy = 1
+					
+					for i in range(len(oPosX)):
+						tetraPDBOutput.write("ATOM {:>6d}   OW WAT A{:>4d}    {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}{:>12}\n".format(m, o, water[i][0], water[i][1], water[i][2], occupancy, tetrahedrality[i], "O"))
+						m += 1
+						tetraPDBOutput.write("ATOM {:>6d}  HW1 WAT A{:>4d}    {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}{:>12}\n".format(m, o, water[i][3], water[i][4], water[i][5], occupancy, tetrahedrality[i], "H"))
+						m += 1
+						tetraPDBOutput.write("ATOM {:>6d}  HW2 WAT A{:>4d}    {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}{:>12}\n".format(m, o, water[i][6], water[i][7], water[i][8], occupancy, tetrahedrality[i], "H"))
+						m += 1
+						o += 1
+					tetraPDBOutput.write("MASTER     0     0     0     0     0     0     0     0     %d     0     0     0\n" %(3*len(oPosX)))
+					tetraPDBOutput.write("END\n")
+				
+					tetrahedrality = []
+					deviation = 0
+
 				# Now, let us render the POV-Ray images
 				class PovObjects:
 					# count = 0
@@ -1461,9 +1682,9 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						self.buffer_size = 2		# the imaging buffer size
 						self.slab_thickness = 100	# 0.5*slab thickness
 						self.scale_factor = 20		# scale the pixels!
-						self.transparency = 0.5		# the transparency of ring dots
+						self.transparency = 0.6		# the transparency of ring dots
 
-					def outFile(self):
+					def povFile(self):
 						self.filename.write("""  //**************************************
   // generated by nucleation_tracker
   //**************************************
@@ -1518,19 +1739,19 @@ global_settings { ambient_light rgb 1 }\n""")
 
 					def printRing3(self):
 						#### For sphere
-						# self.filename.write("""\n#macro ring3 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
-  # intersection{
-    # sphere{
-      # < center_x, center_y, center_z >,\n""")
-						# self.filename.write("        {}\n".format(self.ring3_dot_size))
-						#### For triangle; Number of vertices = 3, Make sure the last vertex is the same as the first one
 						self.filename.write("""\n#macro ring3 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      3,
-      <center_x, center_y+1.125, center_z>,
-      <center_x-0.487125, center_y-0.5625, center_z>,
-      <center_x+0.487125, center_y-0.5625, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring3_dot_size))
+						#### For triangle; Number of vertices = 3, Make sure the last vertex is the same as the first one
+#						self.filename.write("""\n#macro ring3 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      3,
+#      <center_x, center_y+1.125, center_z>,
+#      <center_x-0.487125, center_y-0.5625, center_z>,
+#      <center_x+0.487125, center_y-0.5625, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1558,8 +1779,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					#def printRing3_loc(self, setRings_Li, red_val = "0.5", green_val = "0.5", blue_val = "1.0", zVal = -0.1):
-					def printRing3_loc(self, setRings_Li, red_val = "1.0", green_val = "0.0", blue_val = "0.5", zVal = -0.1):
+					def printRing3_loc(self, setRings_Li, red_val = "1.0", green_val = "0.0", blue_val = "0.5", zVal = 0.0):
 						for j in range(len(setRings_Li)):
 							if (setRings_Li[j][2] <= self.slab_thickness and setRings_Li[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1598,12 +1818,17 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing4(self):
 						self.filename.write("""\n#macro ring4 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      4,
-      <center_x - 0.5261, center_y + 0.5261, center_z>,
-      <center_x - 0.5261, center_y - 0.5261, center_z>,
-      <center_x + 0.5261, center_y - 0.5261, center_z>,
-      <center_x + 0.5261, center_y + 0.5261, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring4_dot_size))
+#						self.filename.write("""\n#macro ring4 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      4,
+#      <center_x - 0.5261, center_y + 0.5261, center_z>,
+#      <center_x - 0.5261, center_y - 0.5261, center_z>,
+#      <center_x + 0.5261, center_y - 0.5261, center_z>,
+#      <center_x + 0.5261, center_y + 0.5261, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1631,7 +1856,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing4_loc(self, setRings_Be, red_val = "0.5", green_val = "0.0", blue_val = "1.0", zVal = -0.1):
+					def printRing4_loc(self, setRings_Be, red_val = "0.5", green_val = "0.0", blue_val = "1.0", zVal = -0.02):
 						for j in range(len(setRings_Be)):
 							if (setRings_Be[j][2] <= self.slab_thickness and setRings_Be[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1670,13 +1895,18 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing5(self):
 						self.filename.write("""\n#macro ring5 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      5,
-      <center_x, center_y + 0.825, center_z>,
-      <center_x - 0.64658, center_y + 0.275, center_z>,
-      <center_x - 0.39842, center_y - 0.6149, center_z>,
-      <center_x + 0.39842, center_y - 0.6149, center_z>,
-      <center_x + 0.64658, center_y + 0.275, center_z>""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring5_dot_size))
+#						self.filename.write("""\n#macro ring5 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      5,
+#      <center_x, center_y + 0.825, center_z>,
+#      <center_x - 0.64658, center_y + 0.275, center_z>,
+#      <center_x - 0.39842, center_y - 0.6149, center_z>,
+#      <center_x + 0.39842, center_y - 0.6149, center_z>,
+#      <center_x + 0.64658, center_y + 0.275, center_z>""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1704,7 +1934,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing5_loc(self, setRings_B, red_val = "0.0", green_val = "0.5", blue_val = "1.0", zVal = -0.1):
+					def printRing5_loc(self, setRings_B, red_val = "0.0", green_val = "0.5", blue_val = "1.0", zVal = -0.04):
 						for j in range(len(setRings_B)):
 							if (setRings_B[j][2] <= self.slab_thickness and setRings_B[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1744,14 +1974,19 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing6(self):
 						self.filename.write("""\n#macro ring6 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      6,
-      <center_x, center_y+0.75, center_z>,
-      <center_x-0.6495, center_y+0.375, center_z>,
-      <center_x-0.6495, center_y-0.375, center_z>,
-      <center_x, center_y-0.75, center_z>,
-      <center_x+0.6495, center_y-0.375, center_z>,
-      <center_x+0.6495, center_y+0.375, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring6_dot_size))
+#						self.filename.write("""\n#macro ring6 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      6,
+#      <center_x, center_y+0.75, center_z>,
+#      <center_x-0.6495, center_y+0.375, center_z>,
+#      <center_x-0.6495, center_y-0.375, center_z>,
+#      <center_x, center_y-0.75, center_z>,
+#      <center_x+0.6495, center_y-0.375, center_z>,
+#      <center_x+0.6495, center_y+0.375, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1779,7 +2014,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing6_loc(self, setRings_C, red_val = "1.0", green_val = "0.0", blue_val = "0.0", zVal = 0.0):
+					def printRing6_loc(self, setRings_C, red_val = "1.0", green_val = "0.0", blue_val = "0.0", zVal = -0.06):
 						for j in range(len(setRings_C)):
 							if (setRings_C[j][2] <= self.slab_thickness and setRings_C[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1818,15 +2053,20 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing7(self):
 						self.filename.write("""\n#macro ring7 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      7,
-      <center_x, center_y + 0.75, center_z>,
-      <center_x - 0.5878, center_y + 0.4755, center_z>,
-      <center_x - 0.9511, center_y - 0.1545, center_z>,
-      <center_x - 0.5878, center_y - 0.7845, center_z>,
-      <center_x + 0.5878, center_y - 0.7845, center_z>,
-      <center_x + 0.9511, center_y - 0.1545, center_z>,
-      <center_x + 0.5878, center_y + 0.4755, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring7_dot_size))
+#						self.filename.write("""\n#macro ring7 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      7,
+#      <center_x, center_y + 0.75, center_z>,
+#      <center_x - 0.5878, center_y + 0.4755, center_z>,
+#      <center_x - 0.9511, center_y - 0.1545, center_z>,
+#      <center_x - 0.5878, center_y - 0.7845, center_z>,
+#      <center_x + 0.5878, center_y - 0.7845, center_z>,
+#      <center_x + 0.9511, center_y - 0.1545, center_z>,
+#      <center_x + 0.5878, center_y + 0.4755, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1854,7 +2094,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing7_loc(self, setRings_N, red_val = "1.0", green_val = "0.5", blue_val = "0.0", zVal = -0.2):
+					def printRing7_loc(self, setRings_N, red_val = "1.0", green_val = "0.5", blue_val = "0.0", zVal = -0.08):
 						for j in range(len(setRings_N)):
 							if (setRings_N[j][2] <= self.slab_thickness and setRings_N[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1893,16 +2133,21 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing8(self):
 						self.filename.write("""\n#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      8,
-      <center_x, center_y+0.75, center_z>,
-      <center_x-0.5303, center_y+0.5303, center_z>,
-      <center_x-0.75, center_y, center_z>,
-      <center_x-0.5303, center_y-0.5303, center_z>,
-      <center_x, center_y-0.75, center_z>,
-      <center_x+0.5303, center_y-0.5303, center_z>,
-      <center_x+0.75, center_y, center_z>,
-      <center_x+0.5303, center_y+0.5303, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring8_dot_size))
+#						self.filename.write("""\n#macro ring8 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      8,
+#      <center_x, center_y+0.75, center_z>,
+#      <center_x-0.5303, center_y+0.5303, center_z>,
+#      <center_x-0.75, center_y, center_z>,
+#      <center_x-0.5303, center_y-0.5303, center_z>,
+#      <center_x, center_y-0.75, center_z>,
+#      <center_x+0.5303, center_y-0.5303, center_z>,
+#      <center_x+0.75, center_y, center_z>,
+#      <center_x+0.5303, center_y+0.5303, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -1930,7 +2175,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing8_loc(self, setRings_O, red_val = "0.0", green_val = "1.0", blue_val = "0.5", zVal = -0.2):
+					def printRing8_loc(self, setRings_O, red_val = "0.0", green_val = "1.0", blue_val = "0.5", zVal = -0.1):
 						for j in range(len(setRings_O)):
 							if (setRings_O[j][2] <= self.slab_thickness and setRings_O[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -1970,17 +2215,22 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing9(self):
 						self.filename.write("""\n#macro ring9 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      9,
-      <center_x, center_y+0.75, center_z>,
-      <center_x-0.6495, center_y+0.375, center_z>,
-      <center_x-0.9495, center_y-0.2165, center_z>,
-      <center_x-0.6495, center_y-0.807, center_z>, 
-      <center_x, center_y-1.125, center_z>,        
-      <center_x+0.6495, center_y-0.807, center_z>, 
-      <center_x+0.9495, center_y-0.2165, center_z>,
-      <center_x+0.6495, center_y+0.375, center_z>,
-      <center_x, center_y+0.75, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring9_dot_size))
+#						self.filename.write("""\n#macro ring9 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      9,
+#      <center_x, center_y+0.75, center_z>,
+#      <center_x-0.6495, center_y+0.375, center_z>,
+#      <center_x-0.9495, center_y-0.2165, center_z>,
+#      <center_x-0.6495, center_y-0.807, center_z>, 
+#      <center_x, center_y-1.125, center_z>,        
+#      <center_x+0.6495, center_y-0.807, center_z>, 
+#      <center_x+0.9495, center_y-0.2165, center_z>,
+#      <center_x+0.6495, center_y+0.375, center_z>,
+#      <center_x, center_y+0.75, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -2008,7 +2258,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing9_loc(self, setRings_F, red_val = "0.5", green_val = "1.0", blue_val = "0.0", zVal = -0.2):
+					def printRing9_loc(self, setRings_F, red_val = "0.5", green_val = "1.0", blue_val = "0.0", zVal = -0.12):
 						for j in range(len(setRings_F)):
 							if (setRings_F[j][2] <= self.slab_thickness and setRings_F[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
@@ -2047,18 +2297,23 @@ global_settings { ambient_light rgb 1 }\n""")
 					def printRing10(self):
 						self.filename.write("""\n#macro ring10 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
   intersection{
-    polygon{
-      10,
-      <center_x, center_y+0.75, center_z>,
-      <center_x-0.6125, center_y+0.5, center_z>,
-      <center_x-0.75, center_y+0.1768, center_z>,
-      <center_x-0.75, center_y-0.1768, center_z>,
-      <center_x-0.6125, center_y-0.5, center_z>,
-      <center_x, center_y-0.75, center_z>,
-      <center_x+0.6125, center_y-0.5, center_z>,
-      <center_x+0.75, center_y-0.1768, center_z>,
-      <center_x+0.75, center_y+0.1768, center_z>,
-      <center_x+0.6125, center_y+0.5, center_z>\n""")
+    sphere{
+      < center_x, center_y, center_z >,\n""")
+						self.filename.write("        {}\n".format(self.ring10_dot_size))
+#						self.filename.write("""\n#macro ring10 (center_x, center_y, center_z, outerRed, outerGreen, outerBlue, dot_transparency)
+#  intersection{
+#    polygon{
+#      10,
+#      <center_x, center_y+0.75, center_z>,
+#      <center_x-0.6125, center_y+0.5, center_z>,
+#      <center_x-0.75, center_y+0.1768, center_z>,
+#      <center_x-0.75, center_y-0.1768, center_z>,
+#      <center_x-0.6125, center_y-0.5, center_z>,
+#      <center_x, center_y-0.75, center_z>,
+#      <center_x+0.6125, center_y-0.5, center_z>,
+#      <center_x+0.75, center_y-0.1768, center_z>,
+#      <center_x+0.75, center_y+0.1768, center_z>,
+#      <center_x+0.6125, center_y+0.5, center_z>\n""")
 						self.filename.write("""        texture{
           pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
           finish{
@@ -2086,7 +2341,7 @@ global_settings { ambient_light rgb 1 }\n""")
 #end\n""")
 						return
 
-					def printRing10_loc(self, setRings_Ne, red_val = "1.0", green_val = "0.0", blue_val = "0.5", zVal = -0.2):
+					def printRing10_loc(self, setRings_Ne, red_val = "0.5", green_val = "0.5", blue_val = "0.5", zVal = -0.14):
 							for j in range(len(setRings_Ne)):
 								if (setRings_Ne[j][2] <= self.slab_thickness and setRings_Ne[j][2] >= -self.slab_thickness):
 									self.red_val = red_val
@@ -2129,7 +2384,7 @@ global_settings { ambient_light rgb 1 }\n""")
 
 					# calling a PovObjects class
 					povray = PovObjects(pov_out, boxLength)
-					povray.outFile()
+					povray.povFile()
 					povray.printRing3()
 					povray.printRing4()
 					povray.printRing5()
@@ -2272,6 +2527,9 @@ global_settings { ambient_light rgb 1 }\n""")
 	if povrayOutOpt:
 		pov_info.close()
 		pov_out.close()
+	if tetraPDBOutOpt:
+		tetraPDBOutput.close()
+		tetraOrderOutput.close()
 
 	#long process here and end of animation
 	time.sleep(5)
@@ -2289,21 +2547,24 @@ global_settings { ambient_light rgb 1 }\n""")
        ...potentially useful for rendering files in the NEWLY made pov_files directory\n""")
 	if binning_rings:
 		print("The binning of the trajectory has been written to 'rings_dist.dat'")
+	if tetraPDBOutOpt:
+		print("Average system tetrahedrality has been written to '%s_tetra.dat' and a pdb file is also generaged"%(fileName))
 
 def main(argv):
-	global directionality, hbond_energy, ring_traj, binning_rings, povrayOutOpt
+	global directionality, hbond_energy, ring_traj, binning_rings, povrayOutOpt, tetraPDBOutOpt
 
 	directionality = False
 	hbond_energy = False
 	ring_traj = False
 	binning_rings = False
 	povrayOutOpt = False
+	tetraPDBOutOpt = False
 	_haveinputFileName = 0
 	max_ring = 0
 	ring_closure = 0
 	algorithm = "hbondAngle"
 	try:
-		opts, args = getopt.getopt(argv, "hexbpdf:r:c:m:", ["help", "energy_defn", "ring_traj", "binning_rings", "povrayOutOpt", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hed' do not take arguments, 'frcm' take argument
+		opts, args = getopt.getopt(argv, "hexbptdf:r:c:m:", ["help", "energy_defn", "ring_traj", "binning_rings", "povrayOutOpt", "tetraPDBOutOpt", "directional_rings", "input-file=", "ring_size=", "minimal_ring=", "method_algorithm="])	# 'hed' do not take arguments, 'frcm' take argument
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -2321,6 +2582,8 @@ def main(argv):
 		elif opt in ("-p", "--povrayOutOpt"):
 			povrayOutOpt = True
 			ring_traj = True		# rendering povray also requires ring trajectory file
+		elif opt in ("-t", "--tetraPDBOutOpt"):
+			tetraPDBOutOpt = True
 		elif opt in ("-d", "--directional_rings"):
 			directionality = True
 		elif opt in ("-f", "--input-file"):
