@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 
 """
-The program is used to calculate the number of hydrogen bonded rings in the pure water system.\n
+Program for analyzing the order in systems of water molecules, both with
+tetrahedrality and hydrogen bond path closure.
+
+After running an output file called [trajectory filename]_nuc_info.txt
+containing the resulting ring distribution statistics will
+be written to the present working directory. The separate directories 'pov_files'
+and 'tetra_files' will be created for POVRay output files and tetrahedrality.
+Note: the trajectory file currently needs to be a .gro formatted file
+consisting of only water molecules with orthogonal lattice/edge vector for minimum image wrapping.
+
 USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -f = input a gro file with correct box dimension
        -r = size of the rings; 9 or 10 membered closed rings; by default to 8 membered polygons
@@ -9,8 +18,8 @@ USAGE: ./nucleation_tracker.py -f filename.gro [-r 10 -c 0 -r 10 -m vertex -d]\n
        -m = algorithm for ring pruning [vertex, hbond, hbondAngle, torsion]; by default to hbondAngle
        -d = generates only directional rings tracking proton acceptor waters
        -e = turns on energy definition of hydrogen bonding; by default -2.0 kcal/mol hbond energy
-       -x = Output an .xyz trajectory file containing the ring center locations and type (using atomic number of elements for size). (default=off)
-
+       -x = Output an .xyz trajectory file containing the ring center locations and type (using atomic number of 
+            elements for size). (default=off)
        -t = Output a .pdb file containing the tetrahedrality in the b-factor column. (default=off)
        -p = Build a pov_files directory containing .pov files for rendering of ring closures and locations. (default=off)
        -b = binning rings for ring distribution; by default at 3.0 nm bin width
@@ -1379,8 +1388,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 					outFile2.write("ring location in the system\n")
 	
 					# minimum image wrapping and finding center of the ring
-					if Lx != Ly and Ly != Lz:
-						print("Note: Need to be orthogonal lattice/edge vector for minimum image wrapping")
+					# if Lx != Ly and Ly != Lz:
+					# 	print("Note: Need to be orthogonal lattice/edge vector for minimum image wrapping")
 					def min_image_wrap(ring):
 						# we directly find the average position of the ring
 						tempX_pbc = 0
@@ -1680,7 +1689,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 
 						# writing ring coordinates to pov files
 						self.buffer_size = 2		# the imaging buffer size
-						self.slab_thickness = 100	# 0.5*slab thickness
+						self.slab_thickness = 10	# 0.5*slab thickness; for slicing the system box
+						self.frame_slice = 1		# slicing box from the front upto 'frame_slice'
 						self.scale_factor = 20		# scale the pixels!
 						self.transparency = 0.6		# the transparency of ring dots
 
@@ -1780,14 +1790,17 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing3_loc(self, setRings_Li, red_val = "1.0", green_val = "0.0", blue_val = "0.5", zVal = 0.0):
+						maxRing3 = np.array(setRings_Li).max(axis=0)[2] 
 						for j in range(len(setRings_Li)):
-							if (setRings_Li[j][2] <= self.slab_thickness and setRings_Li[j][2] >= -self.slab_thickness):
+							if (setRings_Li[j][2] <= maxRing3 and setRings_Li[j][2] > (maxRing3 - self.frame_slice)):
+							# if (setRings_Li[j][2] <= self.slab_thickness and setRings_Li[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
 								self.zVal = zVal
 								self.filename.write("ring3(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Li[j][0], setRings_Li[j][1], self.zVal, self.red_val, green_val, blue_val, self.transparency))
 
+								# this is buffer zone in pbc minimum image wrapping
 								if (setRings_Li[j][0] < (-0.5*self.boxLength[0]+self.buffer_size)):
 									if (setRings_Li[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
 										self.filename.write("ring3(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Li[j][0]+self.boxLength[0]), (setRings_Li[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
@@ -1857,8 +1870,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing4_loc(self, setRings_Be, red_val = "0.5", green_val = "0.0", blue_val = "1.0", zVal = -0.02):
+						maxRing4 = np.array(setRings_Be).max(axis=0)[2] 
 						for j in range(len(setRings_Be)):
-							if (setRings_Be[j][2] <= self.slab_thickness and setRings_Be[j][2] >= -self.slab_thickness):
+							if (setRings_Be[j][2] <= maxRing4 and setRings_Be[j][2] > (maxRing4 - self.frame_slice)):
+							# if (setRings_Be[j][2] <= self.slab_thickness and setRings_Be[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -1935,8 +1950,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing5_loc(self, setRings_B, red_val = "0.0", green_val = "0.5", blue_val = "1.0", zVal = -0.04):
+						maxRing5 = np.array(setRings_B).max(axis=0)[2] 
 						for j in range(len(setRings_B)):
-							if (setRings_B[j][2] <= self.slab_thickness and setRings_B[j][2] >= -self.slab_thickness):
+							if (setRings_B[j][2] <= maxRing5 and setRings_B[j][2] > (maxRing5 - self.frame_slice)):
+							# if (setRings_B[j][2] <= self.slab_thickness and setRings_B[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -2015,8 +2032,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing6_loc(self, setRings_C, red_val = "1.0", green_val = "0.0", blue_val = "0.0", zVal = -0.06):
+						maxRing6 = np.array(setRings_C).max(axis=0)[2]  # this converts list to array and find 3rd col. maximum value
 						for j in range(len(setRings_C)):
-							if (setRings_C[j][2] <= self.slab_thickness and setRings_C[j][2] >= -self.slab_thickness):
+							if (setRings_C[j][2] <= maxRing6 and setRings_C[j][2] > (maxRing6 - self.frame_slice)):
+							# if (setRings_C[j][2] <= self.slab_thickness and setRings_C[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -2095,8 +2114,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing7_loc(self, setRings_N, red_val = "1.0", green_val = "0.5", blue_val = "0.0", zVal = -0.08):
+						maxRing7 = np.array(setRings_N).max(axis=0)[2] 
 						for j in range(len(setRings_N)):
-							if (setRings_N[j][2] <= self.slab_thickness and setRings_N[j][2] >= -self.slab_thickness):
+							if (setRings_N[j][2] <= maxRing7 and setRings_N[j][2] > (maxRing7 - self.frame_slice)):
+							# if (setRings_N[j][2] <= self.slab_thickness and setRings_N[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -2176,8 +2197,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing8_loc(self, setRings_O, red_val = "0.0", green_val = "1.0", blue_val = "0.5", zVal = -0.1):
+						maxRing8 = np.array(setRings_O).max(axis=0)[2] 
 						for j in range(len(setRings_O)):
-							if (setRings_O[j][2] <= self.slab_thickness and setRings_O[j][2] >= -self.slab_thickness):
+							if (setRings_O[j][2] <= maxRing8 and setRings_O[j][2] > (maxRing8 - self.frame_slice)):
+							# if (setRings_O[j][2] <= self.slab_thickness and setRings_O[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -2259,8 +2282,10 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing9_loc(self, setRings_F, red_val = "0.5", green_val = "1.0", blue_val = "0.0", zVal = -0.12):
+						maxRing9 = np.array(setRings_F).max(axis=0)[2] 
 						for j in range(len(setRings_F)):
-							if (setRings_F[j][2] <= self.slab_thickness and setRings_F[j][2] >= -self.slab_thickness):
+							if (setRings_F[j][2] <= maxRing9 and setRings_F[j][2] > (maxRing9 - self.frame_slice)):
+							# if (setRings_F[j][2] <= self.slab_thickness and setRings_F[j][2] >= -self.slab_thickness):
 								self.red_val = red_val
 								self.green_val = green_val
 								self.blue_val = blue_val
@@ -2342,40 +2367,42 @@ global_settings { ambient_light rgb 1 }\n""")
 						return
 
 					def printRing10_loc(self, setRings_Ne, red_val = "0.5", green_val = "0.5", blue_val = "0.5", zVal = -0.14):
-							for j in range(len(setRings_Ne)):
-								if (setRings_Ne[j][2] <= self.slab_thickness and setRings_Ne[j][2] >= -self.slab_thickness):
-									self.red_val = red_val
-									self.green_val = green_val
-									self.blue_val = blue_val
-									self.zVal = zVal
-									self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
+						maxRing10 = np.array(setRings_Ne).max(axis=0)[2] 
+						for j in range(len(setRings_Ne)):
+							if (setRings_Ne[j][2] <= maxRing10 and setRings_Ne[j][2] > (maxRing10 - self.frame_slice)):
+							# if (setRings_Ne[j][2] <= self.slab_thickness and setRings_Ne[j][2] >= -self.slab_thickness):
+								self.red_val = red_val
+								self.green_val = green_val
+								self.blue_val = blue_val
+								self.zVal = zVal
+								self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
 
-									if (setRings_Ne[j][0] < (-0.5*self.boxLength[0]+self.buffer_size)):
-										if (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-										elif (setRings_Ne[j][1] > (0.5*self.boxLength[1]-self.buffer_size)):
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-										else:
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-									elif (setRings_Ne[j][0] > (0.5*self.boxLength[0]-self.buffer_size)):
-										if (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-										elif (setRings_Ne[j][1] > (0.5*self.boxLength[1]-self.buffer_size)):
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
-										else:
-											self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
-									elif (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
+								if (setRings_Ne[j][0] < (-0.5*self.boxLength[0]+self.buffer_size)):
+									if (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
 										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
 									elif (setRings_Ne[j][1] > (0.5*self.boxLength[1]-self.buffer_size)):
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
 										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+									else:
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]+self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
+								elif (setRings_Ne[j][0] > (0.5*self.boxLength[0]-self.buffer_size)):
+									if (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+									elif (setRings_Ne[j][1] > (0.5*self.boxLength[1]-self.buffer_size)):
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+									else:
+										self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%((setRings_Ne[j][0]-self.boxLength[0]), setRings_Ne[j][1], self.zVal, red_val, green_val, blue_val, self.transparency))
+								elif (setRings_Ne[j][1] < (-0.5*self.boxLength[1]+self.buffer_size)):
+									self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]+self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
+								elif (setRings_Ne[j][1] > (0.5*self.boxLength[1]-self.buffer_size)):
+									self.filename.write("ring10(%f, %f, %f, %s, %s, %s, %f)\n"%(setRings_Ne[j][0], (setRings_Ne[j][1]-self.boxLength[1]), self.zVal, red_val, green_val, blue_val, self.transparency))
 
 
 				if povrayOutOpt:
