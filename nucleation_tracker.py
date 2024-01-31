@@ -1689,8 +1689,8 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 
 						# writing ring coordinates to pov files
 						self.buffer_size = 2		# the imaging buffer size
-						self.slab_thickness = 10	# 0.5*slab thickness; for slicing the system box
-						self.frame_slice = 1		# slicing box from the front upto 'frame_slice'
+						self.slab_thickness = 10	# 0.5*slab thickness; for slicing the system box in Angstrom
+						self.frame_slice = 1		# slicing box from the front upto 'frame_slice' in Angstrom
 						self.scale_factor = 20		# scale the pixels!
 						self.transparency = 0.6		# the transparency of ring dots
 
@@ -1703,7 +1703,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
   // Lights, camera, resolution!
   //**************************************
   global_settings{ max_trace_level 100 }\n\n""")
-						self.filename.write("#declare Ratio = {};\n".format(self.boxLength[0]/self.boxLength[1]))
+						self.filename.write("#declare Ratio = {:.5f};\n".format(self.boxLength[0]/self.boxLength[1])) # ratio=width/height
 						self.filename.write("#declare zoom = {:>6.2f};\n".format(5*self.boxLength[2]))
 						self.filename.write("""#declare RAD = off;
 global_settings {
@@ -1734,7 +1734,8 @@ direction < 0, 0, 2 >\n""")
 						self.filename.write("""look_at < 0, 0, 0 >
 }
 
-background { color rgb 1 }
+// background { color rgb 1 }
+background { colour rgbt <0.0, 0.0, 0.0, 1.0> }
 
 global_settings { ambient_light rgb 1 }\n""")
 #         "    location < 0,0, 0.5333333*" << boxLength << "*zoom >
@@ -1773,7 +1774,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -1853,7 +1854,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -1933,7 +1934,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2015,7 +2016,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2097,7 +2098,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2180,7 +2181,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2265,7 +2266,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2350,7 +2351,7 @@ global_settings { ambient_light rgb 1 }\n""")
         }
     }
    box{\n""")
-						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[0])) 
+						self.filename.write("      < -{}, -{}, center_z-0.01 >,< {}, {}, center_z+0.01 >".format(self.boxLength[0], self.boxLength[1], self.boxLength[0], self.boxLength[1])) 
 						self.filename.write("""
         texture{
 	      pigment{ rgbt < outerRed, outerGreen, outerBlue, dot_transparency > }
@@ -2423,15 +2424,21 @@ global_settings { ambient_light rgb 1 }\n""")
 						if max_ring > 9:
 							povray.printRing10()
 
-					povray.printRing3_loc(setRings_Li)
-					povray.printRing4_loc(setRings_Be)
-					povray.printRing5_loc(setRings_B)
-					povray.printRing6_loc(setRings_C)
-					povray.printRing7_loc(setRings_N)
-					povray.printRing8_loc(setRings_O)
-					if max_ring > 8:
+					if setRings_Li:
+						povray.printRing3_loc(setRings_Li)
+					if setRings_Be:
+						povray.printRing4_loc(setRings_Be)
+					if setRings_B:
+						povray.printRing5_loc(setRings_B)
+					if setRings_C:
+						povray.printRing6_loc(setRings_C)
+					if setRings_N:
+						povray.printRing7_loc(setRings_N)
+					if setRings_O:
+						povray.printRing8_loc(setRings_O)
+					if max_ring > 8 and setRings_F:
 						povray.printRing9_loc(setRings_F)
-						if max_ring > 9:
+						if max_ring > 9 and setRings_Ne:
 							povray.printRing10_loc(setRings_Ne)
 
 				if (povrayOutOpt):
