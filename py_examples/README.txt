@@ -1,6 +1,6 @@
 #  About the Nucleation Tracker program
-1. We can analyze the topology of water network by enumerating the closed rings formed through hydrogen bondings between water molecules. 
-2. Additionally, we can also determine the structural ordering of pure water using . . .
+1. We can analyze the water network topology by enumerating the closed rings formed by hydrogen bondings between water molecules. 
+2. Additionally, we can also determine the structural ordering of water in condensed phase using . . .
    a) tetrahedral order parameter
    b) ring summation factor
       Exceptions to RSF calculation: RSF is not calculated in directional ring or unprunned ring enumeration.
