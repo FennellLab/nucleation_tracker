@@ -175,23 +175,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		tetraOrderOutput = open("%s/%s_tetra.dat"%(path2, fileName), 'w')
 		tetraOrderOutput.write(" avg_<q>     stdev\n")
 
-<<<<<<< HEAD
 	# enumerating HBonds based on energy definition
-=======
-	outFile = open("ringsCount.dat", 'w')
-	if directionality:							# RSF is invalid for directionality
-		outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
-	else:
-		outFile.write("{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}".format("Frames", "hbonds", "RSF_val", "rings_3", "rings_4", "rings_5", "rings_6", "rings_7", "rings_8"))
-	if max_ring > 8:
-		outFile.write("{:>10s}".format("rings_9"))
-		if max_ring > 9:
-			outFile.write("{:>10s}".format("rings_10"))
-			if max_ring > 10:
-				outFile.write("{:>10s}".format("rings_11"))
-	outFile.write("\n")
-	
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 	def energy_defn(pos1, pos2, i, j, isHBond, etol = -2.0):
 		# NOT FOR DIRECTIONALITY!!!!
 		
@@ -602,12 +586,12 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 		done = False
 		def animate():
 			for c in itertools.cycle(['|', '/', '-', '\\']):
-				if done or frame_count > 5:      # this is to limit the computational cost for large frames loading:
+				if done or frame_count > 2:      # this is to limit the computational cost for large frames loading:
 					break
 				sys.stdout.write('\rloading ' + c)
 				sys.stdout.flush()
 				time.sleep(0.1)
-			sys.stdout.write('\rDone!      \n ')
+			sys.stdout.write('\rMultiple frames calculation . . .     \n ')
 		
 		# checkpoint for starting animation
 		t = threading.Thread(target=animate)
@@ -1013,35 +997,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 																											count_z = 0
 																											temp_loop = []
 																										temp_loop = []
-																									else:
-																										if max_ring > 10:
-																											for s in hbond_ndx[r]:
-																												if s in [i, j, k, l, m, n, o, p, q, r]:
-																													continue
-																												elif s == init_wat:
-																													temp_loop.extend([init_wat, i, j, k, l, m, n, o, p, q, r])
-																													# we do not want double counting of rings . . .
-																													wat_sort = sorted(list(set(temp_loop)))
-																													if (wat_sort not in wat_loop):
-																														# for forming rings, there should be equal outgoing and incoming hbonds
-																														for var_a in range(len(temp_loop)-1):
-																															tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[var_a], temp_loop[var_a+1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
-																															count_x += tempCount_x
-																															count_y += tempCount_y
-																															count_z += tempCount_z
-																														# test for initial and final members
-																														tempCount_x, tempCount_y, tempCount_z = ring_pbc(temp_loop[0], temp_loop[-1], outRing_x = 0, outRing_y = 0, outRing_z = 0)
-																														count_x += tempCount_x
-																														count_y += tempCount_y
-																														count_z += tempCount_z
-																														if count_x%2 == 0 and count_y%2 == 0 and count_z%2 == 0:
-																															wat_loop.append(wat_sort)
-																															sp_intact.append(temp_loop)
-																														count_x = 0
-																														count_y = 0
-																														count_z = 0
-																														temp_loop = []
-																													temp_loop = []
 																				continue
 
 				# rings segregation
@@ -1053,7 +1008,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				ring8 = []
 				ring9 = []
 				ring10 = []
-				ring11 = []    # for shortest path enumeration
 
 				for i in sp_intact:
 					if len(i) == 3:
@@ -1072,8 +1026,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						ring9.append(i)
 					elif len(i) ==10:
 						ring10.append(i)
-					elif len(i) ==11:
-						ring11.append(i)
 
 				# pruning down larger rings if smaller closed rings are available
 				# now we do primitive/minimal ring counting
@@ -1269,19 +1221,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 									for pruneRings in minimal_rings:
 										ring10.remove(pruneRings)
 								minimal_rings = []
-<<<<<<< HEAD
-=======
-								if max_ring > 10:
-									# 11-membered rings
-									for ring in ring11:
-										shortest_path(ring)
-									if minimal_rings:
-										primitiveRings.extend(minimal_rings)
-										# now start pruning down the short-circuited rings for the m corresponding rings
-										for pruneRings in minimal_rings:
-											ring11.remove(pruneRings)
-									minimal_rings = []
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 
 						# cases with 1 water/node at the middle; tried with skeleton algorithm to generate correct pairs
 						# this begins from hexagons
@@ -1329,19 +1268,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 									for pruneRings in minimal_rings:
 										ring10.remove(pruneRings)
 								minimal_rings = []
-<<<<<<< HEAD
-=======
-								if max_ring > 10:
-									# 11-membered rings
-									for ring in ring11:
-										shortest_path3(ring)
-									if minimal_rings:
-										primitiveRings.extend(minimal_rings)
-										# now start pruning down the short-circuited rings for the m corresponding rings
-										for pruneRings in minimal_rings:
-											ring11.remove(pruneRings)
-									minimal_rings = []
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 
 						# cases with 2 waters/nodes at the middle; tried with skeleton algorithm to generate correct pairs
 						# this begins from octagons
@@ -1475,94 +1401,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 								for pruneRings in minimal_rings:
 									ring10.remove(pruneRings)
 								minimal_rings = []
-<<<<<<< HEAD
-=======
-								if max_ring > 10:
-									# 11-membered rings
-									for ring in ring11:
-										end_loop = False
-										for start_node in range(len(ring)):		# the middle node is '5'
-											end_node = start_node + 4
-											end_node2 = start_node + 5
-											end_node3 = start_node + 6
-											end_node4 = start_node + 7
-											if end_node < len(ring):
-												for node_1 in hbond_ndx[ring[start_node]]:
-													for node_2 in hbond_ndx[node_1]:
-														if node_2 == ring[start_node]:
-															continue
-														else:
-															for node_3 in hbond_ndx[node_2]:
-																if node_3 == ring[end_node]:
-																	primitiveRings.append(ring)
-																	minimal_rings.append(ring)
-																	end_loop = True
-																	break
-															if end_loop:
-																break
-													if end_loop:
-														break
-												if end_loop:
-													break
-											if end_node2 < len(ring):
-												for node_1 in hbond_ndx[ring[start_node]]:
-													for node_2 in hbond_ndx[node_1]:
-														if node_2 == ring[start_node]:
-															continue
-														else:
-															for node_3 in hbond_ndx[node_2]:
-																if node_3 == ring[end_node2]:
-																	primitiveRings.append(ring)
-																	minimal_rings.append(ring)
-																	end_loop = True
-																	break
-															if end_loop:
-																break
-													if end_loop:
-														break
-												if end_loop:
-													break
-											if end_node3 < len(ring):
-												for node_1 in hbond_ndx[ring[start_node]]:
-													for node_2 in hbond_ndx[node_1]:
-														if node_2 == ring[start_node]:
-															continue
-														else:
-															for node_3 in hbond_ndx[node_2]:
-																if node_3 == ring[end_node3]:
-																	primitiveRings.append(ring)
-																	minimal_rings.append(ring)
-																	end_loop = True
-																	break
-															if end_loop:
-																break
-													if end_loop:
-														break
-												if end_loop:
-													break
-											if end_node4 < len(ring):
-												for node_1 in hbond_ndx[ring[start_node]]:
-													for node_2 in hbond_ndx[node_1]:
-														if node_2 == ring[start_node]:
-															continue
-														else:
-															for node_3 in hbond_ndx[node_2]:
-																if node_3 == ring[end_node4]:
-																	primitiveRings.append(ring)
-																	minimal_rings.append(ring)
-																	end_loop = True
-																	break
-															if end_loop:
-																break
-													if end_loop:
-														break
-												if end_loop:
-													break
-									# now start pruning down the short-circuited rings for the m corresponding rings
-									for pruneRings in minimal_rings:
-										ring11.remove(pruneRings)
-									minimal_rings = []
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 
 						# cases with 3 waters/nodes at the middle; tried with skeleton algorithm to generate correct pairs
 						# this begins from 10-membered rings
@@ -1594,62 +1432,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 												break
 										if end_loop:
 											break
-<<<<<<< HEAD
-=======
-							# 11-membered rings
-							if max_ring > 10:
-								for ring in ring11:
-									end_loop = False
-									for start_node in range(len(ring)):		# the middle node is '5'
-										end_node = start_node + 5
-										end_node2 = start_node + 6
-										if end_node < len(ring):
-											for node_1 in hbond_ndx[ring[start_node]]:
-												for node_2 in hbond_ndx[node_1]:
-													if node_2 == ring[start_node]:
-														continue
-													else:
-														for node_3 in hbond_ndx[node_2]:
-															if node_3 == node_1 or node_3 == node_2:
-																continue
-															else:
-																for node_4 in hbond_ndx[node_3]:
-																	if node_4 == ring[end_node]:
-																		primitiveRings.append(ring)
-																		end_loop = True
-																		break
-																if end_loop:
-																	break
-														if end_loop:
-															break
-												if end_loop:
-													break
-											if end_loop:
-												break
-										if end_node2 < len(ring):
-											for node_1 in hbond_ndx[ring[start_node]]:
-												for node_2 in hbond_ndx[node_1]:
-													if node_2 == ring[start_node]:
-														continue
-													else:
-														for node_3 in hbond_ndx[node_2]:
-															if node_3 == node_1 or node_3 == node_2:
-																continue
-															else:
-																for node_4 in hbond_ndx[node_3]:
-																	if node_4 == ring[end_node2]:
-																		primitiveRings.append(ring)
-																		end_loop = True
-																		break
-																if end_loop:
-																	break
-														if end_loop:
-															break
-												if end_loop:
-													break
-											if end_loop:
-												break
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 
 
 					# Now, 'strong primitive' ring counting
@@ -1956,7 +1738,6 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 					ring8 = []
 					ring9 = []
 					ring10 = []
-					ring11 = []
 
 					# rings segregation
 					for i in sp_intact:
@@ -1976,12 +1757,9 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 							ring9.append(i)
 						elif len(i) ==10:
 							ring10.append(i)
-						elif len(i) ==11:
-							ring11.append(i)
 
 				# now writing the number of enumerated closed rings
 				frame_count +=1
-<<<<<<< HEAD
 				if rsfOutOpt:
 					rsf_val = len(ring3) + len(ring4) + len(ring5) + len(ring6) + len(ring7) + len(ring8)
 					if max_ring > 8:
@@ -1989,29 +1767,15 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 						if max_ring > 9:
 							rsf_val += len(ring10)
 					rsf_val /= (2*nMols)
+					rounded_rsf_val = round(rsf_val, 4)
 				if directionality or ring_closure == 1 or (not rsfOutOpt):
-=======
-				rsf_val = len(ring3) + len(ring4) + len(ring5) + len(ring6) + len(ring7) + len(ring8)
-				if max_ring > 8:
-					rsf_val += len(ring9)
-					if max_ring > 9:
-						rsf_val += len(ring10)
-						if max_ring > 10:
-							rsf_val += len(ring11)
-				rsf_val /= (2*nMols)
-				if directionality:
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 					outFile.write("{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(frame_count, hbonds, len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8)))
 				else:
-					outFile.write("{:>10d}{:>10d}{:>10.4f}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(frame_count, hbonds, rsf_val, len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8)))
+					outFile.write("{:>10d}{:>10d}{:>10.4f}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}{:>10d}".format(frame_count, hbonds, rounded_rsf_val, len(ring3), len(ring4), len(ring5), len(ring6), len(ring7), len(ring8)))
 				if max_ring > 8:
 					outFile.write("{:>10d}".format(len(ring9)))
 					if max_ring > 9:
-						outFile.write("{:>10d}".format(len(ring10)))
-						if max_ring > 10:
-							outFile.write("{:>10d}\n".format(len(ring11)))
-						else:
-							outFile.write("\n")
+						outFile.write("{:>10d}\n".format(len(ring10)))
 					else:
 						outFile.write("\n")
 				else:
@@ -3224,7 +2988,6 @@ global_settings { ambient_light rgb 1 }\n""")
 				ring8 = []
 				ring9 = []
 				ring10 = []
-				ring11 = []
 			else:
 				continue
 	outFile.close()
@@ -3255,11 +3018,7 @@ global_settings { ambient_light rgb 1 }\n""")
 	elif rsfOutOpt:
 		print("\nThe closed rings and ring summation factor (RSF) have been output to '%s'\n"%file_name)
 	else:
-<<<<<<< HEAD
 		print("\nThe closed rings have been output to '%s'\n"%file_name)
-=======
-		print("\nThe closed rings have been output to 'ringsCount.dat'\n")
->>>>>>> d9c886f9b441b0f190d5f757e17f05e884a01bbb
 	if ring_traj:
 		print("The location of the closed rings has been written to 'rings_location.xyz'\n")
 	if povrayOutOpt:
