@@ -591,7 +591,7 @@ def beginCalc(inputFileName, max_ring, ring_closure, algorithm):
 				sys.stdout.write('\rloading ' + c)
 				sys.stdout.flush()
 				time.sleep(0.1)
-			sys.stdout.write('\rMultiple frames calculation . . .     \n ')
+			sys.stdout.write('\rMultiple frames calculation . . . .     \n ')
 		
 		# checkpoint for starting animation
 		t = threading.Thread(target=animate)
